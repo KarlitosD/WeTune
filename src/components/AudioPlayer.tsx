@@ -1,0 +1,140 @@
+import { createEffect, createResource, createSignal } from "solid-js";
+import { 
+    FaSolidBackwardStep, FaSolidCircleArrowDown, FaSolidForwardStep, FaSolidPause, 
+    FaSolidPlay, FaSolidRepeat, FaSolidShuffle, FaSolidVolumeHigh, FaSolidVolumeXmark 
+} from "solid-icons/fa"
+import { addAudioToCache, createAudio, getAudioFromCache } from "~/hooks/audio";
+import { formatSeconds } from "~/utils/seconds";
+import Thumbnail from "./Thumbnail";
+import type { PlaylistContextData } from "~/context/playlist";
+
+type AudioPlayerProps = {
+    selected: PlaylistContextData["selected"]
+    song: PlaylistContextData["selected"]["song"],
+}
+
+export default function AudioPlayer(props: AudioPlayerProps) {
+    const src = () => `/api/songs?song=${props.song.youtubeId}`
+    const [audioUrl] = createResource(src, src => getAudioFromCache(src))
+    
+    const [playing, setPlaying] = createSignal(false)
+
+    const [volume, setVolume] = createSignal(+window?.localStorage?.getItem("volume") ?? 0.5)
+    const volumeLevelAlvaMajo = () => volume() ** 2
+    
+    const [currentTime, setCurrentTime] = createSignal(0)
+    const [loop, setLoop] = createSignal(false)
+    const [shuffle, setShuffle] = createSignal(false)
+    
+    const { audio, duration, seek: seekAudio } = createAudio(audioUrl, {
+        playing,
+        volume: volumeLevelAlvaMajo,
+        loop
+    })
+
+    const play = () => setPlaying(true)
+    const pause = () => setPlaying(false)
+
+    const seek = (time: number) => {
+        setCurrentTime(time)
+        seekAudio(time)
+    }
+
+    const toggleLoop = () => {
+        setShuffle(false)
+        setLoop(isLoop => !isLoop)
+    }
+
+    const toggleShuffle = () => {
+        setLoop(false)
+        setShuffle(isShuffle => !isShuffle)
+    }
+
+    const handlePrevious = () => {
+        if(props.selected.hasPrevious && currentTime() < 10){
+            return props.selected.index -= 1
+        }
+        pause()
+        seek(0)
+        play()
+    }
+
+    const handleNext = () => {
+        if(shuffle()){
+            return props.selected.setRandom()
+        }
+        if(props.selected.hasNext){
+            return props.selected.index += 1
+        }
+        props.selected.index = 0
+    }
+
+    createEffect(() => setPlaying(playing() && audioUrl.state === "ready"))
+
+
+    audio.addEventListener("timeupdate", () => playing() && setCurrentTime(audio.currentTime))
+    audio.addEventListener("ended", () => !loop() && handleNext())
+
+    return (
+        <div class="container min-h-12 mx-auto flex justify-center sm:justify-between items-center py-3 text-white">
+            <div class="hidden sm:flex max-w-lg items-center gap-2">
+                {/* <img src={props.song.thumbnailUrl} height={48} width={48} /> */}
+                <Thumbnail src={props.song.thumbnailUrl} title={props.song.title} isSmall={true} />
+                <div class="text-left ">
+                    <p>{props.song?.title}</p>
+                    <small>{props.song.artists?.name}</small>
+                </div>
+            </div>
+            <div class="flex h-fit flex-col justify-center gap-2  mx-4" >
+                <div class="flex gap-2 justify-center">
+                    <button onClick={toggleShuffle} classList={{ "text-purple-600": shuffle() }}>
+                        <FaSolidShuffle size={20} color="inherit" />
+                    </button>
+                    <button onClick={handlePrevious}>
+                        <FaSolidBackwardStep size={28} />
+                    </button>
+                    <button onClick={() => playing() ? pause() : play()}>
+                        {playing() ? <FaSolidPause size={32} /> : <FaSolidPlay size={32} />}
+                    </button>
+                    <button onClick={handleNext} disabled={!shuffle() && !props.selected.hasNext} class="disabled:text-gray-400">
+                        <FaSolidForwardStep size={28} />
+                    </button>
+                    <button onClick={toggleLoop} classList={{ "text-purple-600": loop() }}>
+                        <FaSolidRepeat size={20} />
+                    </button>
+                    <button onClick={() => addAudioToCache(src())} class="ml-4">
+                        <FaSolidCircleArrowDown size={20} />
+                    </button>
+                </div>
+                <div class="h-4 flex items-center gap-1">
+                    <label for="currentTime">{formatSeconds(currentTime())}</label>
+                    <input
+                        type="range"
+                        class="w-56 h-1"
+                        max={duration()}
+                        value={currentTime()}
+                        onInput={e => seek(+e.currentTarget.value)}
+                        onMouseDown={pause}
+                        onTouchStart={pause}
+                        onChange={play}
+                        id="currentTime"
+                    />
+                    <label for="currentTime">{formatSeconds(duration())}</label>
+                </div>
+            </div>
+            <div class="gap-2 items-center hidden sm:flex">
+            { volume() > 0 ? <FaSolidVolumeHigh size={20} /> : <FaSolidVolumeXmark size={20} /> }
+            <input
+                type="range"
+                class="h-1"
+                max="1"
+                step="0.01"
+                value={volume()}
+                title={~~(volume() * 100) + "%"}
+                onInput={e => setVolume(+e.currentTarget.value)}
+                onChange={e => localStorage.setItem("volume", e.currentTarget.value)}
+            />
+        </div>
+        </div>
+    )
+}
