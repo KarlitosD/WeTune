@@ -1,23 +1,14 @@
-import { useRoutes } from '@solidjs/router';
-
-import { routes } from './router/routes';
+import { RouteSectionProps } from '@solidjs/router';
 import { Header } from './components/Layout/Header';
 import { PlaylistProvider } from './context/playlist';
 
-
-
-const App = () => {
-  const Route = useRoutes(routes)
-
+export default function App (props: RouteSectionProps) {
   return (
     <>
       <Header />
-
       <PlaylistProvider>
-          <Route />
+        {props.children}
       </PlaylistProvider>
     </>
   );
 };
-
-export default App;

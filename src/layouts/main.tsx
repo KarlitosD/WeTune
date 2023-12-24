@@ -1,9 +1,9 @@
 import { Show } from "solid-js";
-import { Outlet } from "@solidjs/router";
+import { type RouteSectionProps } from "@solidjs/router";
 import { usePlaylist } from "~/context/playlist";
 import AudioPlayer from "~/components/AudioPlayer";
 
-export default function HomeWrapper() {
+export default function HomeWrapper(props: RouteSectionProps) {
   const { selected } = usePlaylist()
   
   // onMount(() => {
@@ -14,7 +14,7 @@ export default function HomeWrapper() {
   return (
     <>
       <main class="container h-full mx-auto text-center text-gray-700">
-        <Outlet />
+        {props.children}
         <div class="fixed left-0 bottom-0 w-full bg-indigo-800">
           <Show when={selected?.song}>
             <AudioPlayer song={selected.song} selected={selected} />

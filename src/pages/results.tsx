@@ -1,23 +1,21 @@
-import { For, Show } from "solid-js"
-import { useRouteData } from "@solidjs/router"
+import type { Song } from "~/types/playlist"
+import { For } from "solid-js"
+import { RouteSectionProps, createAsync } from "@solidjs/router"
+
+import { searchResults } from "./results.data"
 import { usePlaylist } from "~/context/playlist"
 import Thumbnail from "~/components/Thumbnail"
-import { resultsData } from "~/router/loaders"
-import { Song } from "~/types/playlist"
 
 
-export default function Results() {
-  const { songs } = useRouteData<typeof resultsData>()
+export default function Results(props: RouteSectionProps) {
+  const songs = createAsync(() => searchResults(props.location.query.search))
   const { addSong } = usePlaylist()
-
   return (
     <>
       <div class="flex flex-col gap-2 p-4">
-        <Show when={!songs.loading}>
-          <For each={songs()}>
-            {result => <ItemResult result={result} onSelect={() => addSong(result)} />}
-          </For>
-        </Show>
+        <For each={songs()} fallback={<p>Loading...</p>}>
+          {result => <ItemResult result={result} onSelect={() => addSong(result)} />}
+        </For>
       </div>
     </>
   )
