@@ -1,5 +1,6 @@
-import { FaSolidMusic, FaSolidPlus } from "solid-icons/fa"
 import { createEffect, createSignal, For, Show } from "solid-js"
+import IconPlus from "~/components/Icons/IconPlus"
+import IconMusic from "~/components/Icons/IconMusic"
 import type { Playlist } from "~/types/playlist"
 
 const playlistCardSize = "w-32 h-32"
@@ -7,7 +8,7 @@ const playlistCardSize = "w-32 h-32"
 function PlaylistWithoutImage() {
     return (
         <div class="w-full h-full rounded bg-neutral flex justify-center items-center">
-            <FaSolidMusic size={36} />
+            <IconMusic size={36} />
         </div>
     )
 }
@@ -42,7 +43,7 @@ export default function Home() {
 
                 <label for="playlist-modal" class="cursor-pointer">
                     <div class={`${playlistCardSize} rounded flex justify-center items-center text-white bg-neutral`}>
-                        <FaSolidPlus size={48} />
+                        <IconPlus size={48} />
                     </div>
                     <p class="font-medium text-center mt-1 hover:underline">Nueva playlist</p>
                 </label>
@@ -53,21 +54,29 @@ export default function Home() {
 }
 
 function CreatePlaylistModal(props) {
-    const createPlaylist = e => {
+    const createPlaylist = (e: SubmitEvent) => {
         e.preventDefault()
+
+        const $form = e.currentTarget as HTMLFormElement
+        const formData = new FormData($form)
+
         const newPlaylist: Playlist = {
             id: crypto.randomUUID(),
-            title: e.target.title.value,
+            title: formData.get("title") as string,
             songs: []
         }
-        e.target.title.value = "" 
         props.setPlaylists(playlists => [...playlists, newPlaylist])
         props.setOpen(false)
+        $form.reset()
     }
 
-    const importPlaylist = async e => {
+    const importPlaylist = async (e: SubmitEvent) => {
         e.preventDefault()
-        const url = new URL(e.target.url.value)
+
+        const $form = e.currentTarget as HTMLFormElement
+        const formData = new FormData($form)
+
+        const url = new URL(formData.get("url") as string)
         if(
             !(url.host === "www.youtube.com") || 
             !(url.pathname === "/playlist") ||
@@ -76,9 +85,9 @@ function CreatePlaylistModal(props) {
         
         const res = await fetch(`/api/playlist?list=${url.searchParams.get("list")}`)
         const playlist = await res.json()
-        e.target.url.value = ""
         props.setPlaylists(playlists => [...playlists, playlist])
         props.setOpen(false)
+        $form.reset()
     }
 
     return (
@@ -96,9 +105,6 @@ function CreatePlaylistModal(props) {
                         <input type="text" name="title" class="input input-bordered" placeholder="Nombre de la Playlist" />
                         <button class="btn">Agregar</button>
                     </form>
-                    {/* <div class="modal-action">
-                        <label for="playlist-modal" class="btn">Yay!</label>
-                    </div> */}
                 </div>
             </label>
         </>
