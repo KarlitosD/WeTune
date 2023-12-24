@@ -14,17 +14,11 @@ function getAudioStream(songId, quality){
     return buffer(stream)
 }
 
-// type QueryParams = {
-//     quality: string,
-//     song: string
-// }
-
 const cacheSongs = new Map()
 
 export default async function handler(req, res){
     if(req.method !== "GET") return 
 
-    // const { quality = "highest", song: songId = "lS4NHib1ft4" } = req.query as QueryParams
     const { quality = "highest", song: songId = "lS4NHib1ft4" } = req.query
     
     let audioBuffer
