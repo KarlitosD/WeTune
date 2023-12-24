@@ -1,5 +1,5 @@
 import "@netlify/functions"
-import { getYoutubeClient } from "../src/youtube.server.js"
+import { getYoutubeClient } from "../lib/youtube"
 
 type EntryParams = [string, string]
 

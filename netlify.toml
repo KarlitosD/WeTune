@@ -1,5 +1,5 @@
 [functions]
-    directory = "/api"
+    directory = "/server/api"
     
 [[redirects]]
   from = "/api/*" # simplify all calls to serverless functions

@@ -1,7 +1,5 @@
-// import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { searchMusics } from "node-youtube-music"
 
-// export default async function handler(req: VercelRequest, res: VercelResponse){
 export default async function handler(request: Request){
     try {
         if(request.method !== "GET") return
