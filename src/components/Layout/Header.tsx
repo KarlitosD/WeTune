@@ -17,7 +17,6 @@ export function Header() {
       <>
         <nav class="container flex items-center justify-around p-4 gap-10 text-gray-600">
           <a href="/" class="hidden sm:block"><img src="/icon.svg" class="" alt="Logo" width={60} /></a>
-          {/* <form class="form-control" onSubmit={handleSearch}> */}
           <form class="form-control" action={searchAction} method="post">
             <fieldset class="input-group input-group-sm" disabled={isRouting()}>
               <input class="input input-bordered sm:w-96" type="search" name="search" placeholder="Search" value={location?.query?.search || ""} />
