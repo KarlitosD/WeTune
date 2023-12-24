@@ -2,12 +2,13 @@
 import { searchMusics } from "node-youtube-music"
 
 // export default async function handler(req: VercelRequest, res: VercelResponse){
-export default async function handler(req, res){
+export default async function handler(request: Request){
     try {
-        if(req.method !== "GET") return 
-        const { query } = req.query
+        if(request.method !== "GET") return
+        const { searchParams } = new URL(request.url)
+        const query = searchParams.get("query")
 
-        if(!query) return res.json([])     
+        if(!query) return Response.json([])     
         const items = await searchMusics(query)
 
         const songs = items.slice(0, 15).map(({ isExplicit, ...item }) => ({
@@ -16,8 +17,10 @@ export default async function handler(req, res){
             thumbnailUrl: `https://i.ytimg.com/vi/${item.youtubeId}/mqdefault.jpg`,
             thumbnailFallback: item.thumbnailUrl
         }))
-        return res.json(songs)
+        return Response.json(songs)
     } catch (error) {
-        return res.status(400).json({ error: error.message })
+        return Response.json({ error: error.message }, {
+            status: 400
+        })
     }
 }

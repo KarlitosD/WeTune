@@ -4,13 +4,12 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port=3000",
     "build": "vite build",
     "serve": "vite preview"
   },
   "license": "MIT",
   "devDependencies": {
-    "@vercel/node": "^2.15.10",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",

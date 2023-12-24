@@ -2,3 +2,5 @@ node_modules
 dist
 .env
 .vercel
+# Local Netlify folder
+.netlify

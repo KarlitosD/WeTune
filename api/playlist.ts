@@ -1,19 +1,19 @@
 import { youtube } from "../src/youtube.server.js"
-// import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// type EntryParams = [string, string]
+type EntryParams = [string, string]
 
-async function getVideosByPlaylistId(playlistId, params){
+
+
+async function getVideosByPlaylistId(playlistId: string, params: Record<string, string | number>){
     const API_URL = "https://youtube.googleapis.com/youtube/v3/playlistItems"
     const API_KEY = process.env.VITE_YOUTUBE_API_KEY
     const headers = { Authorization: API_KEY, Accept: "application/json" }
 
     const searchRaw = { ...params, part: "snippet", playlistId, key: API_KEY }    
     const searchParams = new URLSearchParams()
-    Object.entries(searchRaw).forEach((entry) => searchParams.append(...entry))
+    Object.entries(searchRaw).forEach((entry: EntryParams) => searchParams.append(...entry))
     searchParams.append("part", "contentDetails")
 
-    // const endpoint = API_URL + "?" + searchParams.toString()
     const endpoint = `${API_URL}?${searchParams.toString()}`
 
     const res = await fetch(endpoint, { headers })
@@ -23,11 +23,11 @@ async function getVideosByPlaylistId(playlistId, params){
     return data
 }
 
-// export default async function handler(req: VercelRequest, res: VercelResponse){
-export default async function handler(req, res){
-    if(req.method !== "GET") return 
+export default async function handler(request: Request){
+    if(request.method !== "GET") return 
     try {
-        const { list: listId } = req.query
+        const { searchParams } = new URL(request.url)
+        const listId = searchParams.get("list")
 
         const [data, { items }] = await Promise.all([
             youtube.getPlaylistById(listId, { maxResults: 100 }),
@@ -40,13 +40,14 @@ export default async function handler(req, res){
             title: snippet.title,
             thumbnailUrl: `https://i.ytimg.com/vi/${snippet.resourceId.videoId}/mqdefault.jpg`
         }))
-        return res.json({
+        
+        return Response.json({
             id: listId,
             title: data?.items[0]?.snippet?.localized.title,
             songs: musicsMapped
         })
     } catch (error) {
         console.log(error.message)
-        return res.status(400).json({ error: error.message })
+        return Response.json({ error: error.message }, { status: 400 })
     }
 }
