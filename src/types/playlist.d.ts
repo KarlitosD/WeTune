@@ -14,3 +14,9 @@ export type Song = {
     thumbnailFallback: string
 }
 
+
+export type Playlist = {
+    id: string
+    title: string
+    songs: Song[]
+}
