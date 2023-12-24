@@ -1,12 +1,11 @@
-import { youtube } from "../src/youtube.server.js"
+import "@netlify/functions"
+import { getYoutubeClient } from "../src/youtube.server.js"
 
 type EntryParams = [string, string]
 
-
-
 async function getVideosByPlaylistId(playlistId: string, params: Record<string, string | number>){
     const API_URL = "https://youtube.googleapis.com/youtube/v3/playlistItems"
-    const API_KEY = process.env.VITE_YOUTUBE_API_KEY
+    const API_KEY = Netlify.env.get("VITE_YOUTUBE_API_KEY")
     const headers = { Authorization: API_KEY, Accept: "application/json" }
 
     const searchRaw = { ...params, part: "snippet", playlistId, key: API_KEY }    
@@ -29,8 +28,9 @@ export default async function handler(request: Request){
         const { searchParams } = new URL(request.url)
         const listId = searchParams.get("list")
 
+        const youtube = getYoutubeClient(Netlify.env.get("VITE_YOUTUBE_API_KEY"))
         const [data, { items }] = await Promise.all([
-            youtube.getPlaylistById(listId, { maxResults: 100 }),
+            youtube.getPlaylistById(listId, { maxResults: 5 }),
             getVideosByPlaylistId(listId, { maxResults: 100 })
         ]) 
 
@@ -40,7 +40,7 @@ export default async function handler(request: Request){
             title: snippet.title,
             thumbnailUrl: `https://i.ytimg.com/vi/${snippet.resourceId.videoId}/mqdefault.jpg`
         }))
-        
+
         return Response.json({
             id: listId,
             title: data?.items[0]?.snippet?.localized.title,
