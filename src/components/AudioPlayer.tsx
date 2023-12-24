@@ -1,8 +1,8 @@
 import { createEffect, createResource, createSignal } from "solid-js";
 import { 
-    FaSolidBackwardStep, FaSolidCircleArrowDown, FaSolidForwardStep, FaSolidPause, 
-    FaSolidPlay, FaSolidRepeat, FaSolidShuffle, FaSolidVolumeHigh, FaSolidVolumeXmark 
-} from "solid-icons/fa"
+    IconBackwardStep, IconCircleArrowDown, IconForwardStep, IconPause, 
+    IconPlay, IconRepeat, IconShuffle, IconVolumeHigh, IconVolumeXmark 
+} from "./Icons";
 import { addAudioToCache, createAudio, getAudioFromCache } from "~/hooks/audio";
 import { formatSeconds } from "~/utils/seconds";
 import Thumbnail from "./Thumbnail";
@@ -88,22 +88,22 @@ export default function AudioPlayer(props: AudioPlayerProps) {
             <div class="flex h-fit flex-col justify-center gap-2  mx-4" >
                 <div class="flex gap-2 justify-center">
                     <button onClick={toggleShuffle} classList={{ "text-purple-600": shuffle() }}>
-                        <FaSolidShuffle size={20} color="inherit" />
+                        <IconShuffle size={20} color="inherit" />
                     </button>
                     <button onClick={handlePrevious}>
-                        <FaSolidBackwardStep size={28} />
+                        <IconBackwardStep size={28} />
                     </button>
                     <button onClick={() => playing() ? pause() : play()}>
-                        {playing() ? <FaSolidPause size={32} /> : <FaSolidPlay size={32} />}
+                        {playing() ? <IconPause size={32} /> : <IconPlay size={32} />}
                     </button>
                     <button onClick={handleNext} disabled={!shuffle() && !props.selected.hasNext} class="disabled:text-gray-400">
-                        <FaSolidForwardStep size={28} />
+                        <IconForwardStep size={28} />
                     </button>
                     <button onClick={toggleLoop} classList={{ "text-purple-600": loop() }}>
-                        <FaSolidRepeat size={20} />
+                        <IconRepeat size={20} />
                     </button>
                     <button onClick={() => addAudioToCache(src())} class="ml-4">
-                        <FaSolidCircleArrowDown size={20} />
+                        <IconCircleArrowDown size={20} />
                     </button>
                 </div>
                 <div class="h-4 flex items-center gap-1">
@@ -123,7 +123,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                 </div>
             </div>
             <div class="gap-2 items-center hidden sm:flex">
-            { volume() > 0 ? <FaSolidVolumeHigh size={20} /> : <FaSolidVolumeXmark size={20} /> }
+            { volume() > 0 ? <IconVolumeHigh size={20} /> : <IconVolumeXmark size={20} /> }
             <input
                 type="range"
                 class="h-1"
