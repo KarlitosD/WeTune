@@ -92,7 +92,9 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                 <Thumbnail src={props.song.thumbnailUrl} title={props.song.title} isSmall={true} />
                 <div class="text-left ">
                     <p>{props.song?.title}</p>
-                    <small>{props.song.artists?.name}</small>
+                    <div class="max-w-32 lg:max-w-48">
+                        <small class="block w-full truncate">{props.song.artists?.name}</small>
+                    </div>
                 </div>
             </div>
             <div class="flex h-fit flex-col justify-center gap-2  mx-4" >
