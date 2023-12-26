@@ -1,4 +1,4 @@
-import { createEffect, createResource, createSignal } from "solid-js";
+import { createEffect, createMemo, createResource, createSignal } from "solid-js";
 import { 
     IconBackwardStep, IconCircleArrowDown, IconForwardStep, IconPause, 
     IconPlay, IconRepeat, IconShuffle, IconVolumeHigh, IconVolumeXmark 
@@ -15,11 +15,11 @@ type AudioPlayerProps = {
 
 export default function AudioPlayer(props: AudioPlayerProps) {
     const src = () => `/api/songs?song=${props.song.youtubeId}`
-    const [audioUrl] = createResource(src, src => getAudioFromCache(src))
+    const [audioUrl, { refetch }] = createResource(src, src => getAudioFromCache(src))
     
     const [playing, setPlaying] = createSignal(false)
 
-    const [volume, setVolume] = createSignal(+window?.localStorage?.getItem("volume") ?? 0.5)
+    const [volume, setVolume] = createSignal(Number(window.localStorage.getItem("volume")) ?? 0.5)
     const volumeLevelAlvaMajo = () => volume() ** 2
     
     const [currentTime, setCurrentTime] = createSignal(0)
@@ -75,10 +75,20 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     audio.addEventListener("timeupdate", () => playing() && setCurrentTime(audio.currentTime))
     audio.addEventListener("ended", () => !loop() && handleNext())
 
+    const [downloading, setDownloading] = createSignal(false) 
+    const isAudioDownloaded = createMemo(() => audioUrl()?.includes("blob:") ?? false)
+
+    const handleDownload = async () => {
+        if(isAudioDownloaded()) return
+        setDownloading(true)
+        await addAudioToCache(src())
+        refetch()
+        setDownloading(false)
+    }
+
     return (
         <div class="container min-h-12 mx-auto flex justify-center sm:justify-between items-center py-3 text-white">
             <div class="hidden sm:flex max-w-lg items-center gap-2">
-                {/* <img src={props.song.thumbnailUrl} height={48} width={48} /> */}
                 <Thumbnail src={props.song.thumbnailUrl} title={props.song.title} isSmall={true} />
                 <div class="text-left ">
                     <p>{props.song?.title}</p>
@@ -87,7 +97,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
             </div>
             <div class="flex h-fit flex-col justify-center gap-2  mx-4" >
                 <div class="flex gap-2 justify-center">
-                    <button onClick={toggleShuffle} classList={{ "text-purple-600": shuffle() }}>
+                    <button onClick={toggleShuffle} classList={{ "text-purple-400": shuffle() }}>
                         <IconShuffle size={20} color="inherit" />
                     </button>
                     <button onClick={handlePrevious}>
@@ -99,10 +109,10 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                     <button onClick={handleNext} disabled={!shuffle() && !props.selected.hasNext} class="disabled:text-gray-400">
                         <IconForwardStep size={28} />
                     </button>
-                    <button onClick={toggleLoop} classList={{ "text-purple-600": loop() }}>
+                    <button onClick={toggleLoop} classList={{ "text-purple-400": loop() }}>
                         <IconRepeat size={20} />
                     </button>
-                    <button onClick={() => addAudioToCache(src())} class="ml-4">
+                    <button onClick={handleDownload} class="ml-4" classList={{ "animate-bounce": downloading(), "text-purple-400": isAudioDownloaded() }}>
                         <IconCircleArrowDown size={20} />
                     </button>
                 </div>
