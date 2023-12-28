@@ -106,6 +106,7 @@ function CreatePlaylistModal(props) {
                         <button class="btn">Agregar</button>
                     </form>
                 </div>
+                <label class="modal-backdrop" for="playlist-modal">Close</label>
             </label>
         </>
     )

@@ -20,7 +20,7 @@ export function Header() {
           <form class="form-control" action={searchAction} method="post">
             <fieldset class="input-group input-group-sm" disabled={isRouting()}>
               <input class="input input-bordered sm:w-96" type="search" name="search" placeholder="Search" value={location?.query?.search || ""} />
-              <button class="btn btn-square">
+              <button class="btn btn-neutral btn-square">
                 <IconMagnifyingGlass size={24} />
               </button>
             </fieldset>
