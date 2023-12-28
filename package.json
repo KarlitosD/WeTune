@@ -22,7 +22,7 @@
     "@netlify/blobs": "^6.3.1",
     "@netlify/functions": "^2.4.1",
     "@solidjs/router": "^0.10.5",
-    "daisyui": "^2.52.0",
+    "daisyui": "^4.4.24",
     "node-youtube-music": "^0.10.3",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.8.7",
