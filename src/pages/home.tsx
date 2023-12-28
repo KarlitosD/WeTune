@@ -98,12 +98,12 @@ function CreatePlaylistModal(props) {
                     <h1 class="text-white text-2xl text-center mb-5">Crear playlist</h1>
                     <form class="flex justify-center gap-2" onSubmit={importPlaylist}>
                         <input type="url" name="url" class="input input-bordered" placeholder="Youtube Playlist URL" />
-                        <button class="btn">Importar</button>
+                        <button class="btn btn-neutral uppercase">Importar</button>
                     </form>
                     <div class="divider">OR</div>
                     <form onSubmit={createPlaylist} class="flex justify-center gap-2">
                         <input type="text" name="title" class="input input-bordered" placeholder="Nombre de la Playlist" />
-                        <button class="btn">Agregar</button>
+                        <button class="btn btn-neutral uppercase">Agregar</button>
                     </form>
                 </div>
                 <label class="modal-backdrop" for="playlist-modal">Close</label>

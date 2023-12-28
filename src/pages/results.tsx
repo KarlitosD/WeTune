@@ -40,11 +40,11 @@ function ItemResult(props: ItemResultProps) {
 
 function ItemResultSkeleton() {
   return (
-    <div class="flex items-center gap-2 w-80 sm:w-96 cursor-pointer text-left text-slate-300 animate-pulse" role="status">
-      <div class={`aspect-square w-[60px] h-[60px] bg-zinc-700`}></div>
+    <div class="flex items-center gap-2 w-80 sm:w-96 cursor-pointer text-left text-slate-300" role="status">
+      <div class="aspect-square w-[60px] h-[60px] skeleton rounded-none"></div>
       <div class="text-left flex flex-col gap-1">
-        <div class="h-4 w-20 bg-zinc-700 rounded-full"></div>
-        <div class="h-3 w-40 bg-zinc-700 rounded-full"></div>
+        <div class="h-4 w-24 rounded-full skeleton"></div>
+        <div class="h-3 w-48 rounded-full skeleton"></div>
       </div>
     </div>
   )
