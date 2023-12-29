@@ -1,14 +1,16 @@
 import type { Song } from "~/types/playlist"
-import { For } from "solid-js"
+import { ErrorBoundary, For, Show } from "solid-js"
 import { type RouteSectionProps, createAsync } from "@solidjs/router"
+
 
 import { searchResults } from "./results.data"
 import { usePlaylist } from "~/context/playlist"
 import Thumbnail from "~/components/Thumbnail"
 
 
-export default function Results(props: RouteSectionProps) {
-  const songs = createAsync(() => searchResults(props.location.query.search))
+function ResultList (props: { search: string }) {
+  const songs = createAsync(() => searchResults(props.search))
+
   const { addSong } = usePlaylist()
   return (
     <>
@@ -21,12 +23,19 @@ export default function Results(props: RouteSectionProps) {
   )
 }
 
-type ItemResultProps = {
-  result: Song
-  onSelect: () => void
+export default function Results(props: RouteSectionProps) {
+  return (
+    <ErrorBoundary fallback={<ErrorPage />}>
+      <ResultList search={props.location.query.search} />
+    </ErrorBoundary>
+  )
 }
 
-function ItemResult(props: ItemResultProps) {
+
+function ItemResult(props: {
+  result: Song
+  onSelect: () => void
+}) {
   return (
     <div class="flex items-center gap-2 w-80 sm:w-96 cursor-pointer text-left text-slate-300" onClick={props.onSelect}>
       <Thumbnail src={props.result.thumbnailUrl} title={props.result.title} />
@@ -50,10 +59,29 @@ function ItemResultSkeleton() {
   )
 }
 
-function ResultFallback () {
+function ResultFallback() {
   return (
     <For each={Array.from({ length: 15 }, (_, i) => i)}>
       {ItemResultSkeleton}
     </For>
+  )
+}
+
+function ErrorPage() {
+  return (
+    <Show when={window.navigator.onLine} fallback={<NoConnectionPage />}>
+      <div class="h-96 flex justify-center items-center">
+        <h1 class="text-3xl text-base-content font-medium">Ha ocurrido un error en la busqueda </h1>
+      </div>
+    </Show>
+  )
+}
+
+function NoConnectionPage(){
+  return (
+    <div class="h-96 flex flex-col gap-1 justify-center items-center">
+      <h1 class="text-3xl text-base-content font-medium">No hay internet </h1>
+      <h2 class="text-xl">Por favor revise su conexion</h2>
+    </div>
   )
 }
