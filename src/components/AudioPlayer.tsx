@@ -19,7 +19,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     
     const [playing, setPlaying] = createSignal(false)
 
-    const [volume, setVolume] = createSignal(Number(window.localStorage.getItem("volume")) ?? 0.5)
+    const [volume, setVolume] = createSignal(Number(localStorage.getItem("volume")) || 0.5)
     const volumeLevelAlvaMajo = () => volume() ** 2
     
     const [currentTime, setCurrentTime] = createSignal(0)
