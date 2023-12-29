@@ -2,6 +2,8 @@
 
 import { render } from 'solid-js/web';
 import { Routes } from './router/routes';
+import 'solid-devtools'
+
 import "./index.css"
 
 const root = document.getElementById('root');
