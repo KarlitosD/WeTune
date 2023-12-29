@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createResource, createSignal } from "solid-js";
+import { Show, createEffect, createMemo, createResource, createSignal } from "solid-js";
 import { 
     IconBackwardStep, IconCircleArrowDown, IconForwardStep, IconPause, 
     IconPlay, IconRepeat, IconShuffle, IconVolumeHigh, IconVolumeXmark 
@@ -97,32 +97,37 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                     </div>
                 </div>
             </div>
-            <div class="flex h-fit flex-col justify-center gap-2  mx-4" >
-                <div class="flex gap-2 justify-center">
-                    <button onClick={toggleShuffle} classList={{ "text-purple-400": shuffle() }}>
-                        <IconShuffle size={20} color="inherit" />
-                    </button>
-                    <button onClick={handlePrevious}>
-                        <IconBackwardStep size={28} />
-                    </button>
-                    <button onClick={() => playing() ? pause() : play()}>
-                        {playing() ? <IconPause size={32} /> : <IconPlay size={32} />}
-                    </button>
-                    <button onClick={handleNext} disabled={!shuffle() && !props.selected.hasNext} class="disabled:text-gray-400">
-                        <IconForwardStep size={28} />
-                    </button>
-                    <button onClick={toggleLoop} classList={{ "text-purple-400": loop() }}>
-                        <IconRepeat size={20} />
-                    </button>
-                    <button onClick={handleDownload} class="ml-4" classList={{ "animate-bounce": downloading(), "text-purple-400": isAudioDownloaded() }}>
-                        <IconCircleArrowDown size={20} />
+            <div class="flex h-fit flex-col justify-center gap-2 mx-4" >
+                <div class="flex justify-around items-center">
+                    <div class="size-[20px]"></div>
+                    <div class="flex gap-2 justify-center">
+                        <button onClick={toggleShuffle} classList={{ "text-primary": shuffle() }}>
+                            <IconShuffle size={20} color="inherit" />
+                        </button>
+                        <button onClick={handlePrevious}>
+                            <IconBackwardStep size={28} />
+                        </button>
+                        <button onClick={() => playing() ? pause() : play()}>
+                            {playing() ? <IconPause size={32} /> : <IconPlay size={32} />}
+                        </button>
+                        <button onClick={handleNext} disabled={!shuffle() && !props.selected.hasNext} class="disabled:text-gray-400">
+                            <IconForwardStep size={28} />
+                        </button>
+                        <button onClick={toggleLoop} classList={{ "text-primary": loop() }}>
+                            <IconRepeat size={20} />
+                        </button>
+                    </div>
+                    <button onClick={handleDownload} class="w-fit" classList={{ "text-primary": isAudioDownloaded() }}>
+                        <Show when={!downloading()} fallback={<div class="loading size-5 text-primary"></div>}>
+                            <IconCircleArrowDown size={20} />
+                        </Show>
                     </button>
                 </div>
                 <div class="h-4 flex items-center gap-1">
                     <label for="currentTime">{formatSeconds(currentTime())}</label>
                     <input
                         type="range"
-                        class="w-56 h-1"
+                        class="w-56 h-1 accent-white hover:accent-primary bg-transparent"
                         max={duration()}
                         value={currentTime()}
                         onInput={e => seek(+e.currentTarget.value)}
@@ -135,18 +140,18 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                 </div>
             </div>
             <div class="gap-2 items-center hidden sm:flex">
-            { volume() > 0 ? <IconVolumeHigh size={20} /> : <IconVolumeXmark size={20} /> }
-            <input
-                type="range"
-                class="h-1"
-                max="1"
-                step="0.01"
-                value={volume()}
-                title={~~(volume() * 100) + "%"}
-                onInput={e => setVolume(+e.currentTarget.value)}
-                onChange={e => localStorage.setItem("volume", e.currentTarget.value)}
-            />
-        </div>
+                { volume() > 0 ? <IconVolumeHigh size={20} /> : <IconVolumeXmark size={20} /> }
+                <input
+                    type="range"
+                    class="h-1 accent-primary cursor-pointer"
+                    max="1"
+                    step="0.01"
+                    value={volume()}
+                    title={~~(volume() * 100) + "%"}
+                    onInput={e => setVolume(+e.currentTarget.value)}
+                    onChange={e => localStorage.setItem("volume", e.currentTarget.value)}
+                />
+            </div>
         </div>
     )
 }
