@@ -10,6 +10,7 @@ import Home from '~/pages/home';
 import Results from '~/pages/results';
 import { searchResults } from '~/pages/results.data';
 
+import PlaylistPage from '~/pages/playlist/[playlistId]';
 
 export const routes: RouteDefinition[] = [
   {
@@ -24,8 +25,10 @@ export const routes: RouteDefinition[] = [
         path: "/results",
         component: Results,
         load: ({ location }) => searchResults(location.query.search)
-      },
-
+      },{
+        path: "/playlist/:playlistId",
+        component: PlaylistPage,
+      }
     ]
   },
   {

@@ -1,7 +1,9 @@
-import { type Setter, createEffect, createSignal, For, Show  } from "solid-js"
+import { For, Show  } from "solid-js"
 import IconPlus from "~/components/Icons/IconPlus"
 import IconMusic from "~/components/Icons/IconMusic"
 import type { Playlist } from "~/types/playlist"
+import { createId } from "~/utils/id"
+import { usePlaylist } from "~/context/playlist"
 
 const playlistCardSize = "w-32 h-32"
 
@@ -14,20 +16,14 @@ function PlaylistWithoutImage() {
 }
 
 export default function Home() {
-    const [playlists, setPlaylists] = createSignal<Playlist[]>([])
-    const playlistsSaved = localStorage.getItem("playlists")
-    if (playlistsSaved) setPlaylists(JSON.parse(playlistsSaved) as Playlist[])
-
-    createEffect(() => {
-        localStorage.setItem("playlists", JSON.stringify(playlists()))
-    })
+    const { playlists, addPlaylist } = usePlaylist()
 
     return (
         <div class="px-4 text-white">
             <h1 class="text-left text-white text-3xl my-4">Playlists</h1>
             <div class="flex gap-4">
                 <For each={playlists()}>{playlist => <PlaylistCard playlist={playlist} />}</For>
-                <CreatePlaylistModal setPlaylists={setPlaylists} />
+                <CreatePlaylistModal addPlaylist={addPlaylist}  />
             </div>
         </div>
     )
@@ -35,7 +31,7 @@ export default function Home() {
 
 function PlaylistCard(props: { playlist: Playlist }) {
     return (
-        <div>
+        <a href={`/playlist/${props.playlist.id}`}>
             <div class={`${playlistCardSize} rounded overflow-hidden`}>
                 <Show when={props.playlist?.songs?.length > 0} fallback={<PlaylistWithoutImage />}>
                     <img class="object-cover w-full h-full" width={128} height={128} src={props.playlist?.songs[0]?.thumbnailUrl} />
@@ -43,11 +39,11 @@ function PlaylistCard(props: { playlist: Playlist }) {
             </div>
             <p class="font-medium text-center mt-1 hover:underline">{props.playlist.title}</p>
             <p>{props.playlist.songs.length} canciones</p>
-        </div>
+        </a>
     )
 }
 
-function CreatePlaylistModal(props: { setPlaylists: Setter<Playlist[]>  }) {
+function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void }) {
     let $dialog: HTMLDialogElement
 
     const createPlaylist = (e: SubmitEvent) => {
@@ -57,11 +53,11 @@ function CreatePlaylistModal(props: { setPlaylists: Setter<Playlist[]>  }) {
         const formData = new FormData($form)
 
         const newPlaylist: Playlist = {
-            id: crypto.randomUUID(),
+            id: createId(),
             title: formData.get("title") as string,
             songs: []
         }
-        props.setPlaylists(playlists => [...playlists, newPlaylist])
+        props.addPlaylist(newPlaylist)
         $form.reset()
         $dialog.close()
     }
@@ -82,7 +78,7 @@ function CreatePlaylistModal(props: { setPlaylists: Setter<Playlist[]>  }) {
         const res = await fetch(`/api/playlist?list=${url.searchParams.get("list")}`)
         const playlist = await res.json()
         
-        props.setPlaylists(playlists => [...playlists, playlist])
+        props.addPlaylist(playlist)
         $form.reset()
         $dialog.close()
     }
