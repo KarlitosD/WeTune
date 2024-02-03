@@ -4,3 +4,4 @@ dist
 .vercel
 # Local Netlify folder
 .netlify
+bun.lockb
