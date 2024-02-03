@@ -19,7 +19,7 @@ export interface PlaylistContextData {
     }
 }
 
-function recoveredPlaylistHistory(){
+export function recoveredPlaylistHistory(){
     const lastSongString = window?.localStorage.getItem("last")
     return {
         id: "history",
