@@ -7,7 +7,7 @@ type CreateAudioProps = {
 }
 
 export function createAudio(src: Accessor<string>, { playing, volume, loop }: CreateAudioProps){
-    let audio = new Audio()
+    const audio = new Audio()
     const [duration, setDuration] = createSignal(0)
 
     createEffect(() => audio.src = src())
@@ -34,7 +34,7 @@ export const audioCache = await caches.open("audios")
 export async function getAudioFromCache(id: string){
     if(!id || id.includes("undefined")) return "blob:"
 
-    let res = await audioCache.match(id)
+    const res = await audioCache.match(id)
     if(!res) return id + "&quality=lowest"
     
     const blob = await res.blob()

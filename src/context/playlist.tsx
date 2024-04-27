@@ -1,5 +1,5 @@
-import { createMutable, createStore, SetStoreFunction, StoreSetter } from "solid-js/store"
-import { Accessor, createContext, createEffect, createSignal, useContext } from "solid-js"
+import { createMutable, createStore, SetStoreFunction } from "solid-js/store"
+import { Accessor, createContext, createEffect, createSignal, useContext, type ParentProps } from "solid-js"
 import type { Playlist, Song } from "~/types/playlist"
 
 const PlaylistContext = createContext()
@@ -28,7 +28,7 @@ export function recoveredPlaylistHistory(){
     } as Playlist
 }
 
-export function PlaylistProvider(props) {
+export function PlaylistProvider(props: ParentProps) {
     const [playlists, setPlaylists] = createSignal<Playlist[]>([])
     
     const playlistsSaved = localStorage.getItem("playlists")
