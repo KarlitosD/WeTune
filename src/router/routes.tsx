@@ -12,6 +12,8 @@ import { searchResults } from '~/pages/results.data';
 
 import PlaylistPage from '~/pages/playlist/[playlistId]';
 
+import Playground from '~/pages/playground';
+
 export const routes: RouteDefinition[] = [
   {
     path: '/',
@@ -28,8 +30,12 @@ export const routes: RouteDefinition[] = [
       },{
         path: "/playlist/:playlistId",
         component: PlaylistPage,
+      },
+      {
+        path: "/playground",
+        component: Playground,
       }
-    ]
+    ],
   },
   {
     path: '*404',
