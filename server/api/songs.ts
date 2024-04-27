@@ -1,3 +1,4 @@
+import { getStore } from "@netlify/blobs";
 import ytdl from "ytdl-core"
 import { blob } from "node:stream/consumers"
 
@@ -11,9 +12,10 @@ function getAudioStream(songId: string, quality: string){
     return blob(stream)
 }
 
-const cacheSongs = new Map<string, Blob>()
 
 export default async function handler(req: Request){
+    const cacheSongs = getStore("songs")
+
     if(req.method !== "GET") return 
 
     const { searchParams } = new URL(req.url)
@@ -22,11 +24,12 @@ export default async function handler(req: Request){
     const songId = searchParams.get("song") ?? "lS4NHib1ft4"
     
     let audioBlob: Blob
-    if(cacheSongs.has(songId)) {
-        audioBlob = cacheSongs.get(songId)
+
+    if(await cacheSongs.getMetadata(songId)) {
+        audioBlob = await cacheSongs.get(songId, { type: "blob", consistency: "eventual" })
     } else {
         audioBlob = await getAudioStream(songId, quality)
-        cacheSongs.set(songId, audioBlob)
+        cacheSongs.set(songId, await audioBlob.text())
     }
 
 
