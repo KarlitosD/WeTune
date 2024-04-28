@@ -23,20 +23,23 @@ export default async function handler(req: Request){
     const quality = searchParams.get("quality") ?? "highest"
     const songId = searchParams.get("song") ?? "lS4NHib1ft4"
     
-    let audioBlob: Blob
+    let audioBlob: Blob = await getAudioStream(songId, quality)
 
-    if(await cacheSongs.getMetadata(songId)) {
-        audioBlob = await cacheSongs.get(songId, { type: "blob", consistency: "eventual" })
-    } else {
-        audioBlob = await getAudioStream(songId, quality)
-        cacheSongs.set(songId, await audioBlob.text())
-    }
+    // if(await cacheSongs.getMetadata(songId)) {
+    //     console.log("cache hit")
+    //     audioBlob = await cacheSongs.get(songId, { type: "blob" })
+    //     console.log(audioBlob.size)
+    // } else {
+    //     audioBlob = await getAudioStream(songId, quality)
+    //     console.log("cache miss")
+    //     cacheSongs.set(songId, await audioBlob.text())
+    // }
 
 
     return new Response(audioBlob, {
         status: 200,
         headers: {
-            "Content-Type": "audio/mpeg",
+            "Content-Type": "audio/mp4",
             "Accept-Ranges": "bytes",
             "Content-Length": String(audioBlob.size),
             "cache-control": "max-age=3000000, public",
