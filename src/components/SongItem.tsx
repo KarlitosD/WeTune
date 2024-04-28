@@ -1,5 +1,5 @@
 import type { Song } from "~/types/playlist"
-import { For } from "solid-js"
+import { For, type ParentProps } from "solid-js"
 
 import { usePlaylist } from "~/context/playlist"
 import Thumbnail from "~/components/Thumbnail"
@@ -28,7 +28,7 @@ function PlaylistDropdown(props: { song: Song }){
     )
   }
   
-  export function SongItem(props: {
+  export function SongItem(props: ParentProps & {
     song: Song
     onSelect: () => void
   }) {
@@ -45,6 +45,7 @@ function PlaylistDropdown(props: { song: Song }){
           <div tabIndex={0} class="rounded-full cursor-pointer p-1 list-none shadow-white hover:text-white hover:shadow-lg"><IconEllipsis /></div>
           <ul tabIndex={0} class="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-52">
             <li><PlaylistDropdown song={props.song} /></li>
+            {props.children}
           </ul>
         </div>
       </div>
