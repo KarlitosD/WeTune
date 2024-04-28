@@ -1,7 +1,7 @@
 import type { Playlist, Song } from "~/types/playlist"
 
 import { createMutable, SetStoreFunction } from "solid-js/store"
-import { Accessor, createContext, createSignal, from, useContext, type ParentProps } from "solid-js"
+import { Accessor, createContext, createEffect, createSignal, from, useContext, type ParentProps } from "solid-js"
 import { startWith } from "rxjs"
 import { db } from "~/db"
 
@@ -10,7 +10,9 @@ export interface PlaylistContextData {
     addPlaylist: (playlist: Playlist) => Promise<void>
     actualPlaylist: () => Playlist
     setActualPlaylist: SetStoreFunction<Playlist>
-    addSong: (song: Song, playlistId?: string) => Promise<void>
+    addSong: (song: Song, playlistId?: string) => Promise<void>,
+    removeSong: (song: Song, playlistId: string) => Promise<void>,
+    playSong: (song: Song, playlistId?: string) => Promise<void>
     selected: {
         index: number;
         readonly song: Song;
@@ -61,7 +63,6 @@ export function PlaylistProvider(props: ParentProps) {
     const addSong = async (song: Song, playlistId?: string) => {
         //? Check if playlistId is selected to add song to that playlist
         const playlist = playlistId ? playlists().find(playlist => playlist.id === playlistId) : actualPlaylist()
-        console.log({ playlistId, playlist })
 
         //? Check if song is already in playlist
         const songExistsInPlaylist = playlist.songs.find(songInPlaylist => songInPlaylist.youtubeId === song.youtubeId)
@@ -70,18 +71,44 @@ export function PlaylistProvider(props: ParentProps) {
         await db.playlist.find({ selector: { id: playlist.id } }).update({
             $push: { songs: song }
         })
+    }
 
-        //? If the playlist is the history playlist, increment the selected index
-        if(playlist.id === "history"){
-            selected.index = playlist.songs.length
+
+    const playSong = async (song: Song, playlistId = "history") => {
+        if(playlistId === "history") {
+            await addSong(song, playlistId)
+            let songs = structuredClone(playlists().find(playlist => playlist.id === "history").songs)
+
+            songs = songs.filter(songInPLaylist => songInPLaylist.youtubeId !== song.youtubeId)
+            songs.unshift(song)
+
+            await db.playlist.find({ selector: { id: "history" } }).update({ $set: { songs } })
         }
+
+        setActualPlaylistId(playlistId)
+        const playlist = actualPlaylist()
+    
+        const songIndexInPlaylist = playlist.songs.findIndex(songInPlaylist => songInPlaylist.youtubeId === song.youtubeId)
+
+        if(songIndexInPlaylist !== -1){
+            selected.index = songIndexInPlaylist
+        }
+    }
+
+    const removeSong = async (song: Song, playlistId: string) => {
+        let songs = structuredClone(playlists().find(playlist => playlist.id === playlistId).songs)
+        songs = songs.filter(songInPLaylist => songInPLaylist.youtubeId !== song.youtubeId)
+
+        await db.playlist.find({ selector: { id: playlistId } }).update({
+            $set: { songs: songs }
+        })
     }
 
     return (
         <PlaylistContext.Provider value={{ 
                 playlists, addPlaylist,    
                 actualPlaylist, setActualPlaylist, 
-                addSong, selected,
+                addSong, removeSong, playSong, selected,
             } as PlaylistContextData}>
             {props.children}
         </PlaylistContext.Provider>

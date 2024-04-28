@@ -6,14 +6,14 @@ import { usePlaylist } from "~/context/playlist";
 import { Playlist } from "~/types/playlist";
 
 export default function PlaylistPage (props: RouteSectionProps) {
-    const { playlists, actualPlaylist, setActualPlaylist, addSong } = usePlaylist()
+    const { playlists, actualPlaylist, playSong, removeSong } = usePlaylist()
     const playlist = createMemo(() => playlists().find(p => p.id === props.params.playlistId))
 
     const isActualPlaylist = () => actualPlaylist().id === playlist().id
 
     const handlePlayPlaylist = () => {
-        // const correctPlaylist = isActualPlaylist() ? recoveredPlaylistHistory() : playlist()
-        setActualPlaylist(playlist())
+        const firstSong = playlist().songs[0]
+        playSong(firstSong, playlist().id)
     }
 
     return (
@@ -29,7 +29,20 @@ export default function PlaylistPage (props: RouteSectionProps) {
                 </header>
                 <article class="flex flex-col gap-2 p-4">
                     <For each={playlist().songs}>
-                        {song => <SongItem song={song} onSelect={() => !isActualPlaylist() && addSong(song)} />}
+                        {song => 
+                            <SongItem song={song} onSelect={() => playSong(song, playlist().id)}>
+                                <li>
+                                    <div>
+                                        <button 
+                                            onClick={() => removeSong(song, playlist().id)}
+                                            class="rounded-full mx-auto p-1 list-none shadow-white hover:text-white hover:shadow-lg"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </li>
+                            </SongItem>
+                        }
                     </For>
                 </article>
             </Show>
