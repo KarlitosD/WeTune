@@ -1,12 +1,13 @@
-import { Show, batch, createEffect, createMemo, createResource, createSignal } from "solid-js";
+import { Show, batch, createEffect, createResource, createSignal } from "solid-js";
 import { 
     IconBackwardStep, IconCircleArrowDown, IconForwardStep, IconPause, 
     IconPlay, IconRepeat, IconShuffle, IconVolumeHigh, IconVolumeXmark 
 } from "./Icons";
-import { addAudioToCache, createAudio, getAudioFromCache } from "~/hooks/audio";
+import { createAudio } from "~/hooks/audio";
 import { formatSeconds } from "~/utils/seconds";
 import Thumbnail from "./Thumbnail";
 import type { PlaylistContextData } from "~/context/playlist";
+import { getAudioFromCache, addAudioToCache, existsAudioInCache } from "~/hooks/cache";
 
 type AudioPlayerProps = {
     selected: PlaylistContextData["selected"]
@@ -95,13 +96,12 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     })
 
     const [downloading, setDownloading] = createSignal(false)     
-    const isAudioDownloaded = createMemo(() => audioUrl()?.includes("blob:") ?? false)
+    const isAudioDownloaded = () => existsAudioInCache(src())
 
     const handleDownload = async () => {
         if(isAudioDownloaded()) return
         setDownloading(true)
         await addAudioToCache(src())
-        refetch()
         setDownloading(false)
     }
 

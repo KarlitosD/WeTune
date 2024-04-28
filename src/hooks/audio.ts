@@ -28,20 +28,3 @@ export function createAudio(src: Accessor<string>, { playing, volume, loop }: Cr
 
     return { audio, duration, seek }
 }
-
-export const audioCache = await caches.open("audios")
-
-export async function getAudioFromCache(id: string){
-    if(!id || id.includes("undefined")) return "blob:"
-
-    const res = await audioCache.match(id)
-    if(!res) return id + "&quality=lowest"
-    
-    const blob = await res.blob()
-    return URL.createObjectURL(blob)
-}
-
-export async function addAudioToCache(id: string){
-    const res = await audioCache.match(id)
-    if(!res) await audioCache.add(id)
-}
