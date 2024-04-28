@@ -21,7 +21,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     const [volume, setVolume] = createSignal(Number(localStorage.getItem("volume")) || 0.5)
     const volumeLevelAlvaMajo = () => volume() ** 2
-    
+
     const [currentTime, setCurrentTime] = createSignal(0)
     const [loop, setLoop] = createSignal(false)
     const [shuffle, setShuffle] = createSignal(false)
@@ -86,6 +86,14 @@ export default function AudioPlayer(props: AudioPlayerProps) {
         setDownloading(false)
     }
 
+    const [lastVolumeLevel, setLastVolumeLevel] = createSignal(0)
+
+    const togleVolumeLevel = () => {
+        const volumeLevel = volume()
+        setVolume(lastVolumeLevel())
+        setLastVolumeLevel(volumeLevel)
+    }
+
     return (
         <div class="container min-h-12 mx-auto flex justify-center sm:justify-between items-center py-3 text-white">
             <div class="hidden sm:flex max-w-lg items-center gap-2">
@@ -140,7 +148,9 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                 </div>
             </div>
             <div class="gap-2 items-center hidden sm:flex">
-                { volume() > 0 ? <IconVolumeHigh size={20} /> : <IconVolumeXmark size={20} /> }
+                <button onClick={togleVolumeLevel}>
+                    { volume() > 0 ? <IconVolumeHigh size={20} /> : <IconVolumeXmark size={20} /> }
+                </button>
                 <input
                     type="range"
                     class="h-1 accent-primary cursor-pointer"

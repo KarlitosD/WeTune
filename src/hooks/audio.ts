@@ -1,4 +1,4 @@
-import { Accessor, createEffect, createSignal, onCleanup } from "solid-js";
+import { type Accessor, createEffect, createSignal, onCleanup } from "solid-js";
 
 type CreateAudioProps = {
     playing: Accessor<boolean>,

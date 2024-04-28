@@ -5,11 +5,6 @@ import AudioPlayer from "~/components/AudioPlayer";
 
 export default function HomeWrapper(props: RouteSectionProps) {
   const { selected } = usePlaylist()
-  
-  // onMount(() => {
-  //   const lastSongString = window.localStorage.getItem("last")
-  //   if (lastSongString) setPlaylist([JSON.parse(lastSongString)])
-  // })
 
   return (
     <>
