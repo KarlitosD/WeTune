@@ -73,7 +73,14 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
 
     audio.addEventListener("timeupdate", () => playing() && setCurrentTime(audio.currentTime))
-    audio.addEventListener("ended", () => !loop() && handleNext())
+    audio.addEventListener("ended", () => {
+        if(props.selected.hasNext && !loop()){
+            handleNext()
+        }else if(!loop()){
+            setPlaying(false)
+            setCurrentTime(0)
+        }
+    })
 
     const [downloading, setDownloading] = createSignal(false) 
     const isAudioDownloaded = createMemo(() => audioUrl()?.includes("blob:") ?? false)
@@ -125,7 +132,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                             <IconRepeat size={20} />
                         </button>
                     </div>
-                    <button onClick={handleDownload} class="w-fit" classList={{ "text-primary": isAudioDownloaded() }}>
+                    <button onClick={handleDownload} disabled={isAudioDownloaded()} class="w-fit" classList={{ "text-primary": isAudioDownloaded() }}>
                         <Show when={!downloading()} fallback={<div class="loading size-5 text-primary"></div>}>
                             <IconCircleArrowDown size={20} />
                         </Show>
@@ -138,9 +145,9 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                         class="w-56 h-1 accent-white hover:accent-primary bg-transparent"
                         max={duration()}
                         value={currentTime()}
-                        onInput={e => seek(+e.currentTarget.value)}
                         onMouseDown={pause}
                         onTouchStart={pause}
+                        onInput={e => seek(+e.currentTarget.value)}
                         onChange={play}
                         id="currentTime"
                     />
