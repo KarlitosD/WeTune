@@ -1,15 +1,16 @@
-import { createMutable, createStore, SetStoreFunction } from "solid-js/store"
-import { Accessor, createContext, createEffect, createSignal, useContext, type ParentProps } from "solid-js"
 import type { Playlist, Song } from "~/types/playlist"
 
-const PlaylistContext = createContext()
+import { createMutable, SetStoreFunction } from "solid-js/store"
+import { Accessor, createContext, createSignal, from, useContext, type ParentProps } from "solid-js"
+import { startWith } from "rxjs"
+import { db } from "~/db"
 
 export interface PlaylistContextData {
     playlists: Accessor<Playlist[]>,
-    addPlaylist: (playlist: Playlist) => void,
-    actualPlaylist: Playlist
+    addPlaylist: (playlist: Playlist) => Promise<void>
+    actualPlaylist: () => Playlist
     setActualPlaylist: SetStoreFunction<Playlist>
-    addSong: (song: Song, playlistId?: string) => void
+    addSong: (song: Song, playlistId?: string) => Promise<void>
     selected: {
         index: number;
         readonly song: Song;
@@ -19,73 +20,62 @@ export interface PlaylistContextData {
     }
 }
 
-export function recoveredPlaylistHistory(){
-    const lastSongString = window?.localStorage.getItem("last")
-    return {
-        id: "history",
-        title: "Recents",
-        songs: lastSongString && lastSongString !== "undefined" ? [JSON.parse(lastSongString)] : []
-    } as Playlist
-}
+const PlaylistContext = createContext()
 
 export function PlaylistProvider(props: ParentProps) {
-    const [playlists, setPlaylists] = createSignal<Playlist[]>([])
-    
-    const playlistsSaved = localStorage.getItem("playlists")
-    if (playlistsSaved) setPlaylists(JSON.parse(playlistsSaved) as Playlist[])
+    const playlists = from<Playlist[]>(db.playlist.find({}).$.pipe(startWith([])))
 
-    createEffect(() => {
-        localStorage.setItem("playlists", JSON.stringify(playlists()))
-    })
-
-    const addPlaylist = (playlist: Playlist) => {
-        setPlaylists(playlists => [...playlists, playlist])
+    const addPlaylist = async (playlist: Playlist) => {
+        await db.playlist.insert(playlist)
     }
 
-    const [actualPlaylist, setActualPlaylist] = createStore<Playlist>(recoveredPlaylistHistory())
+
+    const [actualPlaylistId, setActualPlaylistId] = createSignal("history")
+    const actualPlaylist = () => {
+        return playlists().find(playlist => playlist.id === actualPlaylistId())
+    }
+    const setActualPlaylist = (playlist: Playlist) => {
+        setActualPlaylistId(playlist.id)
+    }
 
     const selected = createMutable({
         index: 0,
         get song(): Song {
-            return actualPlaylist.songs[this.index]
+            return actualPlaylist()?.songs?.[this.index]
         },
         get hasNext() {
-            return Boolean(actualPlaylist.songs[this.index + 1])
+            return Boolean(actualPlaylist().songs[this.index + 1])
         },
         get hasPrevious() {
-            return Boolean(actualPlaylist.songs[this.index - 1])
+            return Boolean(actualPlaylist().songs[this.index - 1])
         },
         setRandom() {
             let randomIndex: number;
             do {
-                randomIndex = Math.trunc(actualPlaylist.songs.length * Math.random())
-            } while (actualPlaylist.songs.length > 1 && randomIndex === this.index)
+                randomIndex = Math.trunc(actualPlaylist().songs.length * Math.random())
+            } while (actualPlaylist().songs.length > 1 && randomIndex === this.index)
             this.index = randomIndex
         }
     })
 
-    const addSong = (song: Song, playlistId?: string) => {
-        const playlist = playlistId ? playlists().find(playlist => playlist.id === playlistId) : actualPlaylist
-        const songsFiltered = playlist.songs.filter(songInPlaylist => songInPlaylist.youtubeId !== song.youtubeId)
-        console.log(playlist.title)
+    const addSong = async (song: Song, playlistId?: string) => {
+        //? Check if playlistId is selected to add song to that playlist
+        const playlist = playlistId ? playlists().find(playlist => playlist.id === playlistId) : actualPlaylist()
+        console.log({ playlistId, playlist })
 
-        if(playlistId) {
-            setPlaylists(playlists => {
-                return playlists.map(playlist => playlist.id === playlistId ? { ...playlist, songs: [...songsFiltered, song] } : playlist)
-            })
-        } else {
-            setActualPlaylist(playlist => ({ 
-                ...playlist, 
-                songs: [...songsFiltered, song] 
-            }))
-            
-            selected.index = songsFiltered.length
+        //? Check if song is already in playlist
+        const songExistsInPlaylist = playlist.songs.find(songInPlaylist => songInPlaylist.youtubeId === song.youtubeId)
+        if(songExistsInPlaylist) return
+
+        await db.playlist.find({ selector: { id: playlist.id } }).update({
+            $push: { songs: song }
+        })
+
+        //? If the playlist is the history playlist, increment the selected index
+        if(playlist.id === "history"){
+            selected.index = playlist.songs.length
         }
     }
-
-    createEffect(() => {
-        localStorage.setItem("last", JSON.stringify(selected.song))
-    })
 
     return (
         <PlaylistContext.Provider value={{ 

@@ -10,6 +10,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^20.12.7",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
     "solid-devtools": "^0.30.1",
@@ -17,18 +18,20 @@
     "vite": "^5.2.10",
     "vite-plugin-pwa": "^0.19.8",
     "vite-plugin-solid": "^2.10.2",
-    "workbox-window": "^7.1.0",
-    "@types/node": "^20.12.7"
+    "workbox-window": "^7.1.0"
   },
   "dependencies": {
     "@netlify/blobs": "^7.3.0",
     "@netlify/functions": "^2.6.0",
+    "@sinclair/typebox": "^0.32.26",
     "@solid-primitives/map": "^0.4.11",
     "@solidjs/router": "^0.13.2",
+    "@typeschema/typebox": "^0.13.4",
     "daisyui": "^4.10.2",
     "nanoid": "^5.0.7",
     "node-youtube-music": "^0.10.3",
     "rxdb": "^15.18.4",
+    "rxjs": "^7.8.1",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.8.17",
     "youtube-api-v3-wrapper": "^2.3.0",
