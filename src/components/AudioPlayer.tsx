@@ -1,4 +1,4 @@
-import { Show, createEffect, createMemo, createResource, createSignal } from "solid-js";
+import { Show, batch, createEffect, createMemo, createResource, createSignal } from "solid-js";
 import { 
     IconBackwardStep, IconCircleArrowDown, IconForwardStep, IconPause, 
     IconPlay, IconRepeat, IconShuffle, IconVolumeHigh, IconVolumeXmark 
@@ -19,8 +19,20 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     
     const [playing, setPlaying] = createSignal(false)
 
-    const [volume, setVolume] = createSignal(Number(localStorage.getItem("volume")) || 0.5)
+    const [volume, setVolume] = createSignal(Number(localStorage.getItem("volume") ?? 0.5)) 
     const volumeLevelAlvaMajo = () => volume() ** 2
+
+    const [lastVolumeLevel, setLastVolumeLevel] = createSignal(Number(localStorage.getItem("lastVolumeLevel")))
+
+    const togleVolumeLevel = () => {
+        const volumeLevel = volume()
+        batch(() => {
+            setVolume(lastVolumeLevel())
+            setLastVolumeLevel(volumeLevel)
+        })
+        localStorage.setItem("volume", String(volume()))
+        localStorage.setItem("lastVolumeLevel", String(lastVolumeLevel()))
+    }
 
     const [currentTime, setCurrentTime] = createSignal(0)
     const [loop, setLoop] = createSignal(false)
@@ -82,7 +94,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
         }
     })
 
-    const [downloading, setDownloading] = createSignal(false) 
+    const [downloading, setDownloading] = createSignal(false)     
     const isAudioDownloaded = createMemo(() => audioUrl()?.includes("blob:") ?? false)
 
     const handleDownload = async () => {
@@ -91,14 +103,6 @@ export default function AudioPlayer(props: AudioPlayerProps) {
         await addAudioToCache(src())
         refetch()
         setDownloading(false)
-    }
-
-    const [lastVolumeLevel, setLastVolumeLevel] = createSignal(0)
-
-    const togleVolumeLevel = () => {
-        const volumeLevel = volume()
-        setVolume(lastVolumeLevel())
-        setLastVolumeLevel(volumeLevel)
     }
 
     return (
