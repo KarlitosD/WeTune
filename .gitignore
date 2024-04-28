@@ -5,3 +5,4 @@ dist
 # Local Netlify folder
 .netlify
 bun.lockb
+package-lock.json
