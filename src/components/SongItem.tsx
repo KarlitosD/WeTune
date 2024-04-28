@@ -7,13 +7,20 @@ import IconEllipsis from "~/components/Icons/IconEllipsis"
 
 function PlaylistDropdown(props: { song: Song }){
     const { addSong, playlists } = usePlaylist()
+
+    const handleAdd = (playlistId: string) => {
+        addSong(props.song, playlistId)
+        // @ts-ignore
+        document.activeElement?.blur()
+    }
+
     return (
       <div>
         <details class="dropdown dropdown-left">
-          <summary class="rounded-full p-1 list-none shadow-white hover:text-white hover:shadow-lg">Agregar playlist</summary>
+          <summary class="rounded-full mx-auto p-1 list-none shadow-white hover:text-white hover:shadow-lg">Agregar playlist</summary>
           <ul class="p-2 shadow menu dropdown-content z-[2] bg-base-200 rounded-box w-52">
             <For each={playlists()}>
-              {playlist => <li><a onClick={() => addSong(props.song, playlist.id)}>{playlist.title}</a></li>}
+              {playlist => <li><a onClick={() => handleAdd(playlist.id)}>{playlist.title}</a></li>}
             </For>
           </ul>
         </details>
@@ -34,12 +41,12 @@ function PlaylistDropdown(props: { song: Song }){
             <p class="text-xs text-ellipsis">{props.song.artists.name} - {props.song.album} - {props.song.duration.label}</p>
           </div>
         </div>
-        <details class="dropdown dropdown-end">
-          <summary class="rounded-full cursor-pointer p-1 list-none shadow-white hover:text-white hover:shadow-lg"><IconEllipsis /></summary>
-          <ul class="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-52">
+        <div class="dropdown dropdown-end">
+          <div tabIndex={0} class="rounded-full cursor-pointer p-1 list-none shadow-white hover:text-white hover:shadow-lg"><IconEllipsis /></div>
+          <ul tabIndex={0} class="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-52">
             <li><PlaylistDropdown song={props.song} /></li>
           </ul>
-        </details>
+        </div>
       </div>
     )
   }

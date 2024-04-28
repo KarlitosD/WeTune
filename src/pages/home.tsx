@@ -7,39 +7,17 @@ import { usePlaylist } from "~/context/playlist"
 
 const playlistCardSize = "w-32 h-32"
 
-function PlaylistWithoutImage() {
-    return (
-        <div class="w-full h-full rounded bg-neutral flex justify-center items-center">
-            <IconMusic size={36} />
-        </div>
-    )
-}
-
 export default function Home() {
     const { playlists, addPlaylist } = usePlaylist()
 
     return (
         <div class="px-4 text-white">
             <h1 class="text-left text-white text-3xl my-4">Playlists</h1>
-            <div class="flex gap-4">
+            <div class="flex items-start gap-4">
                 <For each={playlists()}>{playlist => <PlaylistCard playlist={playlist} />}</For>
                 <CreatePlaylistModal addPlaylist={addPlaylist}  />
             </div>
         </div>
-    )
-}
-
-function PlaylistCard(props: { playlist: Playlist }) {
-    return (
-        <a href={`/playlist/${props.playlist.id}`}>
-            <div class={`${playlistCardSize} rounded overflow-hidden`}>
-                <Show when={props.playlist?.songs?.length > 0} fallback={<PlaylistWithoutImage />}>
-                    <img class="object-cover w-full h-full" width={128} height={128} src={props.playlist?.songs[0]?.thumbnailUrl} />
-                </Show>
-            </div>
-            <p class="font-medium text-center mt-1 hover:underline">{props.playlist.title}</p>
-            <p>{props.playlist.songs.length} canciones</p>
-        </a>
     )
 }
 
@@ -112,3 +90,25 @@ function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void 
         </>
     )
 } 
+
+function PlaylistCard(props: { playlist: Playlist }) {
+    return (
+        <a href={`/playlist/${props.playlist.id}`}>
+            <div class={`${playlistCardSize} flex rounded overflow-hidden`}>
+                <Show when={props.playlist?.songs?.length > 0} fallback={<PlaylistWithoutImage />}>
+                    <img class="object-cover w-full h-full" width={128} height={128} src={props.playlist?.songs[0]?.thumbnailUrl} />
+                </Show>
+            </div>
+            <p class="font-medium text-center mt-1 hover:underline">{props.playlist.title}</p>
+            <p>{props.playlist.songs.length} canciones</p>
+        </a>
+    )
+}
+
+function PlaylistWithoutImage() {
+    return (
+        <div class="w-full h-full rounded bg-neutral flex justify-center items-center">
+            <IconMusic size={48} />
+        </div>
+    )
+}
