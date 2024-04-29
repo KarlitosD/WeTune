@@ -17,7 +17,7 @@ type AudioPlayerProps = {
 export default function AudioPlayer(props: AudioPlayerProps) {
     const src = () => `/api/songs?song=${props.song.youtubeId}`
     const [audioUrl] = createResource(src, src => getAudioFromCache(src))
-    
+
     const [playing, setPlaying] = createSignal(false)
 
     const [volume, setVolume] = createSignal(Number(localStorage.getItem("volume") ?? 0.5)) 
@@ -104,6 +104,19 @@ export default function AudioPlayer(props: AudioPlayerProps) {
         await addAudioToCache(src())
         setDownloading(false)
     }
+
+    const [isFirstSong, setIsFirstSong] = createSignal(true)
+    audio.addEventListener("canplay", () => {
+        if(!isFirstSong()){
+            play()
+        }
+    })
+
+    createEffect(() => {
+        if(isFirstSong() && playing()){
+            setIsFirstSong(false)
+        }
+    })
 
     return (
         <div class="container min-h-12 mx-auto flex justify-center sm:justify-between items-center py-3 text-white">
