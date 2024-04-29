@@ -40,7 +40,7 @@ function formatSongsSearched(items: any): Song[] {
                 duration: song.duration.seconds,
                 author: {
                     name: song.artists?.[0]?.name,
-                    id: song.artists?.[0].channel_id
+                    id: song.artists?.[0]?.channel_id ?? ""
                 }
             } as Song
         })
