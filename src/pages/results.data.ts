@@ -9,6 +9,7 @@ export const searchResults = cache(async (search: string) => {
       const result = await res.json()
       return result as Song[]
     } catch (error) {
+      console.error(error)
       throw error
       // return []
     }
