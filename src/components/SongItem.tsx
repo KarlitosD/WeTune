@@ -4,6 +4,7 @@ import { For, type ParentProps } from "solid-js"
 import { usePlaylist } from "~/context/playlist"
 import Thumbnail from "~/components/Thumbnail"
 import IconEllipsis from "~/components/Icons/IconEllipsis"
+import { formatSeconds } from "~/utils/seconds"
 
 function PlaylistDropdown(props: { song: Song }){
     const { addSong, playlists } = usePlaylist()
@@ -38,7 +39,7 @@ function PlaylistDropdown(props: { song: Song }){
           <Thumbnail src={props.song.thumbnailUrl} title={props.song.title} />
           <div class="text-left">
             <p class="text-sm font-semibold w-fit">{props.song.title}</p>
-            <p class="text-xs text-ellipsis">{props.song.artists.name} - {props.song.album} - {props.song.duration.label}</p>
+            <p class="text-xs text-ellipsis">{props.song?.author?.name} - {props.song?.album?.name ?? ""} - {formatSeconds(props.song.duration)}</p>
           </div>
         </div>
         <div class="dropdown dropdown-end">

@@ -2,19 +2,18 @@ import { Static, Type } from "@sinclair/typebox"
 
 const songRawChema = Type.Object({
     title: Type.String(),
-    isDownloaded: Type.String(),
     youtubeId: Type.String(),
-    album: Type.String(),
+    album: Type.Optional(Type.Object({
+        name: Type.String(),
+        id: Type.String()
+    })),
     thumbnailUrl: Type.String(),
-    thumbnailFallback: Type.String(),
-    artists: Type.Object({
+    type: Type.String(),
+    author: Type.Object({
         name: Type.String(),
         id: Type.String()
     }),
-    duration: Type.Object({
-        label: Type.String(),
-        totalSeconds: Type.Number()
-    })
+    duration: Type.Number()
 })
 
 export const songSchema = Object.assign({ version: 0, primaryKey: "youtubeId", key: "song" }, songRawChema)

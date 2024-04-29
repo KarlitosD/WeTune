@@ -16,7 +16,7 @@ type AudioPlayerProps = {
 
 export default function AudioPlayer(props: AudioPlayerProps) {
     const src = () => `/api/songs?song=${props.song.youtubeId}`
-    const [audioUrl, { refetch }] = createResource(src, src => getAudioFromCache(src))
+    const [audioUrl] = createResource(src, src => getAudioFromCache(src))
     
     const [playing, setPlaying] = createSignal(false)
 
@@ -112,7 +112,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                 <div class="text-left ">
                     <p>{props.song?.title}</p>
                     <div class="max-w-32 lg:max-w-48">
-                        <small class="block w-full truncate">{props.song.artists?.name}</small>
+                        <small class="block w-full truncate">{props.song.author?.name}</small>
                     </div>
                 </div>
             </div>
