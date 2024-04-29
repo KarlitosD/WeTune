@@ -23,9 +23,12 @@ function ResultList(props: { search: string }) {
 
 export default function Results(props: RouteSectionProps) {
   return (
-    <ErrorBoundary fallback={<ErrorPage />}>
+    // <ErrorBoundary fallback={(err) => {
+    //   console.log(err)
+    //   return <ErrorPage />
+    // }}>
       <ResultList search={props.location.query.search} />
-    </ErrorBoundary>
+    // </ErrorBoundary>
   )
 }
 
