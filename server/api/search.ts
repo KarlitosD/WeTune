@@ -11,10 +11,8 @@ export default async function handler(request: Request){
 
         if(!query) return Response.json([])     
 
-        console.time("Query Time")
         const items = await innertube.music.search(query, { type: "song" })
         const songs = formatSongsSearched(items.contents[0].contents);
-        console.timeEnd("Query Time")
 
         return Response.json(songs)
     } catch (error) {
