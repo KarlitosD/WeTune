@@ -75,16 +75,6 @@ export function PlaylistProvider(props: ParentProps) {
 
 
     const playSong = async (song: Song, playlistId = "history") => {
-        if(playlistId === "history") {
-            await addSong(song, playlistId)
-            let songs = structuredClone(playlists().find(playlist => playlist.id === "history").songs)
-
-            songs = songs.filter(songInPLaylist => songInPLaylist.youtubeId !== song.youtubeId)
-            songs.unshift(song)
-
-            await db.playlist.find({ selector: { id: "history" } }).update({ $set: { songs } })
-        }
-
         setActualPlaylistId(playlistId)
         const playlist = actualPlaylist()
     
@@ -93,6 +83,16 @@ export function PlaylistProvider(props: ParentProps) {
         if(songIndexInPlaylist !== -1){
             selected.index = songIndexInPlaylist
         }
+
+
+        //? Add song to history playlist
+        await addSong(song, "history")
+        let songs = structuredClone(playlists().find(playlist => playlist.id === "history").songs)
+
+        songs = songs.filter(songInPLaylist => songInPLaylist.youtubeId !== song.youtubeId)
+        songs.unshift(song)
+
+        await db.playlist.find({ selector: { id: "history" } }).update({ $set: { songs } })
     }
 
     const removeSong = async (song: Song, playlistId: string) => {
