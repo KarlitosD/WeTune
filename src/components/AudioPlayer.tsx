@@ -133,19 +133,19 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                 <div class="flex justify-around items-center">
                     <div class="size-[20px]"></div>
                     <div class="flex gap-2 justify-center">
-                        <button onClick={toggleShuffle} classList={{ "text-primary": shuffle() }}>
+                        <button onClick={toggleShuffle} class="active:scale-90 transition-transform" classList={{ "text-primary": shuffle() }}>
                             <IconShuffle size={20} color="inherit" />
                         </button>
-                        <button onClick={handlePrevious}>
+                        <button onClick={handlePrevious} class="active:scale-90 transition-transform">
                             <IconBackwardStep size={28} />
                         </button>
                         <button onClick={() => playing() ? pause() : play()}>
                             {playing() ? <IconPause size={32} /> : <IconPlay size={32} />}
                         </button>
-                        <button onClick={handleNext} disabled={!shuffle() && !props.selected.hasNext} class="disabled:text-gray-400">
+                        <button onClick={handleNext} disabled={!shuffle() && !props.selected.hasNext} class="disabled:text-gray-400 active:scale-90 transition-transform">
                             <IconForwardStep size={28} />
                         </button>
-                        <button onClick={toggleLoop} classList={{ "text-primary": loop() }}>
+                        <button onClick={toggleLoop} class="active:scale-90 transition-transform" classList={{ "text-primary": loop() }}>
                             <IconRepeat size={20} />
                         </button>
                     </div>
