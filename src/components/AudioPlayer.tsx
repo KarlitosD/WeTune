@@ -8,6 +8,7 @@ import { formatSeconds } from "~/utils/seconds";
 import Thumbnail from "./Thumbnail";
 import type { PlaylistContextData } from "~/context/playlist";
 import { getAudioFromCache, addAudioToCache, existsAudioInCache } from "~/hooks/cache";
+import { useMediaSession } from "~/hooks/useMediaSession";
 
 type AudioPlayerProps = {
     selected: PlaylistContextData["selected"]
@@ -47,8 +48,6 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     const play = () => setPlaying(true)
     const pause = () => setPlaying(false)
-
-
     
     const seek = (time: number) => {
         setCurrentTime(time)
@@ -56,12 +55,10 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     }
 
     const [isSeeking, setIsSeeking] = createSignal(false)
-    
     const preSeek = () => {
         setIsSeeking(true)
         pause()
     }
-
     const postSeek = () => {
         setIsSeeking(false)
         play()
@@ -132,6 +129,9 @@ export default function AudioPlayer(props: AudioPlayerProps) {
             setIsFirstSong(false)
         }
     })
+
+    const controls = { play, pause, handlePrevious, handleNext, seek }
+    useMediaSession({ selected: props.selected, controls })
 
     return (
         <div class="container min-h-12 mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-2 py-3 text-white"> 

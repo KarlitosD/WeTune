@@ -6,7 +6,7 @@
 - [] Import playlist from youtube url
     - [] Refactor playlist data with playlistId (using InnerTube)
 
-- [] Integrate Media Session API
+- [-] Integrate Media Session API
 
 - [] Add icon if a song is downloaded
 
