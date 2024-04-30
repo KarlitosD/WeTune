@@ -11,11 +11,11 @@ export default function Home() {
     const { playlists, addPlaylist } = usePlaylist()
 
     return (
-        <div class="px-4 text-white">
+        <div class="px-4 text-white grid place-items-center sm:block">
             <h1 class="text-left text-white text-3xl my-4">Playlists</h1>
-            <div class="flex items-start gap-4">
-                <For each={playlists()}>{playlist => <PlaylistCard playlist={playlist} />}</For>
+            <div class="grid grid-cols-2 items-start sm:flex sm:items-start gap-6 sm:gap-4">   
                 <CreatePlaylistModal addPlaylist={addPlaylist}  />
+                <For each={playlists()}>{playlist => <PlaylistCard playlist={playlist} />}</For>
             </div>
         </div>
     )
