@@ -48,9 +48,23 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     const play = () => setPlaying(true)
     const pause = () => setPlaying(false)
 
+
+    
     const seek = (time: number) => {
         setCurrentTime(time)
         seekAudio(time)
+    }
+
+    const [isSeeking, setIsSeeking] = createSignal(false)
+    
+    const preSeek = () => {
+        setIsSeeking(true)
+        pause()
+    }
+
+    const postSeek = () => {
+        setIsSeeking(false)
+        play()
     }
 
     const toggleLoop = () => {
@@ -106,8 +120,9 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     }
 
     const [isFirstSong, setIsFirstSong] = createSignal(true)
-    audio.addEventListener("canplay", () => {
-        if(!isFirstSong()){
+
+    audio.addEventListener("loadstart", () => {
+        if(!isFirstSong() && !isSeeking()){
             play()
         }
     })
@@ -159,13 +174,13 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                     <label for="currentTime">{formatSeconds(currentTime())}</label>
                     <input
                         type="range"
-                        class="w-56 h-1 accent-white hover:accent-primary bg-transparent"
+                        class="w-56 h-1 accent-white active:accent-primary hover:accent-primary bg-transparent"
                         max={duration()}
                         value={currentTime()}
-                        onMouseDown={pause}
-                        onTouchStart={pause}
+                        onMouseDown={preSeek}
+                        onTouchStart={preSeek}
                         onInput={e => seek(+e.currentTarget.value)}
-                        onChange={play}
+                        onChange={postSeek}
                         id="currentTime"
                     />
                     <label for="currentTime">{formatSeconds(duration())}</label>
