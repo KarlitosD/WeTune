@@ -19,7 +19,7 @@ export default function PlaylistPage (props: RouteSectionProps) {
     return (
         <section>
             <Show when={playlist()?.id}>
-                <header class="flex justify-between items-center py-2 border-b border-b-gray-500">
+                <header class="flex justify-between items-center py-3 px-6 border-b border-b-gray-500">
                     <h1 class="text-xl text-base-content">{playlist().title}</h1>
                     <button class="btn btn-primary rounded-full" onClick={handlePlayPlaylist}>
                         <Show when={isActualPlaylist()} fallback={<IconPlay />}>
