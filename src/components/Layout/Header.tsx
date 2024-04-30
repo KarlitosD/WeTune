@@ -16,13 +16,13 @@ export function Header() {
   
     return (
       <>
-        <nav class="container mx-auto flex items-center justify-around p-4 gap-10 text-gray-600">
-          <a href="/" class="hidden sm:block sm:w-16" >
+        <nav class="container mx-auto flex items-center justify-center sm:justify-around py-4 px-6 sm:px-0 gap-10 text-gray-600 member-focus:signal">
+          <a href="/" class="w-16 flex items-center mt-1 signal:animate-logoOut signal:sm:animate-none transition-size">   
             <LogoApp />
           </a>
-          <form class="form-control ml-0 sm:ml-4 lg:ml-0" action={searchAction} method="post">
-            <fieldset class="join w-full" disabled={isRouting()}>
-              <input class="input input-bordered text-neutral-content w-72 sm:w-96 join-item" type="search" name="search" placeholder="Search" value={location?.query?.search || ""} />
+          <form class="form-control flex items-end w-full sm:w-auto ml-0 sm:ml-4 lg:ml-0" action={searchAction} method="post">
+            <fieldset class="join w-full justify-end sm:justify-start" disabled={isRouting()}>
+              <input class="member input input-bordered text-neutral-content w-full sm:w-96 join-item focus:delay-75 transition-size" type="search" name="search" placeholder="Search" value={location?.query?.search || ""} />      
               <button class="btn btn-neutral btn-square join-item">
                 <IconMagnifyingGlass size={24} />
               </button>
