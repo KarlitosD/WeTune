@@ -119,20 +119,20 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     })
 
     return (
-        <div class="container min-h-12 mx-auto flex justify-center sm:justify-between items-center py-3 text-white">
-            <div class="hidden sm:flex max-w-lg items-center gap-2">
+        <div class="container min-h-12 mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-2 py-3 text-white"> 
+            <div class="my-1 sm:my-0 max-w-lg min-w-[290px] sm:min-w-min flex items-center gap-2"> 
                 <Thumbnail src={props.song.thumbnailUrl} title={props.song.title} isSmall={true} />
-                <div class="text-left ">
+                <div class="text-left">
                     <p>{props.song?.title}</p>
                     <div class="max-w-32 lg:max-w-48">
                         <small class="block w-full truncate">{props.song.author?.name}</small>
                     </div>
                 </div>
             </div>
-            <div class="flex h-fit flex-col justify-center gap-2 mx-4" >
-                <div class="flex justify-around items-center">
+            <div class="flex h-fit flex-col justify-center gap-2 self-center">
+                <div class="flex justify-around items-center order-2 sm:order-1">
                     <div class="size-[20px]"></div>
-                    <div class="flex gap-2 justify-center">
+                    <div class="flex gap-4 justify-center">
                         <button onClick={toggleShuffle} class="active:scale-90 transition-transform" classList={{ "text-primary": shuffle() }}>
                             <IconShuffle size={20} color="inherit" />
                         </button>
@@ -155,7 +155,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                         </Show>
                     </button>
                 </div>
-                <div class="h-4 flex items-center gap-1">
+                <div class="h-4 flex items-center gap-1 order-1 sm:order-2">
                     <label for="currentTime">{formatSeconds(currentTime())}</label>
                     <input
                         type="range"
