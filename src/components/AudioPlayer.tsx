@@ -129,7 +129,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                     </div>
                 </div>
             </div>
-            <div class="flex h-fit flex-col justify-center gap-2 self-center">
+            <div class="flex h-fit flex-col justify-center gap-2 mb-1 sm:mb-0">
                 <div class="flex justify-around items-center order-2 sm:order-1">
                     <div class="size-[20px]"></div>
                     <div class="flex gap-4 justify-center">
