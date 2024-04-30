@@ -25,9 +25,9 @@ export const useMediaSession = (props: UseMediaSessionProps) => {
             album: song()?.album?.name,
             artwork: [
                 {
-                    src: song()?.thumbnailUrl,
-                    sizes: "128x128",
-                    type: "image/png"
+                    src: `https://wsrv.nl/?url=https://i.ytimg.com/vi/${song()?.youtubeId}/maxresdefault.jpg&fit=cover&w=256&h=256`, 
+                    sizes: "256x256",
+                    type: "image/jpg"
                 }
             ]
         })

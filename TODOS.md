@@ -14,4 +14,6 @@
 
 - [] Add i18n
 
+- [] Use wsrv.nl for image proxy (e.g. https://wsrv.nl/?url=https://i.ytimg.com/vi/3vVSBLkpO-8/mqdefault.jpg&fit=cover&w=128&h=128)
+
 
