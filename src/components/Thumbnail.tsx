@@ -7,7 +7,7 @@ type ThumbnailProps = {
 export default function Thumbnail(props: ThumbnailProps) {
     const size = props.isSmall ? 48 : 60
     return (
-        <div class={`aspect-square ${props.isSmall ? "w-12 h-12" : "w-[60px] h-[60px]"}`}>
+        <div class={`aspect-square ${props.isSmall ? "size-12" : "size-[60px]"}`}>
             <img class="object-cover w-full h-full backdrop-blur-sm" src={props.src} width={size} height={size} alt={props.title} title={props.title} referrerpolicy="no-referrer" />
         </div>
     )
