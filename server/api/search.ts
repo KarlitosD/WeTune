@@ -12,7 +12,7 @@ export default async function handler(request: Request){
         if(!query) return Response.json([])     
 
         const items = await innertube.music.search(query, { type: "song" })
-        const songs = formatSongsSearched(items.contents[0].contents);
+        const songs = formatSongsSearched(items.contents);
 
         return Response.json(songs)
     } catch (error) {
@@ -24,16 +24,19 @@ export default async function handler(request: Request){
 }
 
 
-function formatSongsSearched(items: any): Song[] {
+function formatSongsSearched(content: any[]): Song[] {
+    const indexContent = content.findIndex(item => item.type !== "ItemSection") 
+    const items = content[indexContent].contents
+
     return items.slice(0, 15).map(song => {
             return {
                 youtubeId: song.id,
                 title: song.title,
                 type: "song",
-                album: {
+                album: song.album ? {
                     name: song.album.name,
                     id: song.album.id
-                },
+                } : null,
                 thumbnailUrl: `https://i.ytimg.com/vi/${song.id}/mqdefault.jpg`,
                 duration: song.duration.seconds,
                 author: {
