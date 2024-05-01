@@ -1,5 +1,5 @@
 import { lazy } from 'solid-js';
-import { Router, RouteDefinition } from '@solidjs/router';
+import { Router, RouteDefinition, redirect } from '@solidjs/router';
 
 import App from '~/app';
 
@@ -12,7 +12,11 @@ import { searchResults } from '~/pages/results.data';
 
 import PlaylistPage from '~/pages/playlist/[playlistId]';
 
-import Playground from '~/pages/playground';
+import ShareSong from '~/pages/share/song';
+import { getSongData } from '~/pages/share/song.data';
+
+const Playground = lazy(() => import('~/pages/playground'));
+const NotFound = lazy(() => import('~/pages/404'));
 
 export const routes: RouteDefinition[] = [
   {
@@ -33,13 +37,24 @@ export const routes: RouteDefinition[] = [
       },
       {
         path: "/playground",
-        component: Playground,
+        component: Playground
       }
     ],
   },
   {
+    path: "/share/song",
+    component: ShareSong,
+    load: async ({ location }) => {
+      const searchParams = new URLSearchParams(location.search)
+      if(!searchParams.get("songId")) redirect("/")
+      
+      fetch(`/api/songs?song=${searchParams.get("songId")}`)
+      await getSongData(searchParams.get("songId"))
+    }
+  },
+  {
     path: '*404',
-    component: lazy(() => import('../pages/404')),
+    component: NotFound,
   },
 ];
 
