@@ -42,7 +42,7 @@ export default async function handler(req: Request){
             "Content-Type": "audio/mp4",
             "Accept-Ranges": "bytes",
             "Content-Length": String(audioBlob.size),
-            "cache-control": "max-age=3000000, public",
+            "cache-control": "public, max-age=3000000, s-maxage=100000, immutable" 
         }
     })
 }

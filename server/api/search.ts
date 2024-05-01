@@ -14,7 +14,11 @@ export default async function handler(request: Request){
         const items = await innertube.music.search(query, { type: "song" })
         const songs = formatSongsSearched(items.contents);
 
-        return Response.json(songs)
+        const response = Response.json(songs)
+
+        response.headers.set("Cache-Control", "public, max-age=30, s-maxage=60, stale-while-revalidate=30, immutable") 
+
+        return response
     } catch (error) {
         console.log(error)
         return Response.json({ error: error.message }, {
