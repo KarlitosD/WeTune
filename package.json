@@ -25,6 +25,7 @@
     "@netlify/functions": "^2.6.0",
     "@sinclair/typebox": "^0.32.26",
     "@solid-primitives/set": "^0.4.11",
+    "@solidjs/meta": "^0.29.3",
     "@solidjs/router": "^0.13.2",
     "@typeschema/typebox": "^0.13.4",
     "daisyui": "^4.10.2",
