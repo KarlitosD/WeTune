@@ -51,6 +51,6 @@ export const useMediaSession = (props: UseMediaSessionProps) => {
         props.controls.seek(e.seekTime)
     })
 
-    navigator.mediaSession.setActionHandler("stop", null)
+    navigator.mediaSession.setActionHandler("stop", props.controls.pause)
        
 }
