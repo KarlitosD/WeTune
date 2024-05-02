@@ -10,14 +10,33 @@ export default defineConfig({
       '~' : path.resolve(__dirname, './src')
     },
   },
+  build: {
+    target: 'esnext',
+  },
   plugins: [
     devtools({
       autoname: true
     }),
     solidPlugin(), 
-    VitePWA()
+    VitePWA({
+      base: "/",
+      includeAssets: ["icon.svg"],
+      manifest: {
+        name: "WeTune",
+        short_name: "WeTune",
+        description: "A music player for the web",
+        theme_color: "#38bdf8",
+        background_color: "#0f172a",
+        display: "standalone",
+        icons: [
+          {
+            src: "/icon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+        ],
+      }, 
+    })
   ],
-  build: {
-    target: 'esnext',
-  },
 });
