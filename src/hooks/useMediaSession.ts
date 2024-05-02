@@ -1,4 +1,4 @@
-import { createEffect } from "solid-js"
+import { type Accessor, createEffect } from "solid-js"
 import { PlaylistContextData } from "~/context/playlist"
 
 
@@ -10,6 +10,10 @@ type UseMediaSessionProps = {
         handlePrevious: () => void,
         handleNext: () => void,
         seek: (time: number) => void
+    },
+    times: {
+        duration: Accessor<number>,
+        current: Accessor<number>
     }
 }
 
@@ -32,6 +36,12 @@ export const useMediaSession = (props: UseMediaSessionProps) => {
             ]
         })
     })
+
+
+    navigator.mediaSession.setPositionState({
+        duration: props.times.duration(),
+        position: props.times.current()
+    })
     
     navigator.mediaSession.setActionHandler("play", props.controls.play)
     navigator.mediaSession.setActionHandler("pause", props.controls.pause)
@@ -40,5 +50,7 @@ export const useMediaSession = (props: UseMediaSessionProps) => {
     navigator.mediaSession.setActionHandler("seekto", (e) => {
         props.controls.seek(e.seekTime)
     })
+
+    navigator.mediaSession.setActionHandler("stop", null)
        
 }

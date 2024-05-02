@@ -132,7 +132,11 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     })
 
     const controls = { play, pause, handlePrevious, handleNext, seek }
-    useMediaSession({ selected: props.selected, controls })
+    useMediaSession({ 
+        selected: props.selected, 
+        controls, 
+        times: { duration, current: currentTime } 
+    })
 
     return (
         <div class="container min-h-12 mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-2 py-3 text-white"> 
