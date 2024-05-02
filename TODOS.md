@@ -1,8 +1,9 @@
 - [] Video results when searching
 
-- [] Shareables link of songs
-    - [] Get info of a song with a youtubeId
-
+- [-] Shareables link of songs
+    - [X] Get info of a song with a youtubeId
+    - [] Investigate that sometimes the shared link gives an incorrect song
+      
 - [] Import playlist from youtube url
     - [] Refactor playlist data with playlistId (using InnerTube)
 
@@ -21,8 +22,6 @@
 - [] Detect if the device is a mobile device for initial volume
 
 - [] Refactor youtube logic (api) and playlist logic (move to services folder)
-
-- [] Investigate share link of a song is incorrect
 
 - [] Investigate song not reproduce in the start
 
