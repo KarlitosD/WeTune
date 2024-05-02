@@ -1,6 +1,12 @@
 [functions]
     directory = "/server/api"
-    
+
+[[redirects]]
+  from = "/api/song/blob"
+  to = "/.netlify/functions/song-blob"
+  status = 200
+  force = true    
+
 [[redirects]]
   from = "/api/*" # simplify all calls to serverless functions
   to = "/.netlify/functions/:splat" # all function calls will go to this path

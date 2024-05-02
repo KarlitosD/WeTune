@@ -21,8 +21,10 @@ export default async function handler(req: Request){
     const { searchParams } = new URL(req.url)
 
     const quality = searchParams.get("quality") ?? "highest"
-    const songId = searchParams.get("song") ?? "lS4NHib1ft4"
+    const songId = searchParams.get("songId")
     
+    if(!songId) return new Response("", { status: 404, statusText: "Song not found" })
+
     // let audioBlob: Blob = await getAudioStream(songId, quality)
     
     let audioBlob: Blob;

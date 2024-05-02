@@ -16,7 +16,7 @@ type AudioPlayerProps = {
 }
 
 export default function AudioPlayer(props: AudioPlayerProps) {
-    const src = () => `/api/songs?song=${props.song.youtubeId}`
+    const src = () => `/api/song/blob?songId=${props.song.youtubeId}`
     const [audioUrl] = createResource(src, src => getAudioFromCache(src))
 
     const [playing, setPlaying] = createSignal(false)
