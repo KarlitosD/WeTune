@@ -17,7 +17,7 @@ export default function PlaylistPage (props: RouteSectionProps) {
     }
 
     return (
-        <section>
+        <section class="h-full">
             <Show when={playlist()?.id}>
                 <header class="flex justify-between items-center py-3 px-6 border-b border-b-gray-500">
                     <h1 class="text-xl text-base-content">{playlist().title}</h1>
@@ -27,21 +27,21 @@ export default function PlaylistPage (props: RouteSectionProps) {
                         </Show>
                     </button>
                 </header>
-                    <article class="flex flex-col gap-2 p-4 max-h-[700px] sm:max-h-[750px] overflow-y-scroll">
+                <article class="flex flex-col my-4 px-4 gap-2 max-h-[700px] sm:max-h-[750px] h-[85%] overflow-y-scroll scrollbar scrollbar-track-base-100 scrollbar-thumb-primary">
                     <For each={playlist().songs}>
-                        {song => 
-                            <SongItem song={song} onSelect={() => playSong(song, playlist().id)}>
-                                <li>
-                                    <div>
-                                        <button 
-                                            onClick={() => removeSong(song, playlist().id)}
-                                            class="rounded-full mx-auto p-1 list-none shadow-white hover:text-white hover:shadow-lg"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                </li>
-                            </SongItem>
+                        {song =>
+                                <SongItem song={song} onSelect={() => playSong(song, playlist().id)}>
+                                    <li>
+                                        <div>
+                                            <button
+                                                onClick={() => removeSong(song, playlist().id)}
+                                                class="rounded-full mx-auto p-1 list-none shadow-white hover:text-white hover:shadow-lg"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </li>
+                                </SongItem>
                         }
                     </For>
                 </article>
