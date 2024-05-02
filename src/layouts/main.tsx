@@ -8,7 +8,7 @@ export default function HomeWrapper(props: RouteSectionProps) {
 
   return (
     <>
-      <main class="container h-full mx-auto text-center text-gray-700">
+      <main class="container max-h-full h-full mx-auto text-center text-gray-700">
         {props.children}
         <div class="fixed left-0 bottom-0 w-full bg-base-100 shadow-lg shadow-slate-50">
           <Show when={selected?.song}>
@@ -19,3 +19,4 @@ export default function HomeWrapper(props: RouteSectionProps) {
     </>
   );
 }
+

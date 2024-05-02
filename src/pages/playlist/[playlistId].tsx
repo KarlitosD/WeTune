@@ -27,7 +27,7 @@ export default function PlaylistPage (props: RouteSectionProps) {
                         </Show>
                     </button>
                 </header>
-                <article class="flex flex-col gap-2 p-4">
+                    <article class="flex flex-col gap-2 p-4 max-h-[700px] sm:max-h-[750px] overflow-y-scroll">
                     <For each={playlist().songs}>
                         {song => 
                             <SongItem song={song} onSelect={() => playSong(song, playlist().id)}>

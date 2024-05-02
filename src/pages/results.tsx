@@ -12,7 +12,7 @@ function ResultList(props: { search: string }) {
   const { playSong } = usePlaylist()
   return (
     <>
-      <div class="flex flex-col gap-2 p-4">
+      <div class="flex flex-col gap-2 p-4 h-full overflow-y-scroll">
         <For each={songs()} fallback={<ResultFallback />}>
           {result => <SongItem song={result} onSelect={() => playSong(result)} />}
         </For>
