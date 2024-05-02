@@ -24,7 +24,7 @@ export default defineConfig({
       manifest: {
         theme_color: "#38bdf8",
         background_color: "#0f172a",
-        display: "minimal-ui",
+        display: "fullscreen",
         scope: "/",
         start_url: "/",
         name: "WeTune",
