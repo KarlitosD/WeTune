@@ -152,7 +152,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
             <div class="flex h-fit flex-col justify-center gap-2 mb-1 sm:mb-0">
                 <div class="flex justify-around items-center order-2 sm:order-1">
                     <ShareSongButton song={props.song} />
-                    <div class="flex gap-4 justify-center mx-1">
+                    <div class="flex gap-4 justify-center">
                         <button onClick={toggleShuffle} class="active:scale-90 transition-transform" classList={{ "text-primary": shuffle() }}>
                             <IconShuffle size={20} color="inherit" />
                         </button>
