@@ -4,6 +4,8 @@ import daisyui  from "daisyui"
 import tailwindSignals from "tailwindcss-signals"
 import tailwindMembers from "tailwindcss-members"
 
+import tailwindScrollbar from "tailwind-scrollbar"
+
 export default {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -29,7 +31,7 @@ export default {
       }
     },
   },
-  plugins: [daisyui, tailwindMembers, tailwindSignals],
+  plugins: [daisyui, tailwindMembers, tailwindSignals, tailwindScrollbar],
   daisyui: {
     themes: ["light", "dark", "night"]
   }
