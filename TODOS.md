@@ -20,4 +20,8 @@
 
 - [] Detect if the device is a mobile device for initial volume
 
+- [] Refactor youtube logic (api) and playlist logic (move to services folder)
+
+- [] Investigate share link of a song is incorrect
+
 
