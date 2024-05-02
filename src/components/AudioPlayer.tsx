@@ -9,6 +9,7 @@ import Thumbnail from "./Thumbnail";
 import type { PlaylistContextData } from "~/context/playlist";
 import { getAudioFromCache, addAudioToCache, existsAudioInCache } from "~/hooks/cache";
 import { useMediaSession } from "~/hooks/useMediaSession";
+import { ShareSongButton } from "./ShareSongButton";
 
 type AudioPlayerProps = {
     selected: PlaylistContextData["selected"]
@@ -146,8 +147,8 @@ export default function AudioPlayer(props: AudioPlayerProps) {
             </div>
             <div class="flex h-fit flex-col justify-center gap-2 mb-1 sm:mb-0">
                 <div class="flex justify-around items-center order-2 sm:order-1">
-                    <div class="size-[20px]"></div>
-                    <div class="flex gap-4 justify-center">
+                    <ShareSongButton song={props.song} />
+                    <div class="flex gap-4 justify-center mx-1">
                         <button onClick={toggleShuffle} class="active:scale-90 transition-transform" classList={{ "text-primary": shuffle() }}>
                             <IconShuffle size={20} color="inherit" />
                         </button>
