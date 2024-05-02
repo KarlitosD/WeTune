@@ -11,7 +11,11 @@ export function createAudio(src: Accessor<string>, { playing, volume, loop }: Cr
     const [duration, setDuration] = createSignal(0)
 
     createEffect(() => audio.src = src())
-    createEffect(() => playing() ? audio.play() : audio.pause())
+    createEffect(() => {
+        if(Boolean(src()) && (src() !== "blob:")){
+            playing() ? audio.play() : audio.pause()
+        }
+    })
     createEffect(() => audio.volume = volume())
     createEffect(() => audio.loop = loop())
 
