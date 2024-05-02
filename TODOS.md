@@ -32,3 +32,4 @@
 
 - [] Consider remove song from cache if the song not exists in none playlist
 
+- [] Consider use cloudflare web analytics and turnsile
