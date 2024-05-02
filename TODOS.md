@@ -24,4 +24,11 @@
 
 - [] Investigate share link of a song is incorrect
 
+- [] Investigate song not reproduce in the start
+
+- [] Make button for replay playlist
+
+- [] Button for download all songs of a playlist
+
+- [] Consider remove song from cache if the song not exists in none playlist
 
