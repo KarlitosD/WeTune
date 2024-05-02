@@ -48,7 +48,7 @@ function PlaylistDropdown(props: { song: Song }){
             <li><PlaylistDropdown song={props.song} /></li>
             {props.children}
             <li>
-              <a href={`/api/song/blob?songId=${props.song.youtubeId}`} download={`${props.song.title} - ${props?.song?.author?.name}.mp3`}>Descargar MP4</a>   
+              <a href={`/api/song/blob?songId=${props.song.youtubeId}`} download={`${props.song.title} - ${props?.song?.author?.name}.mp3`}>Descargar MP3</a>   
             </li>
           </ul>
         </div>
