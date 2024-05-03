@@ -19,7 +19,7 @@ function PlaylistDropdown(props: { song: Song }){
     return (
       <div>
         <details class="dropdown dropdown-left">
-          <summary class="rounded-full mx-auto p-1 list-none shadow-white hover:text-white hover:shadow-lg">Agregar playlist</summary>
+          <summary class="p-1 list-none">Agregar playlist</summary>
           <ul class="p-2 shadow menu dropdown-content z-[2] bg-base-200 rounded-box w-52">
             <For each={playlists()}>
               {playlist => <li><a onClick={() => handleAdd(playlist.id)}>{playlist.title}</a></li>}
@@ -44,7 +44,7 @@ function PlaylistDropdown(props: { song: Song }){
           </div>
         </div>
         <div class="dropdown dropdown-end">
-          <div tabIndex={0} class="p-1"><IconEllipsis /></div>
+          <div tabIndex={0} class="p-1 cursor-pointer"><IconEllipsis /></div>
           <ul tabIndex={0} class="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-52">
             <li><PlaylistDropdown song={props.song} /></li>
             <li>
