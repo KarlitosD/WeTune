@@ -11,10 +11,16 @@ import { getAudioFromCache, addAudioToCache, existsAudioInCache } from "~/hooks/
 import { useMediaSession } from "~/hooks/useMediaSession";
 import { ShareSongButton } from "./ShareSongButton";
 import { getThumbnailUrl } from "~/utils/thumbnail";
+import { isMobile } from "~/utils/device";
 
 type AudioPlayerProps = {
     selected: PlaylistContextData["selected"]
     song: PlaylistContextData["selected"]["song"],
+}
+
+const getDefaultVolumenAccordingToDevice = () => {
+
+    return isMobile() ? 1 : 0.5
 }
 
 export default function AudioPlayer(props: AudioPlayerProps) {
@@ -23,7 +29,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     const [playing, setPlaying] = createSignal(false)
 
-    const [volume, setVolume] = createSignal(Number(localStorage.getItem("volume") ?? 0.5)) 
+    const [volume, setVolume] = createSignal(Number(localStorage.getItem("volume") ?? getDefaultVolumenAccordingToDevice())) 
     const volumeLevelAlvaMajo = () => volume() ** 2
 
     const [lastVolumeLevel, setLastVolumeLevel] = createSignal(Number(localStorage.getItem("lastVolumeLevel")))
