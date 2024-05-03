@@ -120,7 +120,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     const [isFirstSong, setIsFirstSong] = createSignal(true)
 
-    audio.addEventListener("loadstart", () => {
+    audio.addEventListener("canplaythrough", () => {
         if(!isFirstSong() && !isSeeking()){
             play()
         }
