@@ -12,16 +12,14 @@ import { useMediaSession } from "~/hooks/useMediaSession";
 import { ShareSongButton } from "./ShareSongButton";
 import { getThumbnailUrl } from "~/utils/thumbnail";
 import { isMobile } from "~/utils/device";
+import { audioPlayerEvent } from "~/utils/event";
 
 type AudioPlayerProps = {
     selected: PlaylistContextData["selected"]
     song: PlaylistContextData["selected"]["song"],
 }
 
-const getDefaultVolumenAccordingToDevice = () => {
-
-    return isMobile() ? 1 : 0.5
-}
+const getDefaultVolumenAccordingToDevice = () => isMobile() ? 1 : 0.5
 
 export default function AudioPlayer(props: AudioPlayerProps) {
     const src = () => `/api/song/blob?songId=${props.song.youtubeId}`
@@ -144,6 +142,8 @@ export default function AudioPlayer(props: AudioPlayerProps) {
         controls, 
         times: { duration, current: currentTime } 
     })
+
+    audioPlayerEvent.on("togglePlay", () => setPlaying(playing => !playing))
 
     return (
         <div class="container min-h-12 mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-2 py-3 text-white"> 

@@ -3,6 +3,7 @@ import { For, Show, createMemo } from "solid-js";
 import { IconPause, IconPlay } from "~/components/Icons";
 import { SongItem } from "~/components/SongItem";
 import { usePlaylist } from "~/context/playlist";
+import { audioPlayerEvent } from "~/utils/event";
 
 export default function PlaylistPage (props: RouteSectionProps) {
     const { playlists, actualPlaylist, playSong, removeSong } = usePlaylist()
@@ -14,6 +15,8 @@ export default function PlaylistPage (props: RouteSectionProps) {
         if(!isActualPlaylist()) {
             const firstSong = playlist().songs[0]
             playSong(firstSong, playlist().id)
+        } else {
+            audioPlayerEvent.emit("togglePlay",)
         }
     }
 
