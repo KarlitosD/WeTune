@@ -31,8 +31,6 @@
 
 - [] Investigate song not reproduce in the start
 
-- [] Use wsrv.nl for image proxy (e.g. https://wsrv.nl/?url=https://i.ytimg.com/vi/3vVSBLkpO-8/mqdefault.jpg&fit=cover&w=128&h=128)
-
 - [] Add drawer for song player in mobile
 
 - [] Consider visual redesign of the audio player
@@ -42,3 +40,9 @@
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
     - [] Using turnsile
+
+
+
+----
+
+- [X] Use wsrv.nl for image proxy (e.g. https://wsrv.nl/?url=https://i.ytimg.com/vi/3vVSBLkpO-8/mqdefault.jpg&fit=cover&w=128&h=128)
