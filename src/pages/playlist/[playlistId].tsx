@@ -3,7 +3,6 @@ import { For, Show, createMemo } from "solid-js";
 import { IconPause, IconPlay } from "~/components/Icons";
 import { SongItem } from "~/components/SongItem";
 import { usePlaylist } from "~/context/playlist";
-import { Playlist } from "~/types/playlist";
 
 export default function PlaylistPage (props: RouteSectionProps) {
     const { playlists, actualPlaylist, playSong, removeSong } = usePlaylist()
@@ -12,8 +11,10 @@ export default function PlaylistPage (props: RouteSectionProps) {
     const isActualPlaylist = () => actualPlaylist().id === playlist().id
 
     const handlePlayPlaylist = () => {
-        const firstSong = playlist().songs[0]
-        playSong(firstSong, playlist().id)
+        if(!isActualPlaylist()) {
+            const firstSong = playlist().songs[0]
+            playSong(firstSong, playlist().id)
+        }
     }
 
     return (
@@ -30,18 +31,18 @@ export default function PlaylistPage (props: RouteSectionProps) {
                 <article class="flex flex-col my-4 px-4 gap-2 max-h-[700px] sm:max-h-[750px] h-[85%] overflow-y-scroll scrollbar scrollbar-track-base-100 scrollbar-thumb-primary">
                     <For each={playlist().songs}>
                         {song =>
-                                <SongItem song={song} onSelect={() => playSong(song, playlist().id)}>
-                                    <li>
-                                        <div>
-                                            <button
-                                                onClick={() => removeSong(song, playlist().id)}
-                                                class="text-error p-1"
-                                            >
-                                                Eliminar
-                                            </button>
-                                        </div>
-                                    </li>
-                                </SongItem>
+                            <SongItem song={song} onSelect={() => playSong(song, playlist().id)}>
+                                <li>
+                                    <div>
+                                        <button
+                                            onClick={() => removeSong(song, playlist().id)}
+                                            class="text-error p-1"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </li>
+                            </SongItem>
                         }
                     </For>
                 </article>
