@@ -35,7 +35,7 @@ export default function PlaylistPage (props: RouteSectionProps) {
                                         <div>
                                             <button
                                                 onClick={() => removeSong(song, playlist().id)}
-                                                class="rounded-full mx-auto p-1 list-none shadow-white hover:text-white hover:shadow-lg"
+                                                class="rounded-full text-error mx-auto p-1 list-none"
                                             >
                                                 Eliminar
                                             </button>
