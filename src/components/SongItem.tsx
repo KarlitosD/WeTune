@@ -44,7 +44,7 @@ function PlaylistDropdown(props: { song: Song }){
           </div>
         </div>
         <div class="dropdown dropdown-end">
-          <div tabIndex={0} class="rounded-full cursor-pointer p-1 list-none shadow-white hover:text-white hover:shadow-lg"><IconEllipsis /></div>
+          <div tabIndex={0} class="p-1"><IconEllipsis /></div>
           <ul tabIndex={0} class="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-52">
             <li><PlaylistDropdown song={props.song} /></li>
             <li>
