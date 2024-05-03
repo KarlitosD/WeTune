@@ -10,6 +10,7 @@ import type { PlaylistContextData } from "~/context/playlist";
 import { getAudioFromCache, addAudioToCache, existsAudioInCache } from "~/hooks/cache";
 import { useMediaSession } from "~/hooks/useMediaSession";
 import { ShareSongButton } from "./ShareSongButton";
+import { getThumbnailUrl } from "~/utils/thumbnail";
 
 type AudioPlayerProps = {
     selected: PlaylistContextData["selected"]
@@ -141,7 +142,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     return (
         <div class="container min-h-12 mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-2 py-3 text-white"> 
             <div class="my-1 sm:my-0 max-w-lg min-w-[290px] sm:min-w-min flex items-center gap-2"> 
-                <Thumbnail src={props.song.thumbnailUrl} title={props.song.title} isSmall={true} />
+                <Thumbnail src={getThumbnailUrl(props.song.youtubeId)} title={props.song.title} isSmall={true} />
                 <div class="text-left">
                     <p>{props.song?.title}</p>
                     <div class="max-w-32 lg:max-w-48">

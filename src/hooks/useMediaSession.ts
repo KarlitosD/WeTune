@@ -1,5 +1,7 @@
 import { type Accessor, createEffect } from "solid-js"
+import { M } from "vite/dist/node/types.d-aGj9QkWt"
 import { PlaylistContextData } from "~/context/playlist"
+import { Resolution, getThumbnailUrl } from "~/utils/thumbnail"
 
 
 type UseMediaSessionProps = {
@@ -23,14 +25,33 @@ export const useMediaSession = (props: UseMediaSessionProps) => {
     const song = () => props.selected.song
 
     createEffect(() => {
+        const thumbnailOptios = {
+            resolution: Resolution.Max,
+            fit: "cover",
+        }
+
+        const thumbnailUrl512 = getThumbnailUrl(song()?.youtubeId, { ...thumbnailOptios, w: "512", h: "512" })
+        const thumbnailUrl256 = getThumbnailUrl(song()?.youtubeId, { ...thumbnailOptios, w: "256", h: "256" })
+        const thumbnailUrl192 = getThumbnailUrl(song()?.youtubeId, { ...thumbnailOptios, w: "192", h: "192" })
+
         navigator.mediaSession.metadata = new MediaMetadata({
             title: song()?.title,
             artist: song()?.author?.name,
             album: song()?.album?.name,
             artwork: [
                 {
-                    src: `https://wsrv.nl/?url=https://i.ytimg.com/vi/${song()?.youtubeId}/maxresdefault.jpg&fit=cover&w=256&h=256`, 
+                    src: thumbnailUrl512, 
+                    sizes: "512x512",
+                    type: "image/jpg"
+                },
+                {
+                    src: thumbnailUrl256, 
                     sizes: "256x256",
+                    type: "image/jpg"
+                },
+                {
+                    src: thumbnailUrl192, 
+                    sizes: "192x192",
                     type: "image/jpg"
                 }
             ]

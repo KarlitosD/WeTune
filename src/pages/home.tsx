@@ -4,6 +4,7 @@ import IconMusic from "~/components/Icons/IconMusic"
 import type { Playlist } from "~/types/playlist"
 import { createId } from "~/utils/id"
 import { usePlaylist } from "~/context/playlist"
+import { getThumbnailUrl } from "~/utils/thumbnail"
 
 const playlistCardSize = "w-32 h-32"
 
@@ -96,7 +97,7 @@ function PlaylistCard(props: { playlist: Playlist }) {
         <a href={`/playlist/${props.playlist.id}`}>
             <div class={`${playlistCardSize} flex rounded overflow-hidden`}>
                 <Show when={props.playlist?.songs?.length > 0} fallback={<PlaylistWithoutImage />}>
-                    <img class="object-cover w-full h-full" width={128} height={128} src={props.playlist?.songs[0]?.thumbnailUrl} />
+                    <img class="object-cover w-full h-full" width={128} height={128} src={getThumbnailUrl(props.playlist?.songs[0]?.youtubeId)} />
                 </Show>
             </div>
             <p class="font-medium text-center mt-1 hover:underline">{props.playlist.title}</p>

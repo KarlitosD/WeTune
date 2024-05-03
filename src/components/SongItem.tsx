@@ -5,6 +5,7 @@ import { usePlaylist } from "~/context/playlist"
 import Thumbnail from "~/components/Thumbnail"
 import IconEllipsis from "~/components/Icons/IconEllipsis"
 import { formatSeconds } from "~/utils/seconds"
+import { getThumbnailUrl } from "~/utils/thumbnail"
 
 function PlaylistDropdown(props: { song: Song }){
     const { addSong, playlists } = usePlaylist()
@@ -36,7 +37,7 @@ function PlaylistDropdown(props: { song: Song }){
     return (
       <div class="flex items-center justify-between text-slate-300">
         <div class="flex items-center gap-2 w-80 sm:w-96 cursor-pointer text-left" onClick={props.onSelect}>
-          <Thumbnail src={props.song.thumbnailUrl} title={props.song.title} />
+          <Thumbnail src={getThumbnailUrl(props.song.youtubeId)} title={props.song.title} />
           <div class="text-left">
             <p class="text-sm font-semibold w-fit">{props.song.title}</p>
             <p class="text-xs text-ellipsis">{props.song?.author?.name}{props.song?.album?.name ? ` - ${props.song?.album?.name}` : ""} - {formatSeconds(props.song.duration)}</p>
