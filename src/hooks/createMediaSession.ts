@@ -59,9 +59,13 @@ export const useMediaSession = (props: UseMediaSessionProps) => {
     })
 
 
-    navigator.mediaSession.setPositionState({
-        duration: props.times.duration(),
-        position: props.times.current()
+    createEffect(() => {
+        if(props.times.duration() > 0){
+            navigator.mediaSession.setPositionState({
+                duration: props.times.duration(),
+                position: props.times.current()
+            })
+        }
     })
     
     navigator.mediaSession.setActionHandler("play", props.controls.play)
