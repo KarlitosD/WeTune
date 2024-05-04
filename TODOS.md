@@ -1,5 +1,7 @@
 - [] Investigate song not reproduce in the start
 
+- [] Made search section (songs/videos) collapsible
+
 - [] Make button for replay playlist
 
 - [-] Integrate Media Session API
@@ -14,18 +16,11 @@
 
 - [] Add i18n
 
-- [] Video results when searching
-
-- [-] Shareables link of songs
-    - [-] Get info of a song with a youtubeId
-    - [] Investigate that sometimes the shared link gives an incorrect song
-      
 - [] Import playlist from youtube url
     - [] Refactor playlist data with playlistId (using InnerTube)
+    - [] Import from youtube and youtube music
 
 - [] Refactor youtube logic (api) and playlist logic (move to services folder)
-
-- [] Investigate song not reproduce in the start
 
 - [] Add drawer for song player in mobile
 
@@ -46,3 +41,9 @@
 - [X] Detect if the device is a mobile device for initial volume (navigator.userAgentData.mobile)
 
 - [X] Add icon if a song is downloaded
+
+- [X] Shareables link of songs
+    - [X] Get info of a song with a youtubeId
+    - [X] Investigate that sometimes the shared link gives an incorrect song
+
+- [X] Video results when searching
