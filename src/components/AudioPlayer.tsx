@@ -151,9 +151,9 @@ export default function AudioPlayer(props: AudioPlayerProps) {
             <div class="my-1 sm:my-0 max-w-lg min-w-[290px] sm:min-w-min flex items-center gap-2"> 
                 <Thumbnail src={getThumbnailUrl(props.song.youtubeId)} title={props.song.title} isSmall={true} />
                 <div class="text-left">
-                    <p>{props.song?.title}</p>
+                    <p class="w-64 truncate" title={props.song.title}>{props.song?.title}</p>
                     <div class="max-w-32 lg:max-w-48">
-                        <small class="block w-full truncate">{props.song.author?.name}</small>
+                        <small class="block w-full truncate" title={props.song.title}>{props.song.author?.name}</small>
                     </div>
                 </div>
             </div>
@@ -199,7 +199,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                     <label for="currentTime">{formatSeconds(duration())}</label>
                 </div>
             </div>
-            <div class="gap-2 items-center hidden sm:flex">
+            <div class="w-64 gap-2 hidden sm:flex items-center justify-center">
                 <button onClick={togleVolumeLevel}>
                     { volume() > 0 ? <IconVolumeHigh size={20} /> : <IconVolumeXmark size={20} /> }
                 </button>
