@@ -1,5 +1,9 @@
+import { format } from "path"
 import { Innertube } from "youtubei.js"
+import { ObservedArray, YTNode } from "youtubei.js/dist/src/parser/helpers"
+import { ItemSection, MusicCardShelf, MusicResponsiveListItem, MusicShelf } from "youtubei.js/dist/src/parser/nodes"
 import { Song } from "~/db/schema"
+import { parseSongFromYTNodeLike } from "../parsers/youtube"
 
 export default async function handler(request: Request){
     try {
@@ -16,12 +20,12 @@ export default async function handler(request: Request){
             innertube.music.search(query, { type: "video" })
         ])
 
-        const songs = formatSongsSearched(itemsSongs.contents);
-        const videos = formatVideoSearched(itemsVideos.contents);
+        const songs = formatSongsSearchedBeta(itemsSongs.contents);
+        const videos = formatSongsSearchedBeta(itemsVideos.contents);
 
         const response = Response.json({ songs, videos })
 
-        // response.headers.set("Cache-Control", "public, max-age=30, s-maxage=60, stale-while-revalidate=30, immutable") 
+        response.headers.set("Cache-Control", "public, max-age=30, s-maxage=60, stale-while-revalidate=30, immutable") 
 
         return response
     } catch (error) {
@@ -32,45 +36,9 @@ export default async function handler(request: Request){
     }
 }
 
-
-function formatSongsSearched(content: any[]): Song[] {
+function formatSongsSearchedBeta(content: ObservedArray<MusicShelf | MusicCardShelf | ItemSection>): Song[]{ 
     const indexContent = content.findIndex(item => item.type !== "ItemSection") 
-    const items = content[indexContent].contents
+    const items = content[indexContent].contents as MusicResponsiveListItem[]
 
-    return items.slice(0, 10).map(song => {
-            return {
-                youtubeId: song.id,
-                title: song.title,
-                type: "song",
-                album: song.album ? {
-                    name: song.album.name,
-                    id: song.album.id
-                } : null,
-                thumbnailUrl: `https://i.ytimg.com/vi/${song.id}/mqdefault.jpg`,
-                duration: song.duration.seconds,
-                author: {
-                    name: song.artists?.[0]?.name,
-                    id: song.artists?.[0]?.channel_id ?? ""
-                }
-            } as Song
-        })
-}
-
-function formatVideoSearched(content: any[]): Song[] {
-    const indexContent = content.findIndex(item => item.type !== "ItemSection") 
-    const items = content[indexContent].contents
-
-    return items.slice(0, 10).map(song => {
-            return {
-                youtubeId: song.id,
-                title: song.title,
-                type: "video",
-                thumbnailUrl: `https://i.ytimg.com/vi/${song.id}/mqdefault.jpg`,
-                duration: song.duration.seconds,
-                author: {
-                    name: song.authors?.[0]?.name ?? "",
-                    id: song.authors?.[0]?.channel_id ?? ""
-                }
-            } as Song
-        })
+    return items.slice(0, 10).map(parseSongFromYTNodeLike)
 }
