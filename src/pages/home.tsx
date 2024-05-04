@@ -48,12 +48,14 @@ function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void 
         const formData = new FormData($form)
 
         const url = new URL(formData.get("url") as string)
+
+        const hasListId = url.searchParams.has("list")
+
+        console.log(url)
         if(
-            !(url.host === "www.youtube.com") || 
-            !(url.pathname === "/playlist") ||
-            !url.searchParams.has("list")
+            !hasListId ||
+            !["music.youtube.com", "www.youtube.com"].includes(url.host)
         ) return
-        
         const res = await fetch(`/api/playlist?list=${url.searchParams.get("list")}`)
         const playlist = await res.json()
         
