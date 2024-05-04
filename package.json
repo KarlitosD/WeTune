@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite --port=3000",
     "build": "vite build",
-    "serve": "vite preview",
-    "netlify:dev": "netlify dev"
+    "serve": "vite preview"
   },
   "license": "MIT",
   "devDependencies": {
