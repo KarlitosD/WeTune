@@ -16,11 +16,7 @@ export default async function handler(request: Request){
          const innertube = await Innertube.create()
 
         const playlistRawData = await innertube.getPlaylist(listId)
-        // console.log(playlistRawData.items[0])
-
         const items = playlistRawData.items as PlaylistVideo[]
-
-        console.log(items.map(parseFromPlaylistVideo)[0])
 
         return Response.json({
             id: listId,
