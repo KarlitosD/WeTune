@@ -1,6 +1,6 @@
-import { type MusicResponsiveListItem } from "youtubei.js/dist/src/parser/nodes";
-import { VideoInfo } from "youtubei.js/dist/src/parser/youtube";
-import { Song } from "~/db/schema";
+import type { PlaylistVideo, MusicResponsiveListItem } from "youtubei.js/dist/src/parser/nodes";
+import type { VideoInfo } from "youtubei.js/dist/src/parser/youtube";
+import type { Song } from "~/db/schema";
 
 export function parseSongFromYTNodeLike(item: MusicResponsiveListItem): Song{
     const basicData = {
@@ -70,4 +70,18 @@ export function parseFromVideoInfo(content: VideoInfo): Song {
             id: content?.secondary_info?.owner?.author?.id
         },
     } as Song
+}
+
+export function parseFromPlaylistVideo(content: PlaylistVideo): Song {
+    return {        
+        youtubeId: content.id,
+        title: content.title.text,
+        thumbnailUrl: `https://i.ytimg.com/vi/${content.id}/mqdefault.jpg`,
+        duration: content.duration?.seconds ?? 1,
+        type: "video",
+        author: {
+            id: content.author?.id ?? "",
+            name: content.author?.name ?? ""
+        }
+    }
 }
