@@ -153,7 +153,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                 <div class="text-left">
                     <p class="w-64 truncate" title={props.song.title}>{props.song?.title}</p>
                     <div class="max-w-32 lg:max-w-48">
-                        <small class="block w-full truncate" title={props.song.title}>{props.song.author?.name}</small>
+                        <small class="block w-full truncate" title={props.song.author?.name}>{props.song.author?.name}</small>
                     </div>
                 </div>
             </div>
