@@ -44,8 +44,8 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     }
 
     const [currentTime, setCurrentTime] = createSignal(0)
-    const [loop, setLoop] = createSignal(false)
-    const [shuffle, setShuffle] = createSignal(false)
+    const [loop, setLoop] = createPersistedSignal("loop", false)
+    const [shuffle, setShuffle] = createPersistedSignal("shuffle", false)
     
     const { audio, duration, seek: seekAudio } = createAudio(audioUrl, {
         playing,
