@@ -1,14 +1,8 @@
 - [] Investigate song not reproduce in the start
 
-- [] Made search section (songs/videos) collapsible
-
 - [] Make button for replay playlist
 
 - [-] Integrate Media Session API
-
-- [] Add playlist of songs downloaded
-
-- [] Button for download all songs of a playlist
 
 - [] Consider remove song from cache if the song not exists in none playlist
 
@@ -19,7 +13,13 @@
     - [X] Import from youtube and youtube music
     - [] Button for sync songs of a imported playlist from youtube
 
+- [] Button for download all songs of a playlist
+
+- [] Add playlist of songs downloaded
+
 - [] Refactor youtube logic (api) and playlist logic (move to services folder)
+
+- [] Made search section (songs/videos) collapsible
 
 - [] Add drawer for song player in mobile
 
@@ -30,8 +30,6 @@
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
     - [] Using turnsile
-
-
 
 ----
 
