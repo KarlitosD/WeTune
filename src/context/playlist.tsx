@@ -4,6 +4,7 @@ import { createMutable, SetStoreFunction } from "solid-js/store"
 import { Accessor, createContext, createEffect, createSignal, from, useContext, type ParentProps } from "solid-js"
 import { startWith } from "rxjs"
 import { db } from "~/db"
+import { createPersistedSignal } from "~/hooks/createPersistedSignal"
 
 export interface PlaylistContextData {
     playlists: Accessor<Playlist[]>,
@@ -32,7 +33,7 @@ export function PlaylistProvider(props: ParentProps) {
     }
 
 
-    const [actualPlaylistId, setActualPlaylistId] = createSignal("history")
+    const [actualPlaylistId, setActualPlaylistId] = createPersistedSignal("actualPlaylistId", "history")
     const actualPlaylist = () => {
         return playlists().find(playlist => playlist.id === actualPlaylistId())
     }
