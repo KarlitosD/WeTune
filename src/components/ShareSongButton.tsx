@@ -1,5 +1,5 @@
 import { Song } from "~/db/schema";
-import IconShare from "./Icons/IconShare";
+import { IconShare } from "./Icons";
 import { Show } from "solid-js";
 
 export function ShareSongButton(props: { song: Song }) {
