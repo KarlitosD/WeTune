@@ -7,13 +7,20 @@ import { SongItem, SongItemSkeleton } from "~/components/SongItem"
 
 
 function ResultList(props: { search: string }) {
-  const songs = createAsync(() => searchResults(props.search))
+  const results = createAsync(() => searchResults(props.search))
+
+  console.log({ results: results() })
 
   const { playSong } = usePlaylist()
   return (
     <>
       <div class="flex flex-col gap-2 p-4 h-full overflow-y-scroll scrollbar-track-base-100 scrollbar-thumb-primary">
-        <For each={songs()} fallback={<ResultFallback />}>
+        <h2 class="text-2xl text-white self-start my-2">Songs</h2>
+        <For each={results()?.songs} fallback={<ResultFallback />}>
+          {result => <SongItem song={result} onSelect={() => playSong(result)} />}
+        </For>
+        <h2 class="text-2xl text-white self-start my-2">Videos</h2>
+        <For each={results()?.videos} fallback={<ResultFallback />}>
           {result => <SongItem song={result} onSelect={() => playSong(result)} />}
         </For>
       </div>

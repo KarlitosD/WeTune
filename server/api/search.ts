@@ -11,12 +11,17 @@ export default async function handler(request: Request){
 
         if(!query) return Response.json([])     
 
-        const items = await innertube.music.search(query, { type: "song" })
-        const songs = formatSongsSearched(items.contents);
+        const [itemsSongs, itemsVideos] = await Promise.all([
+            innertube.music.search(query, { type: "song" }),
+            innertube.music.search(query, { type: "video" })
+        ])
 
-        const response = Response.json(songs)
+        const songs = formatSongsSearched(itemsSongs.contents);
+        const videos = formatVideoSearched(itemsVideos.contents);
 
-        response.headers.set("Cache-Control", "public, max-age=30, s-maxage=60, stale-while-revalidate=30, immutable") 
+        const response = Response.json({ songs, videos })
+
+        // response.headers.set("Cache-Control", "public, max-age=30, s-maxage=60, stale-while-revalidate=30, immutable") 
 
         return response
     } catch (error) {
@@ -32,7 +37,7 @@ function formatSongsSearched(content: any[]): Song[] {
     const indexContent = content.findIndex(item => item.type !== "ItemSection") 
     const items = content[indexContent].contents
 
-    return items.slice(0, 15).map(song => {
+    return items.slice(0, 10).map(song => {
             return {
                 youtubeId: song.id,
                 title: song.title,
@@ -46,6 +51,25 @@ function formatSongsSearched(content: any[]): Song[] {
                 author: {
                     name: song.artists?.[0]?.name,
                     id: song.artists?.[0]?.channel_id ?? ""
+                }
+            } as Song
+        })
+}
+
+function formatVideoSearched(content: any[]): Song[] {
+    const indexContent = content.findIndex(item => item.type !== "ItemSection") 
+    const items = content[indexContent].contents
+
+    return items.slice(0, 10).map(song => {
+            return {
+                youtubeId: song.id,
+                title: song.title,
+                type: "video",
+                thumbnailUrl: `https://i.ytimg.com/vi/${song.id}/mqdefault.jpg`,
+                duration: song.duration.seconds,
+                author: {
+                    name: song.authors?.[0]?.name ?? "",
+                    id: song.authors?.[0]?.channel_id ?? ""
                 }
             } as Song
         })
