@@ -3,7 +3,7 @@ import { type Accessor, type Setter, createEffect, createSignal } from "solid-js
 const storage = localStorage
 
 const getValueFromStorage = <T>(key: string) => {
-    return JSON.parse(storage.getItem(key) || "null") as T || null
+    return JSON.parse(storage.getItem(key) ?? "null") as (T | null)
 }
 
 export function createPersistedSignal<T>(key: string, initialValue: T): [Accessor<T>, Setter<T>, () => void] {
