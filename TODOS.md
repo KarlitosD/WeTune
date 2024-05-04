@@ -10,8 +10,6 @@
 
 - [] Button for download all songs of a playlist
 
-- [] Button for sync songs of a playlist with youtube playlist
-
 - [] Consider remove song from cache if the song not exists in none playlist
 
 - [] Add i18n
@@ -19,6 +17,7 @@
 - [] Import playlist from youtube url
     - [] Refactor playlist data with playlistId (using InnerTube)
     - [] Import from youtube and youtube music
+    - [] Button for sync songs of a imported playlist from youtube
 
 - [] Refactor youtube logic (api) and playlist logic (move to services folder)
 
