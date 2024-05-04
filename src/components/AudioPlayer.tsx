@@ -22,8 +22,8 @@ type AudioPlayerProps = {
 const getDefaultVolumenAccordingToDevice = () => isMobile() ? 1 : 0.5
 
 export default function AudioPlayer(props: AudioPlayerProps) {
-    const src = () => `/api/song/blob?songId=${props.song.youtubeId}`
-    const [audioUrl] = createResource(src, src => getAudioFromCache(src))
+    const youtubeId  = () => props.song.youtubeId
+    const [audioUrl] = createResource(youtubeId, youtubeId => getAudioFromCache(youtubeId))
 
     const [playing, setPlaying] = createSignal(false)
 
@@ -113,12 +113,12 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     })
 
     const [downloading, setDownloading] = createSignal(false)     
-    const isAudioDownloaded = () => existsAudioInCache(src())
+    const isAudioDownloaded = () => existsAudioInCache(props.song.youtubeId)
 
     const handleDownload = async () => {
         if(isAudioDownloaded()) return
         setDownloading(true)
-        await addAudioToCache(src())
+        await addAudioToCache(youtubeId())
         setDownloading(false)
     }
 

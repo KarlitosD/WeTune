@@ -1,5 +1,6 @@
 import { ReactiveSet } from "@solid-primitives/set"
 import { createEffect } from "solid-js"
+import { c } from "vite/dist/node/types.d-aGj9QkWt"
 
 export const audioCache = await caches.open("audios")
 
@@ -8,8 +9,9 @@ export const audiosCached = new ReactiveSet<string>(JSON.parse(localStorage.getI
 export async function getAudioFromCache(id: string){
     if(!id || id.includes("undefined")) return "blob:"
 
-    const res = await audioCache.match(id)
-    if(!res) return id + "&quality=lowest"
+    const url = "/api/song/blob?songId=" + id
+    const res = await audioCache.match(url)
+    if(!res) return url + "&quality=lowest"
     
     const blob = await res.blob()
     return URL.createObjectURL(blob)
@@ -17,8 +19,10 @@ export async function getAudioFromCache(id: string){
 
 export async function addAudioToCache(id: string){
     const exists = existsAudioInCache(id)
+    const url = "/api/song/blob?songId=" + id
     if(!exists) {
-        await audioCache.add(id) 
+
+        await audioCache.add(url)
         audiosCached.add(id)
     }
 }
