@@ -1,6 +1,5 @@
 import { ReactiveSet } from "@solid-primitives/set"
 import { createEffect } from "solid-js"
-import { c } from "vite/dist/node/types.d-aGj9QkWt"
 
 export const audioCache = await caches.open("audios")
 

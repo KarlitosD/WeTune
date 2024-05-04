@@ -6,7 +6,7 @@ import Thumbnail from "~/components/Thumbnail"
 import IconEllipsis from "~/components/Icons/IconEllipsis"
 import { formatSeconds } from "~/utils/seconds"
 import { getThumbnailUrl } from "~/utils/thumbnail"
-import { existsAudioInCache } from "~/hooks/cache"
+import { existsAudioInCache } from "~/services/cache"
 import { IconCircleArrowDown } from "./Icons"
 
 function PlaylistDropdown(props: { song: Song }){

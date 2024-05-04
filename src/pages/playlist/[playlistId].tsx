@@ -3,7 +3,7 @@ import { For, Show, createMemo } from "solid-js";
 import { IconPause, IconPlay } from "~/components/Icons";
 import { SongItem } from "~/components/SongItem";
 import { usePlaylist } from "~/context/playlist";
-import { audioPlayerEvent } from "~/utils/event";
+import { audioPlayerEvent } from "~/utils/events";
 
 export default function PlaylistPage (props: RouteSectionProps) {
     const { playlists, actualPlaylist, playSong, removeSong } = usePlaylist()

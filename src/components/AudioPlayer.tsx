@@ -1,18 +1,21 @@
 import { Show, batch, createEffect, createResource, createSignal } from "solid-js";
+
+import type { PlaylistContextData } from "~/context/playlist";
+import { createAudio } from "~/hooks/createAudio";
+import { useMediaSession } from "~/hooks/createMediaSession";
+import { createPersistedSignal } from "~/hooks/createPersistedSignal";
 import { 
     IconBackwardStep, IconCircleArrowDown, IconForwardStep, IconPause, 
     IconPlay, IconRepeat, IconShuffle, IconVolumeHigh, IconVolumeXmark 
-} from "./Icons";
-import { createAudio } from "~/hooks/audio";
+} from "~/components/Icons";
+import Thumbnail from "~/components/Thumbnail";
+import { ShareSongButton } from "~/components/ShareSongButton";
+
+import { getAudioFromCache, addAudioToCache, existsAudioInCache } from "~/services/cache";
 import { formatSeconds } from "~/utils/seconds";
-import Thumbnail from "./Thumbnail";
-import type { PlaylistContextData } from "~/context/playlist";
-import { getAudioFromCache, addAudioToCache, existsAudioInCache } from "~/hooks/cache";
-import { useMediaSession } from "~/hooks/useMediaSession";
-import { ShareSongButton } from "./ShareSongButton";
 import { getThumbnailUrl } from "~/utils/thumbnail";
 import { isMobile } from "~/utils/device";
-import { audioPlayerEvent } from "~/utils/event";
+import { audioPlayerEvent } from "~/utils/events";
 
 type AudioPlayerProps = {
     selected: PlaylistContextData["selected"]
@@ -27,10 +30,10 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     const [playing, setPlaying] = createSignal(false)
 
-    const [volume, setVolume] = createSignal(Number(localStorage.getItem("volume") ?? getDefaultVolumenAccordingToDevice())) 
+    const [volume, setVolume] = createPersistedSignal("volume", getDefaultVolumenAccordingToDevice())
     const volumeLevelAlvaMajo = () => volume() ** 2
 
-    const [lastVolumeLevel, setLastVolumeLevel] = createSignal(Number(localStorage.getItem("lastVolumeLevel")))
+    const [lastVolumeLevel, setLastVolumeLevel] = createPersistedSignal("lastVolumeLevel", 0)
 
     const togleVolumeLevel = () => {
         const volumeLevel = volume()
@@ -38,8 +41,6 @@ export default function AudioPlayer(props: AudioPlayerProps) {
             setVolume(lastVolumeLevel())
             setLastVolumeLevel(volumeLevel)
         })
-        localStorage.setItem("volume", String(volume()))
-        localStorage.setItem("lastVolumeLevel", String(lastVolumeLevel()))
     }
 
     const [currentTime, setCurrentTime] = createSignal(0)
@@ -210,7 +211,6 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                     value={volume()}
                     title={~~(volume() * 100) + "%"}
                     onInput={e => setVolume(+e.currentTarget.value)}
-                    onChange={e => localStorage.setItem("volume", e.currentTarget.value)}
                 />
             </div>
         </div>
