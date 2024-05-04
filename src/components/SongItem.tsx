@@ -6,6 +6,8 @@ import Thumbnail from "~/components/Thumbnail"
 import IconEllipsis from "~/components/Icons/IconEllipsis"
 import { formatSeconds } from "~/utils/seconds"
 import { getThumbnailUrl } from "~/utils/thumbnail"
+import { existsAudioInCache } from "~/hooks/cache"
+import { IconCircleArrowDown } from "./Icons"
 
 function PlaylistDropdown(props: { song: Song }){
     const { addSong, playlists } = usePlaylist()
@@ -40,7 +42,12 @@ function PlaylistDropdown(props: { song: Song }){
           <Thumbnail src={getThumbnailUrl(props.song.youtubeId)} title={props.song.title} />
           <div class="text-left">
             <p class="text-sm font-semibold w-fit">{props.song.title}</p>
-            <p class="text-xs text-ellipsis">{props.song?.author?.name}{props.song?.album?.name ? ` - ${props.song?.album?.name}` : ""} - {formatSeconds(props.song.duration)}</p>
+            <p class="text-xs text-ellipsis leading-4">
+              {props.song?.author?.name && <span>{props.song?.author?.name}</span>}
+              {props.song?.album?.name && <span> - {props.song?.album?.name}</span>}
+              <span> - {formatSeconds(props.song.duration)}</span>
+              {existsAudioInCache(props.song.youtubeId) ? <span> <IconCircleArrowDown class="inline ml-1" size={16} /></span> : ""} 
+            </p>
           </div>
         </div>
         <div class="dropdown dropdown-end">
