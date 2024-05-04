@@ -1,24 +1,13 @@
 import { Song } from "~/db/schema";
 import { IconShare } from "./Icons";
 import { Show } from "solid-js";
+import { useShare } from "~/hooks/useShare";
 
 export function ShareSongButton(props: { song: Song }) {
-
-    const handleShare = () => {
-        const location = new URL(window.location.href)
-        const url = new URL("/share/song", location.origin)
-
-        url.searchParams.set("songId", props.song.youtubeId)
-
-        navigator.share({
-            title: props.song.title,
-            text: props.song.title,
-            url: url.href
-        })
-    }
+    const { handleShare, isCompatible } = useShare(props.song)
 
     return ( 
-        <Show when={"share" in navigator} fallback={<div class="w-[20px]" />}>
+        <Show when={isCompatible} fallback={<div class="w-[20px]" />}>
             <button onClick={handleShare} class="w-fit">
                 <IconShare size={20} />
             </button>
