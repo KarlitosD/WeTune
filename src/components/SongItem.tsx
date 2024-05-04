@@ -22,7 +22,7 @@ function PlaylistDropdown(props: { song: Song }){
     return (
       <div>
         <details class="dropdown dropdown-left">
-          <summary class="p-1 list-none flex items-center gap-2">
+          <summary class="p-1 list-none flex items-center gap-3">
             <IconPlus size={14}/>
             Agregar playlist
           </summary>
@@ -64,7 +64,7 @@ function PlaylistDropdown(props: { song: Song }){
             <Show when={shareIsCompatible()}>
               <li>
                 <div>
-                  <button class="p-1 flex items-center gap-2" onClick={handleShare} >
+                  <button class="p-1 flex items-center gap-3" onClick={handleShare} >
                     <IconShare size={14} />
                     <span>Compartir</span>
                   </button>

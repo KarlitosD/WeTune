@@ -1,6 +1,7 @@
 import { RouteSectionProps } from "@solidjs/router";
 import { For, Show, createMemo } from "solid-js";
 import { IconPause, IconPlay } from "~/components/Icons";
+import IconTrash from "~/components/Icons/IconTrash";
 import { SongItem } from "~/components/SongItem";
 import { usePlaylist } from "~/context/playlist";
 import { audioPlayerEvent } from "~/utils/events";
@@ -39,9 +40,10 @@ export default function PlaylistPage (props: RouteSectionProps) {
                                     <div>
                                         <button
                                             onClick={() => removeSong(song, playlist().id)}
-                                            class="text-error p-1"
+                                            class="text-error p-1 flex items-center gap-3"
                                         >
-                                            Eliminar
+                                            <IconTrash size={14} />
+                                            <span>Eliminar</span>
                                         </button>
                                     </div>
                                 </li>
