@@ -14,9 +14,9 @@
 
 - [] Add i18n
 
-- [] Import playlist from youtube url
-    - [] Refactor playlist data with playlistId (using InnerTube)
-    - [] Import from youtube and youtube music
+- [-] Import playlist from youtube url
+    - [X] Refactor playlist data with playlistId (using InnerTube)
+    - [X] Import from youtube and youtube music
     - [] Button for sync songs of a imported playlist from youtube
 
 - [] Refactor youtube logic (api) and playlist logic (move to services folder)
