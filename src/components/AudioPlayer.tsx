@@ -153,7 +153,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
             <div class="my-1 sm:my-0 max-w-lg min-w-[290px] sm:min-w-min flex items-center gap-2"> 
                 <Thumbnail src={getThumbnailUrl(props.song.youtubeId)} title={props.song.title} isSmall={true} />
                 <div class="text-left">
-                    <p class="break-all" title={titleSong} >
+                    <p title={titleSong} class="break-all" >
                         {titleSong.length > 25 ? titleSong.slice(25) + ' ...' : titleSong }
                     </p>
                     <div class="max-w-32 lg:max-w-48">
