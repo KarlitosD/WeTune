@@ -51,11 +51,11 @@ function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void 
 
         const hasListId = url.searchParams.has("list")
 
-        console.log(url)
         if(
             !hasListId ||
             !["music.youtube.com", "www.youtube.com"].includes(url.host)
         ) return
+        
         const res = await fetch(`/api/playlist?list=${url.searchParams.get("list")}`)
         const playlist = await res.json()
         
