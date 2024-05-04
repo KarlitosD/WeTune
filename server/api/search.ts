@@ -1,8 +1,8 @@
-import { format } from "path"
+import type { ObservedArray } from "youtubei.js/dist/src/parser/helpers"
+import type { ItemSection, MusicCardShelf, MusicResponsiveListItem, MusicShelf } from "youtubei.js/dist/src/parser/nodes"
+import type { Song } from "~/db/schema"
+
 import { Innertube } from "youtubei.js"
-import { ObservedArray, YTNode } from "youtubei.js/dist/src/parser/helpers"
-import { ItemSection, MusicCardShelf, MusicResponsiveListItem, MusicShelf } from "youtubei.js/dist/src/parser/nodes"
-import { Song } from "~/db/schema"
 import { parseSongFromYTNodeLike } from "../parsers/youtube"
 
 export default async function handler(request: Request){

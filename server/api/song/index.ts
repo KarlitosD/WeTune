@@ -1,6 +1,4 @@
 import { Innertube } from "youtubei.js"
-import { VideoInfo } from "youtubei.js/dist/src/parser/youtube"
-import { Song } from "~/db/schema"
 import { parseFromVideoInfo } from "../../parsers/youtube"
 
 
