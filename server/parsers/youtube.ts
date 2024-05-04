@@ -64,6 +64,7 @@ export function parseFromVideoInfo(content: VideoInfo): Song {
 
     
     return {
+        ...basicData,
         type: "video",
         author: {
             name: content?.secondary_info?.owner?.author?.name,
