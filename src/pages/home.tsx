@@ -1,5 +1,4 @@
 import { For, Show  } from "solid-js"
-import IconPlus from "~/components/Icons/IconPlus"
 import IconMusic from "~/components/Icons/IconMusic"
 import type { Playlist } from "~/types/playlist"
 import { createId } from "~/utils/id"
@@ -68,7 +67,7 @@ function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void 
         <>
             <button class="cursor-pointer outline-none" onClick={() => $dialog.showModal()}>
                 <div class={`${playlistCardSize} rounded flex justify-center items-center text-white bg-neutral`}>
-                    <IconPlus size={48} />
+                    <IconMusic size={48} />
                 </div>
                 <p class="font-medium text-center mt-1 hover:underline">Nueva playlist</p>
             </button>

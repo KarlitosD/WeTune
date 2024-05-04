@@ -1,5 +1,5 @@
 import type { Song } from "~/types/playlist"
-import { For, type ParentProps } from "solid-js"
+import { For, Show, type ParentProps } from "solid-js"
 
 import { usePlaylist } from "~/context/playlist"
 import Thumbnail from "~/components/Thumbnail"
@@ -7,7 +7,8 @@ import IconEllipsis from "~/components/Icons/IconEllipsis"
 import { formatSeconds } from "~/utils/seconds"
 import { getThumbnailUrl } from "~/utils/thumbnail"
 import { existsAudioInCache } from "~/services/cache"
-import { IconCircleArrowDown } from "./Icons"
+import { IconCircleArrowDown, IconPlus, IconShare } from "./Icons"
+import { useShare } from "~/hooks/useShare"
 
 function PlaylistDropdown(props: { song: Song }){
     const { addSong, playlists } = usePlaylist()
@@ -21,7 +22,10 @@ function PlaylistDropdown(props: { song: Song }){
     return (
       <div>
         <details class="dropdown dropdown-left">
-          <summary class="p-1 list-none">Agregar playlist</summary>
+          <summary class="p-1 list-none flex items-center gap-2">
+            <IconPlus size={14}/>
+            Agregar playlist
+          </summary>
           <ul class="p-2 shadow menu dropdown-content z-[2] bg-base-200 rounded-box w-52">
             <For each={playlists()}>
               {playlist => <li><a onClick={() => handleAdd(playlist.id)}>{playlist.title}</a></li>}
@@ -36,6 +40,8 @@ function PlaylistDropdown(props: { song: Song }){
     song: Song
     onSelect: () => void
   }) {
+    const { handleShare, isCompatible: shareIsCompatible } = useShare(props.song)
+
     return (
       <div class="flex items-center justify-between text-slate-300">
         <div class="flex items-center gap-2 w-80 sm:w-96 cursor-pointer text-left" onClick={props.onSelect}>
@@ -54,11 +60,18 @@ function PlaylistDropdown(props: { song: Song }){
           <div tabIndex={0} class="p-1 cursor-pointer"><IconEllipsis /></div>
           <ul tabIndex={0} class="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-52">
             <li><PlaylistDropdown song={props.song} /></li>
-            <li>
-              <div>
-                <a class="p-1" href={`/api/song/blob?songId=${props.song.youtubeId}`} download={`${props.song.title} - ${props?.song?.author?.name}.mp3`}>Descargar MP3</a>
-              </div>   
-            </li>
+            
+            <Show when={shareIsCompatible()}>
+              <li>
+                <div>
+                  <button class="p-1 flex items-center gap-2" onClick={handleShare} >
+                    <IconShare size={14} />
+                    <span>Compartir</span>
+                  </button>
+                </div>   
+              </li>
+            </Show>
+
             {props.children}
           </ul>
         </div>
