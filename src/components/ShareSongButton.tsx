@@ -18,7 +18,7 @@ export function ShareSongButton(props: { song: Song }) {
     }
 
     return ( 
-        <Show when={"share" in navigator && props.song.type === "song"} fallback={<div class="w-[20px]" />}>
+        <Show when={"share" in navigator} fallback={<div class="w-[20px]" />}>
             <button onClick={handleShare} class="w-fit">
                 <IconShare size={20} />
             </button>
