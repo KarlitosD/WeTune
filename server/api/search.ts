@@ -38,7 +38,7 @@ export default async function handler(request: Request){
 
 function formatSongsSearchedBeta(content: ObservedArray<MusicShelf | MusicCardShelf | ItemSection>): Song[]{ 
     const indexContent = content.findIndex(item => item.type !== "ItemSection") 
-    const items = content[indexContent].contents as MusicResponsiveListItem[]
+    const items = content[indexContent]?.contents as MusicResponsiveListItem[] ?? [] 
 
     return items.filter(item => item.id).slice(0, 10).map(item => parseSongFromYTNodeLike(item))
 }

@@ -14,13 +14,17 @@ function ResultList(props: { search: string }) {
     <>
       <div class="flex flex-col gap-2 p-4 h-full overflow-y-scroll scrollbar-track-base-100 scrollbar-thumb-primary">
         <h2 class="text-2xl text-white self-start my-2">Songs</h2>
-        <For each={results()?.songs ?? []} fallback={<ResultFallback />}>
-          {result => <SongItem song={result} onSelect={() => playSong(result)} />}
-        </For>
+        <Show when={Boolean(results()?.songs)} fallback={<ResultFallback />}>
+          <For each={results()?.songs ?? []}>
+            {result => <SongItem song={result} onSelect={() => playSong(result)} />}
+          </For>
+        </Show>
         <h2 class="text-2xl text-white self-start my-2">Videos</h2>
-        <For each={results()?.videos ?? []} fallback={<ResultFallback />}>
-          {result => <SongItem song={result} onSelect={() => playSong(result)} />}
-        </For>
+        <Show when={Boolean(results()?.videos)} fallback={<ResultFallback />}>
+          <For each={results()?.videos ?? []}>
+            {result => <SongItem song={result} onSelect={() => playSong(result)} />}
+          </For>
+        </Show>
       </div>
     </>
   )
