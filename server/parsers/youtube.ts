@@ -35,3 +35,39 @@ export function parseSongFromYTNodeLike(item: MusicResponsiveListItem): Song{
         }
     }
 }
+
+export function parseFromVideoInfo(content: VideoInfo): Song {
+    const info = content.basic_info
+
+    const basicData = {        
+        youtubeId: info.id,
+        title: info.title,
+        thumbnailUrl: `https://i.ytimg.com/vi/${info.id}/mqdefault.jpg`,
+        duration: info?.duration,
+    }
+
+    const isMusic = info.category === "Music" && info.channel.name.includes("Topic")
+    if(isMusic){
+        return {
+            ...basicData,
+            type: "song",
+            author: {
+                name: info?.channel?.name?.split(" - ")?.[0],
+                id: info?.channel?.id
+            },
+            album: {
+                id: "",
+                name: info.short_description.split("\n").filter(Boolean)[2].replaceAll("\n", "")
+            }
+        } as Song
+    }
+
+    
+    return {
+        type: "video",
+        author: {
+            name: content?.secondary_info?.owner?.author?.name,
+            id: content?.secondary_info?.owner?.author?.id
+        },
+    } as Song
+}
