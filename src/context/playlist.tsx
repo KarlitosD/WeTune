@@ -61,9 +61,10 @@ export function PlaylistProvider(props: ParentProps) {
         }
     })
 
-    const addSong = async (song: Song, playlistId?: string) => {
-        //? Check if playlistId is selected to add song to that playlist
-        const playlist = playlistId ? playlists().find(playlist => playlist.id === playlistId) : actualPlaylist()
+    const addSong = async (song: Song, playlistId: string) => {
+        if(!playlistId || !song) throw new Error("PlaylistId and song are required")
+
+        const playlist = playlists().find(playlist => playlist.id === playlistId)
 
         //? Check if song is already in playlist
         const songExistsInPlaylist = playlist.songs.find(songInPlaylist => songInPlaylist.youtubeId === song.youtubeId)
