@@ -146,16 +146,12 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     audioPlayerEvent.on("togglePlay", () => setPlaying(playing => !playing))
 
-    const titleSong = props.song?.title
-
     return (
         <div class="container min-h-12 mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-2 py-3 text-white"> 
             <div class="my-1 sm:my-0 max-w-lg min-w-[290px] sm:min-w-min flex items-center gap-2"> 
                 <Thumbnail src={getThumbnailUrl(props.song.youtubeId)} title={props.song.title} isSmall={true} />
                 <div class="text-left">
-                    <p title={titleSong} class="break-all" >
-                        {titleSong.length > 25 ? titleSong.slice(25) + ' ...' : titleSong }
-                    </p>
+                    <p>{props.song?.title}</p>
                     <div class="max-w-32 lg:max-w-48">
                         <small class="block w-full truncate">{props.song.author?.name}</small>
                     </div>
