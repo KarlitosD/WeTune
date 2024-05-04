@@ -40,5 +40,5 @@ function formatSongsSearchedBeta(content: ObservedArray<MusicShelf | MusicCardSh
     const indexContent = content.findIndex(item => item.type !== "ItemSection") 
     const items = content[indexContent].contents as MusicResponsiveListItem[]
 
-    return items.slice(0, 10).map(parseSongFromYTNodeLike)
+    return items.filter(item => item.id).slice(0, 10).map(item => parseSongFromYTNodeLike(item))
 }

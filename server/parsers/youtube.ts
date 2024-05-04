@@ -2,11 +2,13 @@ import type { PlaylistVideo, MusicResponsiveListItem } from "youtubei.js/dist/sr
 import type { VideoInfo } from "youtubei.js/dist/src/parser/youtube";
 import type { Song } from "~/db/schema";
 
-export function parseSongFromYTNodeLike(item: MusicResponsiveListItem): Song{
+export function parseSongFromYTNodeLike(item: MusicResponsiveListItem): Song | null {
+    if(!item.id) return null
+
     const basicData = {
         youtubeId: item.id,
         title: item.title,
-        duration: item.duration.seconds,
+        duration: item?.duration?.seconds ?? 1,
         thumbnailUrl: `https://i.ytimg.com/vi/${item.id}/mqdefault.jpg`,
     } as Song
 
