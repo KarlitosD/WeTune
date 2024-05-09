@@ -4,7 +4,7 @@ import { Show } from "solid-js";
 import { useShare } from "~/hooks/useShare";
 
 export function ShareSongButton(props: { song: Song }) {
-    const { handleShare, isCompatible } = useShare(props.song)
+    const { handleShare, isCompatible } = useShare(() => props.song)
 
     return ( 
         <Show when={isCompatible} fallback={<div class="w-[20px]" />}>

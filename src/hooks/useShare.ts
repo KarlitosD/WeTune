@@ -1,7 +1,7 @@
 import type { Accessor } from "solid-js"
 import type { Song } from "~/db/schema"
 
-export function useShare(song: Song){
+export function useShare(song: Accessor<Song>){
     const isCompatible = () => "share" in navigator
 
     const handleShare = () => {
@@ -10,11 +10,11 @@ export function useShare(song: Song){
         const location = new URL(window.location.href)
         const url = new URL("/share/song", location.origin)
 
-        url.searchParams.set("songId", song.youtubeId)
+        url.searchParams.set("songId", song().youtubeId)
 
         navigator.share({
-            title: song.title,
-            text: song.title,
+            title: song().title,
+            text: song().title,
             url: url.href,
         })
     }

@@ -40,7 +40,7 @@ function PlaylistDropdown(props: { song: Song }){
     song: Song
     onSelect: () => void
   }) {
-    const { handleShare, isCompatible: shareIsCompatible } = useShare(props.song)
+    const { handleShare, isCompatible: shareIsCompatible } = useShare(() => props.song)
 
     return (
       <div class="flex items-center justify-between text-slate-300">

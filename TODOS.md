@@ -25,8 +25,6 @@
 
 - [] Consider visual redesign of the audio player
 
-
-
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
     - [] Using turnsile
@@ -44,3 +42,5 @@
     - [X] Investigate that sometimes the shared link gives an incorrect song
 
 - [X] Video results when searching
+
+- [X] Share not reactive
