@@ -7,7 +7,7 @@ import IconEllipsis from "~/components/Icons/IconEllipsis"
 import { formatSeconds } from "~/utils/seconds"
 import { getThumbnailUrl } from "~/utils/thumbnail"
 import { existsAudioInCache } from "~/services/cache"
-import { IconCircleArrowDown, IconPlus, IconShare } from "./Icons"
+import { IconCircleArrowDown, IconDownload, IconPlus, IconShare } from "./Icons"
 import { useShare } from "~/hooks/useShare"
 
 function PlaylistDropdown(props: { song: Song }){
@@ -60,7 +60,14 @@ function PlaylistDropdown(props: { song: Song }){
           <div tabIndex={0} class="p-1 cursor-pointer"><IconEllipsis /></div>
           <ul tabIndex={0} class="p-2 shadow menu dropdown-content z-[1] bg-base-200 rounded-box w-52">
             <li><PlaylistDropdown song={props.song} /></li>
-            
+            <li>
+              <div>
+                <a class="p-1 flex items-center gap-3" href={`/api/song/blob?songId=${props.song.youtubeId}`} download={`${props.song.title} - ${props?.song?.author?.name}.mp3`}>
+                  <IconDownload size={14} />
+                  <span>Descargar MP3</span>
+                </a>
+              </div>   
+            </li>
             <Show when={shareIsCompatible()}>
               <li>
                 <div>
