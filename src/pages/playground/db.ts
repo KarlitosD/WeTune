@@ -1,4 +1,4 @@
-import { Collection, createReactivityAdapter } from 'signaldb';
+import { Collection, createLocalStorageAdapter, createReactivityAdapter } from 'signaldb';
 import { createSignal, onCleanup } from 'solid-js';
 
 const solidReactivityAdapter = createReactivityAdapter({
@@ -21,9 +21,16 @@ const solidReactivityAdapter = createReactivityAdapter({
 
 type Item = { 
     id: string,
-    text: string
+    text: string,
+    cosasCount: number
+    cosas: Array<{
+      id: string,
+    }>
  }
 
 export const items = new Collection<Item>({
   reactivity: solidReactivityAdapter,
+  persistence: createLocalStorageAdapter("items")
 });
+
+await new Promise(res => items.on("persistence.init", () => res(null)))
