@@ -1,29 +1,17 @@
-import type { ObservedArray } from "youtubei.js/dist/src/parser/helpers"
-import type { ItemSection, MusicCardShelf, MusicResponsiveListItem, MusicShelf } from "youtubei.js/dist/src/parser/nodes"
-import type { Song } from "~/db/schema"
-
-import { Innertube } from "youtubei.js"
-import { parseSongFromYTNodeLike } from "../parsers/youtube"
+import { searchSongs } from "../services/youtube"
 
 export default async function handler(request: Request){
     try {
         if(request.method !== "GET") return
-        const innertube = await Innertube.create()
 
         const { searchParams } = new URL(request.url)
         const query = searchParams.get("query")
 
         if(!query) return Response.json([])     
 
-        const [itemsSongs, itemsVideos] = await Promise.all([
-            innertube.music.search(query, { type: "song" }),
-            innertube.music.search(query, { type: "video" })
-        ])
+        const result = await searchSongs(query)
 
-        const songs = formatSongsSearchedBeta(itemsSongs.contents);
-        const videos = formatSongsSearchedBeta(itemsVideos.contents);
-
-        const response = Response.json({ songs, videos })
+        const response = Response.json(result)
 
         response.headers.set("Cache-Control", "public, max-age=30, s-maxage=60, stale-while-revalidate=30, immutable") 
 
@@ -34,11 +22,4 @@ export default async function handler(request: Request){
             status: 400
         })
     }
-}
-
-function formatSongsSearchedBeta(content: ObservedArray<MusicShelf | MusicCardShelf | ItemSection>): Song[]{ 
-    const indexContent = content.findIndex(item => item.type !== "ItemSection") 
-    const items = content[indexContent]?.contents as MusicResponsiveListItem[] ?? [] 
-
-    return items.filter(item => item.id).slice(0, 10).map(item => parseSongFromYTNodeLike(item))
 }

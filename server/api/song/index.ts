@@ -1,5 +1,4 @@
-import { Innertube } from "youtubei.js"
-import { parseFromVideoInfo } from "../../parsers/youtube"
+import { getSong } from "../../services/youtube"
 
 
 export default async function handler(req: Request){
@@ -9,11 +8,7 @@ export default async function handler(req: Request){
 
     if(!songId) return Response.json({}, { status: 404, statusText: "Song not found" })
 
-    const innertube = await Innertube.create({ lang: "es", location: "ES" })
-
-    const songRawData = await innertube.getInfo(songId)
-    
-    const song = parseFromVideoInfo(songRawData)
+    const song = await getSong(songId)
 
     const response = Response.json(song)
     response.headers.set("Cache-Control", "public, max-age=120, s-maxage=120, stale-while-revalidate=60, immutable")

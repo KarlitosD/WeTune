@@ -1,8 +1,4 @@
-// import "@netlify/functions"
-// import { getYoutubeClient } from "../lib/youtube"
-import { Innertube } from "youtubei.js"
-import { parseFromPlaylistVideo } from "../parsers/youtube"
-import { PlaylistVideo } from "youtubei.js/dist/src/parser/nodes"
+import { getPlaylist } from "../services/youtube"
 
 
 export default async function handler(request: Request){
@@ -13,16 +9,9 @@ export default async function handler(request: Request){
 
         if(!listId) return Response.json(null, { status: 404, statusText: "List not found" })
 
-         const innertube = await Innertube.create()
+        const playlist = await getPlaylist(listId)
 
-        const playlistRawData = await innertube.getPlaylist(listId)
-        const items = playlistRawData.items as PlaylistVideo[]
-
-        return Response.json({
-            id: listId,
-            title: playlistRawData.info.title,
-            songs: items.map(parseFromPlaylistVideo)
-        })
+        return Response.json(playlist)
     } catch (error) {
         console.log(error.message)
         return Response.json({ error: error.message }, { status: 400 })
