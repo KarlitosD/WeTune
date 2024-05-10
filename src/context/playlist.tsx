@@ -1,8 +1,7 @@
 import type { Playlist, Song } from "~/types/playlist"
 
 import { createMutable, SetStoreFunction } from "solid-js/store"
-import { Accessor, createContext, from, useContext, type ParentProps } from "solid-js"
-import { startWith } from "rxjs"
+import { Accessor, createContext, createMemo, useContext, type ParentProps } from "solid-js"
 import { createPersistedSignal } from "~/hooks/createPersistedSignal"
 import { removeAudioFromCache } from "~/services/cache"
 import playlistsService from "~/services/playlist"
@@ -29,9 +28,7 @@ export interface PlaylistContextData {
 const PlaylistContext = createContext()
 
 export function PlaylistProvider(props: ParentProps) {
-    const playlists = from<Playlist[]>(
-        playlistsService.findAll().$.pipe(startWith([]))
-    )
+    const playlists = createMemo(() => playlistsService.findAll().fetch())
 
     const addPlaylist = playlist => playlistsService.addPlaylist(playlist)
 
@@ -101,10 +98,8 @@ export function PlaylistProvider(props: ParentProps) {
     const removeSong = async (song: Song, playlistId: string) => {
         await playlistsService.removeSongFromPlaylist(playlistId, song.youtubeId)
 
-        playlistsService.findPlaylistBySongId(song.youtubeId)
-            .exec().then(playlist => {
-                if(playlist.length === 0) removeAudioFromCache(song.youtubeId)
-            })
+        const playlist = playlistsService.findPlaylistBySongId(song.youtubeId).fetch()
+        if(playlist.length === 0) removeAudioFromCache(song.youtubeId)
     }
 
 

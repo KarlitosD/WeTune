@@ -6,11 +6,11 @@ export function findAll(){
 }
 
 export function findPlaylistById(playlistId: string){
-    return db.playlist.find({ selector: { id: playlistId } })
+    return db.playlist.find({ id: playlistId })
 }
 
 export function findPlaylistBySongId(songId: string){
-    return db.playlist.find({ selector: { songs: { $elemMatch: { youtubeId: songId } } } })
+    return db.playlist.find({ songs: { $elemMatch: { youtubeId: songId } } })
 }
 
 export function addPlaylist(playlist: Playlist){
@@ -18,25 +18,34 @@ export function addPlaylist(playlist: Playlist){
 }
 
 export function addSongToPlaylist(playlistId: string, song: Song){
-    return db.playlist.find({ selector: { id: playlistId } }).update({
+    const res = db.playlist.updateOne({ id: playlistId }, {
         $push: { songs: song }
     })
+
+    db.playlist.updateOne({ id: playlistId }, { $set: { seed: Math.random() } })
+    return res
 }
 
 export function setSongsInPlaylist(playlistId: string, songs: Song[]){
-    return db.playlist.find({ selector: { id: playlistId } }).update({
+    const res =  db.playlist.updateOne({ id: playlistId }, {
         $set: { songs }
     })
+
+    db.playlist.updateOne({ id: playlistId }, { $set: { seed: Math.random() } })
+    return res
 }
 
 export function removeSongFromPlaylist(playlistId: string, songId: string){
-    return db.playlist.find({ selector: { id: playlistId } }).update({
+    const res = db.playlist.updateOne({ id: playlistId }, {
         $pull: { songs: { youtubeId: songId } }
     })
+    
+    db.playlist.updateOne({ id: playlistId }, { $set: { seed: Math.random() } })
+    return res
 }
 
 export function removePlaylist(playlistId: string){
-    return db.playlist.find({ selector: { id: playlistId } }).remove()
+    return db.playlist.removeOne({ id: playlistId })
 }
 
 const METHODS = {
