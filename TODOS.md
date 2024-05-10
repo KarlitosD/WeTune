@@ -25,6 +25,9 @@
 
 - [] Consider visual redesign of the audio player
 
+- [] Cache thumbnails of songs (maybe use service worker)
+
+- [] Consider preload next song of a playlist
 
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
