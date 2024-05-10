@@ -4,26 +4,29 @@
 
 - [-] Integrate Media Session API
 
+- [] Refactor youtube logic (api) and playlist logic (move to services folder)
+
 - [] Consider remove song from cache if the song not exists in none playlist
 
 - [] Add i18n
 
-- [-] Import playlist from youtube url
+- [-] Playlist
+    - [X] Import playlist from youtube url
     - [X] Refactor playlist data with playlistId (using InnerTube)
     - [X] Import from youtube and youtube music
+    - [] Add playlist operations (rename, delete)
+    - [] Add playlist of songs downloaded
+    - [] Save last song played in the playlist
     - [] Button for sync songs of a imported playlist from youtube
-
-- [] Button for download all songs of a playlist
-
-- [] Add playlist of songs downloaded
-
-- [] Refactor youtube logic (api) and playlist logic (move to services folder)
+    - [] Button for download all songs of a playlist
+        - [] Add method to diferenciate between local playlist and imported playlist
 
 - [] Made search section (songs/videos) collapsible
 
 - [] Add drawer for song player in mobile
 
 - [] Consider visual redesign of the audio player
+
 
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
