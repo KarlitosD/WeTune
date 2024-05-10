@@ -10,7 +10,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.12.11",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
     "solid-devtools": "^0.30.1",
@@ -24,23 +24,21 @@
   "dependencies": {
     "@netlify/blobs": "^7.3.0",
     "@netlify/functions": "^2.6.3",
-    "@sinclair/typebox": "^0.32.28",
+    "@sinclair/typebox": "^0.32.29",
     "@solid-primitives/event-bus": "^1.0.11",
     "@solid-primitives/set": "^0.4.11",
     "@solidjs/meta": "^0.29.3",
     "@solidjs/router": "^0.13.3",
     "@typeschema/typebox": "^0.13.4",
-    "daisyui": "^4.10.5",
+    "daisyui": "^4.11.1",
     "nanoid": "^5.0.7",
-    "node-youtube-music": "^0.10.3",
     "rxdb": "^15.19.0",
     "rxjs": "^7.8.1",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.8.17",
     "tailwindcss-members": "^0.0.4",
-    "tailwindcss-signals": "^0.0.22",
-    "youtube-api-v3-wrapper": "^2.3.0",
-    "youtubei.js": "^9.3.0",
+    "tailwindcss-signals": "^0.0.25",
+    "youtubei.js": "^9.4.0",
     "ytdl-core": "^4.11.5"
   }
 }
