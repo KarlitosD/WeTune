@@ -6,7 +6,7 @@
 
 - [] Add i18n
 
-- [] Refactor youtube logic (api) and playlist logic (move to services folder)
+- [-] Refactor youtube logic (api) and playlist logic (move to services folder)
 
 - [-] Playlist
     - [X] Import playlist from youtube url
@@ -28,6 +28,8 @@
 - [] Cache thumbnails of songs (maybe use service worker)
 
 - [] Consider preload next song of a playlist
+
+- [] Fix pwa icons
 
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
