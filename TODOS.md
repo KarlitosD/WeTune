@@ -12,11 +12,11 @@
     - [X] Import playlist from youtube url
     - [X] Refactor playlist data with playlistId (using InnerTube)
     - [X] Import from youtube and youtube music
-    - [] Add playlist operations (rename, delete)
+    - [-] Add playlist operations (rename, delete)
     - [] Add playlist of songs downloaded
     - [] Save last song played in the playlist
     - [] Button for sync songs of a imported playlist from youtube
-    - [] Button for download all songs of a playlist
+    - [X] Button for download all songs of a playlist
         - [] Add method to diferenciate between local playlist and imported playlist
 
 - [] Made search section (songs/videos) collapsible

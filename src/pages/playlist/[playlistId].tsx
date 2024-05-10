@@ -4,9 +4,10 @@ import { usePlaylist } from "~/context/playlist";
 import { Dropdown, DropdownItem } from "~/components/Dropdown";
 import { SongItem } from "~/components/SongItem";
 import { IconLabel } from "~/components/IconLabel";
-import { IconPause, IconPlay, IconEllipsis, IconTrash } from "~/components/Icons";
+import { IconPause, IconPlay, IconEllipsis, IconTrash, IconOutlineArrowDownCircle } from "~/components/Icons";
 import { Playlist } from "~/db/schema";
 import { audioPlayerEvent } from "~/utils/events";
+import { addAudioToCache, existsAudioInCache } from "~/services/cache";
 
 export default function PlaylistPage(props: RouteSectionProps) {
     const { playlists, playSong, removeSong } = usePlaylist()
@@ -45,10 +46,20 @@ function PlaylistHeader(props: { playlist: Playlist }) {
         }
     }
 
+    const allSongsCached = () => props.playlist.songs.every(song => existsAudioInCache(song.youtubeId))
+    const handleDownloadPlaylist = async () => {
+        if(allSongsCached()) return
+        const songs = props.playlist.songs
+        for(const song of songs) {
+            await addAudioToCache(song.youtubeId)
+        }
+    }
+
     return (
         <header class="flex justify-between items-center py-3 px-6 border-b border-b-gray-500">
             <div class="flex items-end gap-3">
                 <h1 class="text-xl text-base-content">{props.playlist.title}</h1>
+                <button classList={{ "text-primary": allSongsCached(), "text-white": !allSongsCached() }} onClick={handleDownloadPlaylist}><IconOutlineArrowDownCircle size={22} /></button>
                 <Show when={props.playlist.id !== "history"}>
                     <Dropdown class="text-white" summary={<IconEllipsis />}>
                         <DropdownItem>
