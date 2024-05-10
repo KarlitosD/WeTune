@@ -5,6 +5,7 @@ import { usePlaylist } from "~/context/playlist"
 import { useShare } from "~/hooks/useShare"
 import Thumbnail from "~/components/Thumbnail"
 import { Dropdown, DropdownItem } from "~/components/Dropdown"
+import { IconLabel } from "./IconLabel"
 import { IconCircleArrowDown, IconDownload, IconPlus, IconShare, IconEllipsis } from "~/components/Icons"
 import { existsAudioInCache } from "~/services/cache"
 import { formatSeconds } from "~/utils/seconds"
@@ -23,8 +24,7 @@ function PlaylistDropdown(props: { song: Song }) {
   return (
     <details class="dropdown dropdown-left">
       <summary class="p-1 list-none flex items-center gap-3">
-        <IconPlus size={14} />
-        Agregar playlist
+        <IconLabel icon={<IconPlus size={14} />} label="Agregar playlist" />
       </summary>
       <ul class="p-2 shadow menu dropdown-content z-[2] bg-base-200 rounded-box w-52">
         <For each={playlists()}>
@@ -59,15 +59,13 @@ export function SongItem(props: ParentProps & {
         <DropdownItem><PlaylistDropdown song={props.song} /></DropdownItem>
         <DropdownItem>
           <a class="p-1 flex items-center gap-3" href={`/api/song/blob?songId=${props.song.youtubeId}`} download={`${props.song.title} - ${props?.song?.author?.name}.mp3`}>
-            <IconDownload size={14} />
-            <span>Descargar MP3</span>
+            <IconLabel icon={<IconDownload size={14} />} label="Descargar MP3" />
           </a>
         </DropdownItem>
         <Show when={shareIsCompatible()}>
           <DropdownItem >
             <button class="p-1 flex items-center gap-3" onClick={handleShare} >
-              <IconShare size={14} />
-              <span>Compartir</span>
+              <IconLabel icon={<IconShare size={14} />} label="Compartir" />
             </button>
           </DropdownItem>
         </Show>

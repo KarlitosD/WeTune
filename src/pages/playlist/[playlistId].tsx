@@ -3,6 +3,7 @@ import { For, Show, createMemo } from "solid-js";
 import { usePlaylist } from "~/context/playlist";
 import { Dropdown, DropdownItem } from "~/components/Dropdown";
 import { SongItem } from "~/components/SongItem";
+import { IconLabel } from "~/components/IconLabel";
 import { IconPause, IconPlay, IconEllipsis, IconTrash } from "~/components/Icons";
 import { Playlist } from "~/db/schema";
 import { audioPlayerEvent } from "~/utils/events";
@@ -20,8 +21,7 @@ export default function PlaylistPage(props: RouteSectionProps) {
                         <SongItem song={song} onSelect={() => playSong(song, playlist().id)}>
                             <DropdownItem>
                                 <button class="text-error p-1 flex items-center gap-3" onClick={() => removeSong(song, playlist().id)}>
-                                    <IconTrash size={14} />
-                                    <span>Eliminar</span>
+                                    <IconLabel icon={<IconTrash size={14} />} label="Eliminar" />
                                 </button>
                             </DropdownItem>
                         </SongItem>
