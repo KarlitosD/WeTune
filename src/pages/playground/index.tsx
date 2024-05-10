@@ -1,18 +1,19 @@
-import { startWith } from "rxjs"
-import { createEffect, from, onMount } from "solid-js"
-import { db } from "~/db"
-import { Playlist } from "~/types/playlist"
+import { createMemo } from "solid-js"
+import { items } from "./db"
 
 export default function Playground(){
-    const playlists = from<Playlist>(db.playlist.find({}).$.pipe(startWith([])))
- 
-    createEffect(() => {
-        console.log(playlists())
-    })
+    const count = () => createMemo(() => items.find({}).count())
+
+    const handleClick = () => {
+        items.insert({
+            text: "Dodo"
+        })
+    }
 
     return (
         <>
-            <button class="bg-primary text-white p-3 rounded">Click</button>
+            <p>{count()}</p>
+            <button onClick={handleClick} class="bg-primary text-white p-3 rounded">Click</button>
         </>
     )
 }
