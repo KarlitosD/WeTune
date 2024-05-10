@@ -6,7 +6,7 @@
 
 - [] Add i18n
 
-- [-] Refactor youtube logic (api) and playlist logic (move to services folder)
+- [X] Refactor youtube logic (api) and playlist logic (move to services folder)
 
 - [-] Playlist
     - [X] Import playlist from youtube url
