@@ -4,11 +4,9 @@
 
 - [-] Integrate Media Session API
 
-- [] Refactor youtube logic (api) and playlist logic (move to services folder)
-
-- [] Consider remove song from cache if the song not exists in none playlist
-
 - [] Add i18n
+
+- [] Refactor youtube logic (api) and playlist logic (move to services folder)
 
 - [-] Playlist
     - [X] Import playlist from youtube url
@@ -47,3 +45,5 @@
 - [X] Video results when searching
 
 - [X] Share not reactive
+
+- [X] Consider remove song from cache if the song not exists in none playlist

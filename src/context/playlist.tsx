@@ -5,6 +5,7 @@ import { Accessor, createContext, createEffect, createSignal, from, useContext, 
 import { startWith } from "rxjs"
 import { db } from "~/db"
 import { createPersistedSignal } from "~/hooks/createPersistedSignal"
+import { removeAudioFromCache } from "~/services/cache"
 
 export interface PlaylistContextData {
     playlists: Accessor<Playlist[]>,
@@ -105,6 +106,12 @@ export function PlaylistProvider(props: ParentProps) {
         await db.playlist.find({ selector: { id: playlistId } }).update({
             $set: { songs: songs }
         })
+
+        db.playlist.find({ selector: { songs: { $elemMatch: {  youtubeId: song.youtubeId } } } }).exec().then(res => {
+            if(res.length === 0) {
+                removeAudioFromCache(song.youtubeId)
+            }
+        })   
     }
 
     return (
