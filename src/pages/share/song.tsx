@@ -3,6 +3,7 @@ import { getSongData } from "./song.data"
 import { Show } from "solid-js"
 import { usePlaylist } from "~/context/playlist"
 import { Song } from "~/db/schema"
+import { PLAYLISTS } from "~/consts"
 
 export default function ShareSong(){
     const [searchParams] = useSearchParams()    
@@ -20,7 +21,7 @@ export default function ShareSong(){
 
 function Play(props: { song: Song }){
     const { playSong } = usePlaylist()
-    playSong(props.song, "history")
+    playSong(props.song, PLAYLISTS.HISTORY)
 
     return (
         <Navigate href="/" />

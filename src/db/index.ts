@@ -3,6 +3,7 @@ import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie';
 import { RxDBUpdatePlugin } from 'rxdb/plugins/update';
 
 import { songSchema, playlistSchema } from './schema';
+import { PLAYLISTS } from '~/consts';
 
 addRxPlugin(RxDBUpdatePlugin);
 
@@ -19,7 +20,7 @@ await db.addCollections({
   playlist: { schema: playlistSchema }, 
 })
 
-const playlistHistory = await db.playlist.findOne({ selector: { id: "history" } }).exec()
+const playlistHistory = await db.playlist.findOne({ selector: { id: PLAYLISTS.HISTORY } }).exec()
 if(playlistHistory == null){
-    await db.playlist.insert({ id: "history", title: "Recents", songs: [] })
+    await db.playlist.insert({ id: PLAYLISTS.HISTORY, title: "Recents", songs: [] })
 }

@@ -8,6 +8,7 @@ import { IconPause, IconPlay, IconEllipsis, IconTrash, IconOutlineArrowDownCircl
 import { Playlist } from "~/db/schema";
 import { audioPlayerEvent } from "~/utils/events";
 import { addAudioToCache, existsAudioInCache } from "~/services/cache";
+import { PLAYLISTS } from "~/consts";
 
 export default function PlaylistPage(props: RouteSectionProps) {
     const { playlists, playSong, removeSong } = usePlaylist()
@@ -67,7 +68,7 @@ function PlaylistHeader(props: { playlist: Playlist }) {
             <div class="flex items-end gap-3">
                 <h1 class="text-xl text-base-content">{props.playlist.title}</h1>
                 <button classList={{ "text-primary": allSongsCached(), "text-white": !allSongsCached() }} onClick={handleDownloadPlaylist}><IconOutlineArrowDownCircle size={22} /></button>
-                <Show when={props.playlist.id !== "history"}>
+                <Show when={props.playlist.id !== PLAYLISTS.HISTORY}>
                     <Dropdown class="text-white" summary={<IconEllipsis />}>
                         <DropdownItem>
                             <button class="p-1 flex items-center gap-3 text-error" onClick={handleRemovePlaylist}>

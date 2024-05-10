@@ -6,6 +6,7 @@ import { startWith } from "rxjs"
 import { createPersistedSignal } from "~/hooks/createPersistedSignal"
 import { removeAudioFromCache } from "~/services/cache"
 import playlistsService from "~/services/playlist"
+import { PLAYLISTS } from "~/consts"
 
 export interface PlaylistContextData {
     playlists: Accessor<Playlist[]>,
@@ -35,7 +36,7 @@ export function PlaylistProvider(props: ParentProps) {
     const addPlaylist = playlist => playlistsService.addPlaylist(playlist)
 
 
-    const [actualPlaylistId, setActualPlaylistId] = createPersistedSignal("actualPlaylistId", "history")
+    const [actualPlaylistId, setActualPlaylistId] = createPersistedSignal("actualPlaylistId", PLAYLISTS.HISTORY)
     const actualPlaylist = () => {
         return playlists().find(playlist => playlist.id === actualPlaylistId())
     }
@@ -76,15 +77,15 @@ export function PlaylistProvider(props: ParentProps) {
     }
 
 
-    const playSong = async (song: Song, playlistId = "history") => {
+    const playSong = async (song: Song, playlistId = PLAYLISTS.HISTORY) => {
         //? Add song to history playlist
-        await addSong(song, "history")
-        let songs = structuredClone(playlists().find(playlist => playlist.id === "history").songs)
+        await addSong(song, PLAYLISTS.HISTORY)
+        let songs = structuredClone(playlists().find(playlist => playlist.id === PLAYLISTS.HISTORY).songs)
 
         songs = songs.filter(songInPLaylist => songInPLaylist.youtubeId !== song.youtubeId)
         songs.unshift(song)
 
-        await playlistsService.setSongsInPlaylist("history", songs)
+        await playlistsService.setSongsInPlaylist(PLAYLISTS.HISTORY, songs)
 
 
         setActualPlaylistId(playlistId)
