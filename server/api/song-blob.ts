@@ -28,13 +28,16 @@ export default async function handler(req: Request){
     // let audioBlob: Blob = await getAudioStream(songId, quality)
     
     let audioBlob: Blob;
-    if(await cacheSongs.getMetadata(songId)) {
+    if(quality === "lowest" && await cacheSongs.getMetadata(songId)) { 
         console.log("song: cache hit")
         audioBlob = await cacheSongs.get(songId, { type: "blob" })
     } else {
         audioBlob = await getAudioStream(songId, quality)
         console.log("song: cache miss")
-        await cacheSongs.set(songId, audioBlob)
+        
+        if(quality === "lowest") {
+            await cacheSongs.set(songId, audioBlob)
+        }
     }
 
 
