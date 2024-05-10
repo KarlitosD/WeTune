@@ -1,11 +1,9 @@
 import { RouteSectionProps } from "@solidjs/router";
 import { For, Show, createMemo } from "solid-js";
-import { Dropdown, DropdownItem } from "~/components/Dropdown";
-import { IconPause, IconPlay } from "~/components/Icons";
-import IconEllipsis from "~/components/Icons/IconEllipsis";
-import IconTrash from "~/components/Icons/IconTrash";
-import { SongItem } from "~/components/SongItem";
 import { usePlaylist } from "~/context/playlist";
+import { Dropdown, DropdownItem } from "~/components/Dropdown";
+import { SongItem } from "~/components/SongItem";
+import { IconPause, IconPlay, IconEllipsis, IconTrash } from "~/components/Icons";
 import { Playlist } from "~/db/schema";
 import { audioPlayerEvent } from "~/utils/events";
 
