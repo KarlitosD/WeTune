@@ -1,12 +1,11 @@
 import type { Playlist, Song } from "~/types/playlist"
 
 import { createMutable, SetStoreFunction } from "solid-js/store"
-import { Accessor, createContext, createEffect, createSignal, from, useContext, type ParentProps } from "solid-js"
+import { Accessor, createContext, from, useContext, type ParentProps } from "solid-js"
 import { startWith } from "rxjs"
-import { db } from "~/db"
 import { createPersistedSignal } from "~/hooks/createPersistedSignal"
 import { removeAudioFromCache } from "~/services/cache"
-import { redirect, useNavigate } from "@solidjs/router"
+import playlistsService from "~/services/playlist"
 
 export interface PlaylistContextData {
     playlists: Accessor<Playlist[]>,
@@ -29,11 +28,11 @@ export interface PlaylistContextData {
 const PlaylistContext = createContext()
 
 export function PlaylistProvider(props: ParentProps) {
-    const playlists = from<Playlist[]>(db.playlist.find({}).$.pipe(startWith([])))
+    const playlists = from<Playlist[]>(
+        playlistsService.findAll().$.pipe(startWith([]))
+    )
 
-    const addPlaylist = async (playlist: Playlist) => {
-        await db.playlist.insert(playlist)
-    }
+    const addPlaylist = playlist => playlistsService.addPlaylist(playlist)
 
 
     const [actualPlaylistId, setActualPlaylistId] = createPersistedSignal("actualPlaylistId", "history")
@@ -73,9 +72,7 @@ export function PlaylistProvider(props: ParentProps) {
         const songExistsInPlaylist = playlist.songs.find(songInPlaylist => songInPlaylist.youtubeId === song.youtubeId)
         if(songExistsInPlaylist) return
 
-        await db.playlist.find({ selector: { id: playlist.id } }).update({
-            $push: { songs: song }
-        })
+        await playlistsService.addSongToPlaylist(playlistId, song)
     }
 
 
@@ -87,8 +84,7 @@ export function PlaylistProvider(props: ParentProps) {
         songs = songs.filter(songInPLaylist => songInPLaylist.youtubeId !== song.youtubeId)
         songs.unshift(song)
 
-        await db.playlist.find({ selector: { id: "history" } }).update({ $set: { songs } })
-
+        await playlistsService.setSongsInPlaylist("history", songs)
 
 
         setActualPlaylistId(playlistId)
@@ -102,31 +98,22 @@ export function PlaylistProvider(props: ParentProps) {
     }
 
     const removeSong = async (song: Song, playlistId: string) => {
-        let songs = structuredClone(playlists().find(playlist => playlist.id === playlistId).songs)
-        songs = songs.filter(songInPLaylist => songInPLaylist.youtubeId !== song.youtubeId)
+        await playlistsService.removeSongFromPlaylist(playlistId, song.youtubeId)
 
-        await db.playlist.find({ selector: { id: playlistId } }).update({
-            $set: { songs: songs }
-        })
-
-        db.playlist.find({ selector: { songs: { $elemMatch: {  youtubeId: song.youtubeId } } } }).exec().then(res => {
-            if(res.length === 0) {
-                removeAudioFromCache(song.youtubeId)
-            }
-        })   
+        playlistsService.findPlaylistBySongId(song.youtubeId)
+            .exec().then(playlist => {
+                if(playlist.length === 0) removeAudioFromCache(song.youtubeId)
+            })
     }
 
-    const navigate = useNavigate()
 
     const removePlaylist = async (playlistId: string) => {
         const playlist = playlists().find(playlist => playlist.id === playlistId)
 
-        navigate("/")
-
         for(const song of playlist.songs) {
             await removeSong(song, playlistId)
         }
-        await db.playlist.find({ selector: { id: playlistId } }).remove()
+        await playlistsService.removePlaylist(playlistId)
 
     }
 

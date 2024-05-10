@@ -1,4 +1,4 @@
-import { RouteSectionProps } from "@solidjs/router";
+import { RouteSectionProps, useNavigate } from "@solidjs/router";
 import { For, Show, createMemo } from "solid-js";
 import { usePlaylist } from "~/context/playlist";
 import { Dropdown, DropdownItem } from "~/components/Dropdown";
@@ -34,7 +34,9 @@ export default function PlaylistPage(props: RouteSectionProps) {
 }
 
 function PlaylistHeader(props: { playlist: Playlist }) {
+    const navigate = useNavigate()
     const { actualPlaylist, playSong, removePlaylist } = usePlaylist()
+
     const isActualPlaylist = () => actualPlaylist().id === props.playlist.id
 
     const handlePlayPlaylist = () => {
@@ -55,6 +57,11 @@ function PlaylistHeader(props: { playlist: Playlist }) {
         }
     }
 
+    const handleRemovePlaylist = () => {
+        navigate("/")
+        removePlaylist(props.playlist.id)
+    }
+
     return (
         <header class="flex justify-between items-center py-3 px-6 border-b border-b-gray-500">
             <div class="flex items-end gap-3">
@@ -63,7 +70,7 @@ function PlaylistHeader(props: { playlist: Playlist }) {
                 <Show when={props.playlist.id !== "history"}>
                     <Dropdown class="text-white" summary={<IconEllipsis />}>
                         <DropdownItem>
-                            <button class="p-1 flex items-center gap-3 text-error" onClick={() => removePlaylist(props.playlist.id)}>
+                            <button class="p-1 flex items-center gap-3 text-error" onClick={handleRemovePlaylist}>
                                 <IconLabel icon={<IconTrash size={14} />} label="Eliminar" />
                             </button>
                         </DropdownItem>
