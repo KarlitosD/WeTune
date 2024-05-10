@@ -6,10 +6,12 @@ import { startWith } from "rxjs"
 import { db } from "~/db"
 import { createPersistedSignal } from "~/hooks/createPersistedSignal"
 import { removeAudioFromCache } from "~/services/cache"
+import { redirect, useNavigate } from "@solidjs/router"
 
 export interface PlaylistContextData {
     playlists: Accessor<Playlist[]>,
     addPlaylist: (playlist: Playlist) => Promise<void>
+    removePlaylist: (playlistId: string) => Promise<never>
     actualPlaylist: () => Playlist
     setActualPlaylist: SetStoreFunction<Playlist>
     addSong: (song: Song, playlistId?: string) => Promise<void>,
@@ -114,9 +116,23 @@ export function PlaylistProvider(props: ParentProps) {
         })   
     }
 
+    const navigate = useNavigate()
+
+    const removePlaylist = async (playlistId: string) => {
+        const playlist = playlists().find(playlist => playlist.id === playlistId)
+
+        navigate("/")
+
+        for(const song of playlist.songs) {
+            await removeSong(song, playlistId)
+        }
+        await db.playlist.find({ selector: { id: playlistId } }).remove()
+
+    }
+
     return (
         <PlaylistContext.Provider value={{ 
-                playlists, addPlaylist,    
+                playlists, addPlaylist, removePlaylist,
                 actualPlaylist, setActualPlaylist, 
                 addSong, removeSong, playSong, selected,
             } as PlaylistContextData}>

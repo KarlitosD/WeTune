@@ -33,7 +33,7 @@ export default function PlaylistPage(props: RouteSectionProps) {
 }
 
 function PlaylistHeader(props: { playlist: Playlist }) {
-    const { actualPlaylist, playSong } = usePlaylist()
+    const { actualPlaylist, playSong, removePlaylist } = usePlaylist()
     const isActualPlaylist = () => actualPlaylist().id === props.playlist.id
 
     const handlePlayPlaylist = () => {
@@ -49,11 +49,15 @@ function PlaylistHeader(props: { playlist: Playlist }) {
         <header class="flex justify-between items-center py-3 px-6 border-b border-b-gray-500">
             <div class="flex items-end gap-3">
                 <h1 class="text-xl text-base-content">{props.playlist.title}</h1>
-                <Dropdown class="text-white" summary={<IconEllipsis />}>
-                    <DropdownItem>
-                        <button class="p-1 flex">Test</button>
-                    </DropdownItem>
-                </Dropdown>
+                <Show when={props.playlist.id !== "history"}>
+                    <Dropdown class="text-white" summary={<IconEllipsis />}>
+                        <DropdownItem>
+                            <button class="p-1 flex items-center gap-3 text-error" onClick={() => removePlaylist(props.playlist.id)}>
+                                <IconLabel icon={<IconTrash size={14} />} label="Eliminar" />
+                            </button>
+                        </DropdownItem>
+                    </Dropdown>
+                </Show>
             </div>
             <button class="btn btn-primary rounded-full" onClick={handlePlayPlaylist}>
                 <Show when={isActualPlaylist()} fallback={<IconPlay />}>
