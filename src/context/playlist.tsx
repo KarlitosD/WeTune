@@ -86,7 +86,7 @@ export function PlaylistProvider(props: ParentProps) {
 
 
         setActualPlaylistId(playlistId)
-        const playlist = actualPlaylist()
+        const playlist = await playlistsService.findPlaylistById(playlistId)
     
         const songIndexInPlaylist = playlist.songs.findIndex(songInPlaylist => songInPlaylist.youtubeId === song.youtubeId)
 

@@ -6,7 +6,7 @@ export function findAll(){
 }
 
 export function findPlaylistById(playlistId: string){
-    return db.playlist.find({ id: playlistId })
+    return db.playlist.findOne({ id: playlistId })
 }
 
 export function findPlaylistBySongId(songId: string){
