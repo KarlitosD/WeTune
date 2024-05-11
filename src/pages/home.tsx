@@ -5,6 +5,7 @@ import { createId } from "~/utils/id"
 import { usePlaylist } from "~/context/playlist"
 import { getThumbnailUrl } from "~/utils/thumbnail"
 import { useI18nContext } from "~/i18n/i18n-solid"
+import { PLAYLISTS } from "~/consts"
 
 const playlistCardSize = "w-32 h-32"
 
@@ -108,7 +109,9 @@ function PlaylistCard(props: { playlist: Playlist }) {
                     <img class="object-cover w-full h-full" width={128} height={128} src={getThumbnailUrl(props.playlist?.songs[0]?.youtubeId)} />
                 </Show>
             </div>
-            <p class="font-medium text-center mt-1 hover:underline">{props.playlist.title}</p>
+            <p class="font-medium text-center mt-1 hover:underline">
+                {props.playlist.id === PLAYLISTS.HISTORY ? LL().RECENTS() : props.playlist.title}
+            </p>
             <p>{LL().SONGS_IN_PLAYLIST({ songs: props.playlist.songs.length })}</p>
         </a>
     )
