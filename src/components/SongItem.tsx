@@ -10,9 +10,11 @@ import { IconCircleArrowDown, IconDownload, IconPlus, IconShare, IconEllipsis } 
 import { existsAudioInCache } from "~/services/cache"
 import { formatSeconds } from "~/utils/seconds"
 import { getThumbnailUrl } from "~/utils/thumbnail"
+import { useI18nContext } from "~/i18n/i18n-solid"
 
 
 function PlaylistDropdown(props: { song: Song }) {
+  const { LL } = useI18nContext()
   const { addSong, playlists } = usePlaylist()
 
   const handleAdd = (playlistId: string) => {
@@ -24,7 +26,7 @@ function PlaylistDropdown(props: { song: Song }) {
   return (
     <details class="dropdown dropdown-left">
       <summary class="p-1 list-none flex items-center gap-3">
-        <IconLabel icon={<IconPlus size={14} />} label="Agregar playlist" />
+        <IconLabel icon={<IconPlus size={14} />} label={LL().ADD_PLAYLIST()} />
       </summary>
       <ul class="p-2 shadow menu dropdown-content z-[2] bg-base-200 rounded-box w-52">
         <For each={playlists()}>
@@ -39,6 +41,7 @@ export function SongItem(props: ParentProps & {
   song: Song
   onSelect: () => void
 }) {
+  const { LL } = useI18nContext()
   const { handleShare, isCompatible: shareIsCompatible } = useShare(() => props.song)
 
   return (
@@ -59,13 +62,13 @@ export function SongItem(props: ParentProps & {
         <DropdownItem><PlaylistDropdown song={props.song} /></DropdownItem>
         <DropdownItem>
           <a class="p-1 flex items-center gap-3" href={`/api/song/blob?songId=${props.song.youtubeId}`} download={`${props.song.title} - ${props?.song?.author?.name}.mp3`}>
-            <IconLabel icon={<IconDownload size={14} />} label="Descargar MP3" />
+            <IconLabel icon={<IconDownload size={14} />} label={LL().DOWNLOAD_MP3()} />
           </a>
         </DropdownItem>
         <Show when={shareIsCompatible()}>
           <DropdownItem >
             <button class="p-1 flex items-center gap-3" onClick={handleShare} >
-              <IconLabel icon={<IconShare size={14} />} label="Compartir" />
+              <IconLabel icon={<IconShare size={14} />} label={LL().SHARE()} />
             </button>
           </DropdownItem>
         </Show>

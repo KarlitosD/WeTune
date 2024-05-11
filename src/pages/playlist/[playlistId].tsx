@@ -9,8 +9,10 @@ import { Playlist } from "~/db/schema";
 import { audioPlayerEvent } from "~/utils/events";
 import { addAudioToCache, existsAudioInCache } from "~/services/cache";
 import { PLAYLISTS } from "~/consts";
+import { useI18nContext } from "~/i18n/i18n-solid";
 
 export default function PlaylistPage(props: RouteSectionProps) {
+    const { LL } = useI18nContext()
     const { playlists, playSong, removeSong } = usePlaylist()
     const playlist = createMemo(() => playlists().find(p => p.id === props.params.playlistId))
 
@@ -23,7 +25,7 @@ export default function PlaylistPage(props: RouteSectionProps) {
                         <SongItem song={song} onSelect={() => playSong(song, playlist().id)}>
                             <DropdownItem>
                                 <button class="text-error p-1 flex items-center gap-3" onClick={() => removeSong(song, playlist().id)}>
-                                    <IconLabel icon={<IconTrash size={14} />} label="Eliminar" />
+                                    <IconLabel icon={<IconTrash size={14} />} label={LL().DELETE()} />
                                 </button>
                             </DropdownItem>
                         </SongItem>
@@ -36,6 +38,7 @@ export default function PlaylistPage(props: RouteSectionProps) {
 
 function PlaylistHeader(props: { playlist: Playlist }) {
     const navigate = useNavigate()
+    const { LL } = useI18nContext()
     const { actualPlaylist, playSong, removePlaylist } = usePlaylist()
 
     const isActualPlaylist = () => actualPlaylist().id === props.playlist.id
@@ -66,13 +69,13 @@ function PlaylistHeader(props: { playlist: Playlist }) {
     return (
         <header class="flex justify-between items-center py-3 px-6 border-b border-b-gray-500">
             <div class="flex items-end gap-3">
-                <h1 class="text-xl text-base-content">{props.playlist.title}</h1>
+                <h1 class="text-xl text-base-content">{props.playlist.id == PLAYLISTS.HISTORY ? LL().RECENTS() : props.playlist.title}</h1>
                 <button classList={{ "text-primary": allSongsCached(), "text-white": !allSongsCached() }} onClick={handleDownloadPlaylist}><IconOutlineArrowDownCircle size={22} /></button>
                 <Show when={props.playlist.id !== PLAYLISTS.HISTORY}>
                     <Dropdown class="text-white" summary={<IconEllipsis />}>
                         <DropdownItem>
                             <button class="p-1 flex items-center gap-3 text-error" onClick={handleRemovePlaylist}>
-                                <IconLabel icon={<IconTrash size={14} />} label="Eliminar" />
+                                <IconLabel icon={<IconTrash size={14} />} label={LL().DELETE()} />
                             </button>
                         </DropdownItem>
                     </Dropdown>

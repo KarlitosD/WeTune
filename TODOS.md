@@ -4,10 +4,6 @@
 
 - [-] Integrate Media Session API
 
-- [] Add i18n
-
-- [X] Refactor youtube logic (api) and playlist logic (move to services folder)
-
 - [-] Playlist
     - [X] Import playlist from youtube url
     - [X] Refactor playlist data with playlistId (using InnerTube)
@@ -52,3 +48,7 @@
 - [X] Share not reactive
 
 - [X] Consider remove song from cache if the song not exists in none playlist
+
+- [X] Add i18n
+
+- [X] Refactor youtube logic (api) and playlist logic (move to services folder)

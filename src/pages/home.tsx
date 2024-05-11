@@ -1,18 +1,21 @@
-import { For, Show  } from "solid-js"
+import { For, Show, createEffect  } from "solid-js"
 import IconMusic from "~/components/Icons/IconMusic"
 import type { Playlist } from "~/types/playlist"
 import { createId } from "~/utils/id"
 import { usePlaylist } from "~/context/playlist"
 import { getThumbnailUrl } from "~/utils/thumbnail"
+import { useI18nContext } from "~/i18n/i18n-solid"
 
 const playlistCardSize = "w-32 h-32"
 
 export default function Home() {
     const { playlists, addPlaylist } = usePlaylist()
 
+    const { LL } = useI18nContext()
+
     return (
         <div class="px-4 text-white grid place-items-center sm:block">
-            <h1 class="text-left text-white text-3xl my-4">Playlists</h1>
+            <h1 class="text-left text-white text-3xl my-4">{LL().PLAYLISTS()}</h1>
             <div class="grid grid-cols-2 items-start sm:flex sm:items-start gap-6 sm:gap-4">   
                 <CreatePlaylistModal addPlaylist={addPlaylist}  />
                 <For each={playlists()}>{playlist => <PlaylistCard playlist={playlist} />}</For>
@@ -22,6 +25,8 @@ export default function Home() {
 }
 
 function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void }) {
+    const { LL } = useI18nContext()
+
     let $dialog: HTMLDialogElement
 
     const createPlaylist = (e: SubmitEvent) => {
@@ -69,20 +74,20 @@ function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void 
                 <div class={`${playlistCardSize} rounded flex justify-center items-center text-white bg-neutral`}>
                     <IconMusic size={48} />
                 </div>
-                <p class="font-medium text-center mt-1 hover:underline">Nueva playlist</p>
+                <p class="font-medium text-center mt-1 hover:underline">{LL().NEW_PLAYLIST()}</p>
             </button>
 
             <dialog class="modal" ref={$dialog}>
                 <div class="modal-box">
-                    <h1 class="text-white text-2xl text-center mb-5">Crear playlist</h1>
-                    <form class="flex justify-center gap-2" onSubmit={importPlaylist}>
-                        <input type="url" name="url" class="input input-bordered" placeholder="Youtube Playlist URL" />
-                        <button class="btn btn-neutral uppercase">Importar</button>
+                    <h1 class="text-white text-2xl text-center mb-5">{LL().CREATE_PLAYLIST()}</h1>
+                    <form class="mx-auto flex justify-center gap-2 w-full sm:w-4/5 " onSubmit={importPlaylist}>
+                        <input type="url" name="url" class="input input-bordered w-full max-w-64" placeholder="Youtube Playlist URL" />
+                        <button class="w-[86px] btn btn-neutral uppercase">{LL().IMPORT()}</button>
                     </form>
-                    <div class="divider">OR</div>
-                    <form onSubmit={createPlaylist} class="flex justify-center gap-2">
-                        <input type="text" name="title" class="input input-bordered" placeholder="Nombre de la Playlist" />
-                        <button class="btn btn-neutral uppercase">Agregar</button>
+                    <div class="divider uppercase">{LL().OR()}</div>
+                    <form onSubmit={createPlaylist} class="mx-auto flex justify-center gap-2 w-full sm:w-4/5">
+                        <input type="text" name="title" class="input input-bordered w-full max-w-64" placeholder={LL().NAME_PLAYLIST()} /> 
+                        <button class="w-[86px] btn btn-neutral uppercase">{LL().ADD()}</button>
                     </form>
                 </div>
                 <form method="dialog" class="modal-backdrop">
@@ -94,6 +99,8 @@ function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void 
 } 
 
 function PlaylistCard(props: { playlist: Playlist }) {
+    const { LL } = useI18nContext()
+
     return (
         <a href={`/playlist/${props.playlist.id}`}>
             <div class={`${playlistCardSize} flex rounded overflow-hidden`}>
@@ -102,7 +109,7 @@ function PlaylistCard(props: { playlist: Playlist }) {
                 </Show>
             </div>
             <p class="font-medium text-center mt-1 hover:underline">{props.playlist.title}</p>
-            <p>{props.playlist.songs.length} canciones</p>
+            <p>{LL().SONGS_IN_PLAYLIST({ songs: props.playlist.songs.length })}</p>
         </a>
     )
 }
