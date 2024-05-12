@@ -80,7 +80,7 @@ function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void 
 
             <dialog class="modal" ref={$dialog}>
                 <div class="modal-box">
-                    <h1 class="text-white text-2xl text-center mb-5">{LL().CREATE_PLAYLIST()}</h1>
+                    <h2 class="text-white text-2xl text-center mb-5">{LL().CREATE_PLAYLIST()}</h2>
                     <form class="mx-auto flex justify-center gap-2 w-full sm:w-4/5 " onSubmit={importPlaylist}>
                         <input type="url" name="url" class="input input-bordered w-full max-w-64" placeholder="Youtube Playlist URL" />
                         <button class="w-[86px] btn btn-neutral uppercase">{LL().IMPORT()}</button>
