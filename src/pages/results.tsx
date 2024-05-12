@@ -22,6 +22,7 @@ function ResultList(props: { search: string }) {
             {result => <SongItem song={result} onSelect={() => playSong(result)} />}
           </For>
         </Show>
+        <div class="divider"></div> 
         <h2 class="text-2xl text-white self-start my-2">{LL().VIDEOS()}</h2>
         <Show when={Boolean(results()?.videos)} fallback={<ResultFallback />}>
           <For each={results()?.videos ?? []} fallback={<ResultEmpty />}>
