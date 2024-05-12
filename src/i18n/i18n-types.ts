@@ -83,6 +83,22 @@ type RootTranslation = {
 	 * D​e​l​e​t​e
 	 */
 	DELETE: string
+	/**
+	 * A​n​ ​e​r​r​o​r​ ​o​c​c​u​r​r​e​d​ ​w​h​i​l​e​ ​s​e​a​r​c​h​i​n​g
+	 */
+	RESULTS_ERROR: string
+	/**
+	 * N​o​ ​i​n​t​e​r​n​e​t​ ​c​o​n​n​e​c​t​i​o​n
+	 */
+	NO_INTERNET: string
+	/**
+	 * N​o​ ​r​e​s​u​l​t​s
+	 */
+	NO_RESULTS: string
+	/**
+	 * P​l​e​a​s​e​ ​c​h​e​c​k​ ​y​o​u​r​ ​c​o​n​n​e​c​t​i​o​n
+	 */
+	CHECK_CONNECTION: string
 }
 
 export type TranslationFunctions = {
@@ -154,6 +170,22 @@ export type TranslationFunctions = {
 	 * Delete
 	 */
 	DELETE: () => LocalizedString
+	/**
+	 * An error occurred while searching
+	 */
+	RESULTS_ERROR: () => LocalizedString
+	/**
+	 * No internet connection
+	 */
+	NO_INTERNET: () => LocalizedString
+	/**
+	 * No results
+	 */
+	NO_RESULTS: () => LocalizedString
+	/**
+	 * Please check your connection
+	 */
+	CHECK_CONNECTION: () => LocalizedString
 }
 
 export type Formatters = {}

@@ -18,6 +18,11 @@ const en = {
 	DOWNLOAD_MP3: "Download MP3",
 	SHARE: "Share",
 	DELETE: "Delete",
+
+	RESULTS_ERROR: "An error occurred while searching",
+	NO_INTERNET: "No internet connection",
+	NO_RESULTS: "No results",
+	CHECK_CONNECTION: "Please check your connection",
 } satisfies BaseTranslation
 
 export default en

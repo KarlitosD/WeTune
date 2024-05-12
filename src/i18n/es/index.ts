@@ -18,6 +18,11 @@ const es = {
 	DOWNLOAD_MP3: "Descargar MP3",
 	SHARE: "Compartir",
 	DELETE: "Eliminar",
+
+	RESULTS_ERROR: "Ha ocurrido un error en la búsqueda",
+	NO_INTERNET: "No hay conexión a Internet",
+	NO_RESULTS: "No hay resultados",
+	CHECK_CONNECTION: "Por favor revise su conexión",
 } satisfies BaseTranslation
 
 export default es
