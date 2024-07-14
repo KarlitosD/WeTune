@@ -52,6 +52,7 @@ export default async function handler(req: Request) {
             }
         })
     } catch (e) {
+        console.log(e.message)
         return new Response(e.message, { status: 500, statusText: "Internal Server Error" })
     }
 }
