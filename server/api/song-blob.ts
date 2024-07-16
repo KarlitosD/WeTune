@@ -1,15 +1,36 @@
 import { getStore } from "@netlify/blobs";
-import ytdl from "ytdl-core"
-import { blob } from "node:stream/consumers"
+import ytdl from "@distube/ytdl-core"
+
+type Quality = "highest" | "lowest"
+
+const audioRegex = /^audio\/\w+/
 
 const YOUTUBE_URL = "https://www.youtube.com/watch?v="
 
-function getAudioStream(songId: string, quality: string) {
+async function getAudioBlob(songId: string, quality: Quality) {
+    try {
+        const youtubeUrl = YOUTUBE_URL + songId
 
-    const stream = ytdl(YOUTUBE_URL + songId, {
-        quality: quality + "audio"
-    })
-    return blob(stream)
+        const youtubeInfo = await ytdl.getInfo(youtubeUrl)
+        const audioFormats = youtubeInfo.formats.filter(f => f.mimeType.match(audioRegex))
+        const audioFormatSorted = [...audioFormats].sort((a, b) => Number(b.contentLength) - Number(a.contentLength))
+
+        const format = quality === "lowest" ? audioFormatSorted.at(-1) : audioFormatSorted.at(0)
+
+        const audioRes = await fetch(format.url, {
+            headers: { "range": "bytes=0-", }
+        })
+
+        if(!audioRes.ok) return null
+
+        const blob = await audioRes.blob()
+
+        return blob
+    } catch (e) {
+        console.error(e.message)
+
+        return null
+    }
 }
 
 
@@ -21,20 +42,20 @@ export default async function handler(req: Request) {
 
         const { searchParams } = new URL(req.url)
 
-        const quality = searchParams.get("quality") ?? "highest"
+        const quality = searchParams.get("quality") as Quality ?? "highest"
         const songId = searchParams.get("songId")
 
         if (!songId) return new Response("Song not found", { status: 404, statusText: "Song not found" })
-
-        // let audioBlob: Blob = await getAudioStream(songId, quality)
 
         let audioBlob: Blob;
         if (quality === "lowest" && await cacheSongs.getMetadata(songId)) {
             console.log("song: cache hit")
             audioBlob = await cacheSongs.get(songId, { type: "blob" })
         } else {
-            audioBlob = await getAudioStream(songId, quality)
             console.log("song: cache miss")
+            audioBlob = await getAudioBlob(songId, quality)
+
+            if(audioBlob == null) return new Response("Song not found", { status: 404, statusText: "Song not found" })
 
             if (quality === "lowest") {
                 await cacheSongs.set(songId, audioBlob)
@@ -45,7 +66,7 @@ export default async function handler(req: Request) {
         return new Response(audioBlob, {
             status: 200,
             headers: {
-                "Content-Type": "audio/mp4",
+                "Content-Type": "audio/webm",
                 "Accept-Ranges": "bytes",
                 "Content-Length": String(audioBlob.size),
                 "cache-control": "public, max-age=3000000, s-maxage=100000, immutable"
