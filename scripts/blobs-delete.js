@@ -1,7 +1,8 @@
 import { $ } from "bun"
 
-const tableSongs = await $`netlify blobs:list songs`
+const tableSongs = await $`netlify blobs:list songs`.text()
 
+console.log(tableSongs)
 
 const keys = tableSongs.split("\n").slice(5, -2).map(line => {
     const [, key] = line.split("|")
