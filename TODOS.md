@@ -27,6 +27,8 @@
 
 - [] Fix pwa icons
 
+- [] Rotate ips in 'getAudioBlob' method of song-blob
+
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
     - [] Using turnsile
