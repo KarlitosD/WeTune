@@ -27,7 +27,7 @@
 
 - [] Fix pwa icons
 
-- [] Rotate ips in 'getAudioBlob' method of song-blob
+- [] Rotate ips in 'getAudioBlob' method of song-blob (https://github.com/distubejs/ytdl-core?tab=readme-ov-file#ip-rotation)
 
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
