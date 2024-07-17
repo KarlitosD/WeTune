@@ -23,3 +23,6 @@
   for = "/*"
   [headers.values]
     X-Robots-Tag = "noindex"
+
+[build]
+    edge_functions  = "server/edge"

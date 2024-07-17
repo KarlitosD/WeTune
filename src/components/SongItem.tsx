@@ -61,7 +61,7 @@ export function SongItem(props: ParentProps & {
       <Dropdown end summary={<IconEllipsis />}>
         <DropdownItem><PlaylistDropdown song={props.song} /></DropdownItem>
         <DropdownItem>
-          <a class="p-1 flex items-center gap-3" href={`/api/song/blob?songId=${props.song.youtubeId}`} download={`${props.song.title} - ${props?.song?.author?.name}.mp3`}>
+          <a class="p-1 flex items-center gap-3" href={`/edge/song/blob?songId=${props.song.youtubeId}`} download={`${props.song.title} - ${props?.song?.author?.name}.mp3`}>
             <IconLabel icon={<IconDownload size={14} />} label={LL().DOWNLOAD_MP3()} />
           </a>
         </DropdownItem>
