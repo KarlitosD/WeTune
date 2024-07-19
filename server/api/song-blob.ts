@@ -66,7 +66,7 @@ export default async function handler(req: Request) {
         return new Response(audioBlob, {
             status: 200,
             headers: {
-                "Content-Type": "audio/webm",
+                "Content-Type": audioBlob.type,
                 "Accept-Ranges": "bytes",
                 "Content-Length": String(audioBlob.size),
                 "cache-control": "public, max-age=3000000, s-maxage=100000, immutable"
