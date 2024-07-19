@@ -22,6 +22,8 @@ type AudioPlayerProps = {
     song: PlaylistContextData["selected"]["song"],
 }
 
+type RepeatState = "NONE" | "ONE" | "ALL"
+
 const getDefaultVolumenAccordingToDevice = () => isMobile() ? 1 : 0.5
 
 export default function AudioPlayer(props: AudioPlayerProps) {
@@ -44,13 +46,13 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     }
 
     const [currentTime, setCurrentTime] = createSignal(0)
-    const [loop, setLoop] = createPersistedSignal("loop", false)
+    const [loop, setLoop] = createPersistedSignal<RepeatState>("loop", "NONE")
     const [shuffle, setShuffle] = createPersistedSignal("shuffle", false)
     
     const { audio, duration, seek: seekAudio } = createAudio(audioUrl, {
         playing,
         volume: volumeLevelAlvaMajo,
-        loop
+        loop: () => loop() === "ONE"
     })
 
     const play = () => setPlaying(true)
@@ -73,11 +75,13 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     const toggleLoop = () => {
         setShuffle(false)
-        setLoop(isLoop => !isLoop)
+        setLoop(loopState => (
+            loopState === "NONE" ? "ALL" : loopState === "ALL" ? "ONE" : "NONE"
+        ))
     }
 
     const toggleShuffle = () => {
-        setLoop(false)
+        setLoop("NONE")
         setShuffle(isShuffle => !isShuffle)
     }
 
@@ -105,10 +109,13 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     audio.addEventListener("timeupdate", () => playing() && setCurrentTime(audio.currentTime))
     audio.addEventListener("ended", () => {
-        if(props.selected.hasNext && !loop()){
+        if(props.selected.hasNext && loop() == "NONE" ){
             handleNext()
-        }else if(!loop()){
+        }else if(loop() == "NONE"){
             setPlaying(false)
+            setCurrentTime(0)
+        } else {
+            props.selected.index = 0
             setCurrentTime(0)
         }
     })
@@ -173,8 +180,13 @@ export default function AudioPlayer(props: AudioPlayerProps) {
                         <button onClick={handleNext} disabled={!shuffle() && !props.selected.hasNext} class="disabled:text-gray-400 active:scale-90 transition-transform">
                             <IconForwardStep size={28} />
                         </button>
-                        <button onClick={toggleLoop} class="active:scale-90 transition-transform" classList={{ "text-primary": loop() }}>
-                            <IconRepeat size={20} />
+                        <button onClick={toggleLoop} class="active:scale-90 transition-transform" classList={{ "text-primary": loop() !== "NONE" }}>
+                            <div class="relative flex items-center gap-1">
+                                <IconRepeat size={20} />
+                                <Show when={loop() === "ONE"}>
+                                    <div class="absolute h-1 w-1 rounded-full bg-primary -bottom-2 left-1/3"></div>
+                                </Show>
+                            </div>
                         </button>
                     </div>
                     <button onClick={handleDownload} disabled={isAudioDownloaded()} class="w-fit" classList={{ "text-primary": isAudioDownloaded() }}>
