@@ -1,6 +1,6 @@
 - [] Investigate song not reproduce in the start
 
-- [] Make button for replay playlist
+- [X] Make button for replay playlist
 
 - [-] Integrate Media Session API
 
@@ -15,7 +15,7 @@
     - [X] Button for download all songs of a playlist
         - [] Add method to diferenciate between local playlist and imported playlist
 
-- [] Made search section (songs/videos) collapsible
+- [] Made search section (songs/videos) collapsible (or tabs?)
 
 - [] Add drawer for song player in mobile
 
@@ -26,8 +26,6 @@
 - [] Consider preload next song of a playlist
 
 - [] Fix pwa icons
-
-- [] Rotate ips in 'getAudioBlob' method of song-blob (https://github.com/distubejs/ytdl-core?tab=readme-ov-file#ip-rotation)
 
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
