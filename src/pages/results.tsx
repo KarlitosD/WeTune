@@ -1,4 +1,4 @@
-import { ErrorBoundary, For, Show } from "solid-js"
+import { createSignal, ErrorBoundary, For, Show } from "solid-js"
 import { type RouteSectionProps, createAsync } from "@solidjs/router"
 
 import { searchResults } from "./results.data"
@@ -8,24 +8,25 @@ import { useI18nContext } from "~/i18n/i18n-solid"
 
 
 function ResultList(props: { search: string }) {
+  const [activeTab, setActiveTab] = createSignal("songs")
+
   const results = createAsync(() => searchResults(props.search))
 
   const { playSong } = usePlaylist()
 
   const { LL } = useI18nContext()
+
+  const resultsSelected = () => (activeTab() === "songs" ? results()?.songs : results()?.videos) ?? []
+
   return (
     <>
       <div class="flex flex-col gap-2 p-4 h-full overflow-y-scroll scrollbar-track-base-100 scrollbar-thumb-primary">
-        <h2 class="text-2xl text-white self-start my-2">{LL().SONGS()}</h2>
-        <Show when={Boolean(results()?.songs)} fallback={<ResultFallback />}>
-          <For each={results()?.songs ?? []} fallback={<ResultEmpty />}>
-            {result => <SongItem song={result} onSelect={() => playSong(result)} />}
-          </For>
-        </Show>
-        <div class="divider"></div> 
-        <h2 class="text-2xl text-white self-start my-2">{LL().VIDEOS()}</h2>
-        <Show when={Boolean(results()?.videos)} fallback={<ResultFallback />}>
-          <For each={results()?.videos ?? []} fallback={<ResultEmpty />}>
+        <div role="tablist" class="tabs tabs-boxed">
+          <a role="tab" class="tab" classList={{ "tab-active": activeTab() === "songs" }} onClick={() => setActiveTab("songs")}>{LL().SONGS()}</a>
+          <a role="tab" class="tab" classList={{ "tab-active": activeTab() === "videos" }} onClick={() => setActiveTab("videos")}>{LL().VIDEOS()}</a>
+        </div>
+        <Show when={Boolean(results()?.songs) && Boolean(results()?.videos)} fallback={<ResultFallback />}>
+          <For each={resultsSelected() ?? []} fallback={<ResultEmpty />}>
             {result => <SongItem song={result} onSelect={() => playSong(result)} />}
           </For>
         </Show>
