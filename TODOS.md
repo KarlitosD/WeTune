@@ -1,7 +1,5 @@
 - [] Investigate song not reproduce in the start
 
-- [X] Make button for replay playlist
-
 - [-] Integrate Media Session API
 
 - [-] Playlist
@@ -14,8 +12,6 @@
     - [] Button for sync songs of a imported playlist from youtube
     - [X] Button for download all songs of a playlist
         - [] Add method to diferenciate between local playlist and imported playlist
-
-- [] Made search section (songs/videos) collapsible (or tabs?)
 
 - [] Add drawer for song player in mobile
 
@@ -52,3 +48,7 @@
 - [X] Add i18n
 
 - [X] Refactor youtube logic (api) and playlist logic (move to services folder)
+
+- [X] Make button for replay playlist
+
+- [X] Made search section (songs/videos) tabs
