@@ -10,7 +10,7 @@
     - [X] Import from youtube and youtube music
     - [-] Add playlist operations (rename, delete)
     - [] Add playlist of songs downloaded
-    - [] Save last song played in the playlist
+    - [X] Save last song played in the playlist
     - [] Button for sync songs of a imported playlist from youtube
     - [X] Button for download all songs of a playlist
         - [] Add method to diferenciate between local playlist and imported playlist

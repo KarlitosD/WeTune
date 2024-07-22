@@ -57,6 +57,10 @@ const preloadSong = async (song: Song) => {
 }
 
 export default function AudioPlayer(props: AudioPlayerProps) {
+    const [lastSongIndexPlayed, setLastSongIndexPlayed] = createPersistedSignal("lastSongIndexPlayed", 0)
+    createEffect(() => setLastSongIndexPlayed(props.selected.index))
+    props.selected.index = lastSongIndexPlayed()
+
     const youtubeId  = () => props.song.youtubeId
     const [audioUrl] = createResource(youtubeId, youtubeId => getAudioFromCache(youtubeId))
 
