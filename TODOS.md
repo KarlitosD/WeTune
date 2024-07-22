@@ -17,7 +17,7 @@
 
 - [] Consider visual redesign of the audio player
 
-- [] Consider preload next song of a playlist
+- [-] Consider preload next song of a playlist
 
 - [] Fix pwa icons
 
