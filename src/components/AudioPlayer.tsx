@@ -35,8 +35,22 @@ const preloadSong = async (song: Song) => {
     const audio = new Audio(audioUrl)
 
     const promise = new Promise<boolean>(res => {
-        audio.addEventListener("canplaythrough", () => res(true))
-        audio.addEventListener("error", () => res(false))
+        const onCanPlayThrough = () => {
+            cleanup()
+            res(true)
+        }
+        const onError = () => {
+            cleanup()
+            res(false)
+        }
+
+        const cleanup = () => {
+            audio.removeEventListener("canplaythrough", onCanPlayThrough)
+            audio.removeEventListener("error", onError)
+        }
+
+        audio.addEventListener("canplaythrough", onCanPlayThrough)
+        audio.addEventListener("error", onError)
     })
 
     return promise
