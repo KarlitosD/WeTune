@@ -1,6 +1,8 @@
 import { Show, batch, createEffect, createResource, createSignal } from "solid-js";
 
 import type { PlaylistContextData } from "~/context/playlist";
+import type { Song } from "~/db/schema";
+
 import { createAudio } from "~/hooks/createAudio";
 import { useMediaSession } from "~/hooks/createMediaSession";
 import { createPersistedSignal } from "~/hooks/createPersistedSignal";
@@ -25,6 +27,20 @@ type AudioPlayerProps = {
 type RepeatState = "NONE" | "ONE" | "ALL"
 
 const getDefaultVolumenAccordingToDevice = () => isMobile() ? 1 : 0.5
+
+const preloadSong = async (song: Song) => {
+    const youtubeId = song.youtubeId
+    const audioUrl = await getAudioFromCache(youtubeId)
+
+    const audio = new Audio(audioUrl)
+
+    const promise = new Promise<boolean>(res => {
+        audio.addEventListener("canplaythrough", () => res(true))
+        audio.addEventListener("error", () => res(false))
+    })
+
+    return promise
+}
 
 export default function AudioPlayer(props: AudioPlayerProps) {
     const youtubeId  = () => props.song.youtubeId
@@ -152,6 +168,14 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     })
 
     audioPlayerEvent.on("togglePlay", () => setPlaying(playing => !playing))
+    
+    
+    createEffect(() => {
+        if(props.selected.hasNext && loop() != "ONE" ){
+            const song = props.selected.nextSong
+            preloadSong(song)
+        }
+    }) 
 
     return (
         <div class="container min-h-12 mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-2 py-3 text-white"> 

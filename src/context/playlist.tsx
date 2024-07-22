@@ -19,6 +19,7 @@ export interface PlaylistContextData {
     selected: {
         index: number;
         readonly song: Song;
+        readonly nextSong: Song;
         readonly hasNext: boolean;
         readonly hasPrevious: boolean;
         setRandom(): void;
@@ -45,6 +46,9 @@ export function PlaylistProvider(props: ParentProps) {
         index: 0,
         get song(): Song {
             return actualPlaylist()?.songs?.[this.index]
+        },
+        get nextSong(): Song {
+            return this.hasNext ? actualPlaylist()?.songs?.[this.index + 1] : undefined
         },
         get hasNext() {
             return Boolean(actualPlaylist().songs[this.index + 1])
