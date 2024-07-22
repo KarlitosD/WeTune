@@ -19,7 +19,6 @@ export default defineConfig({
     }),
     solidPlugin(),
     VitePWA({
-      mode: "development",
       strategies: "generateSW",
       registerType: "autoUpdate",
       base: "/",
