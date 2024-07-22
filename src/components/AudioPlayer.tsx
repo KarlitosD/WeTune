@@ -143,9 +143,9 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     audio.addEventListener("timeupdate", () => playing() && setCurrentTime(audio.currentTime))
     audio.addEventListener("ended", () => {
-        if(props.selected.hasNext && loop() == "NONE" ){
+        if(props.selected.hasNext && loop() != "ONE" ){
             handleNext()
-        }else if(loop() == "NONE"){
+        }else if(!props.selected.hasNext && loop() == "NONE"){
             setPlaying(false)
             setCurrentTime(0)
         } else {
