@@ -1,3 +1,5 @@
+- [] Implement "virtual playlist"
+
 - [] Investigate song not reproduce in the start
 
 - [-] Integrate Media Session API
