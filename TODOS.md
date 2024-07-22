@@ -17,8 +17,6 @@
 
 - [] Consider visual redesign of the audio player
 
-- [] Cache thumbnails of songs (maybe use service worker)
-
 - [] Consider preload next song of a playlist
 
 - [] Fix pwa icons
@@ -52,3 +50,5 @@
 - [X] Make button for replay playlist
 
 - [X] Made search section (songs/videos) tabs
+
+- [X] Cache thumbnails of songs (using workbox runtine caching)
