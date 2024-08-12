@@ -16,7 +16,7 @@ async function getAudioBlob(songId: string, quality: Quality) {
         const youtubeUrl = YOUTUBE_URL + songId
 
         const youtubeInfo = await ytdl.getInfo(youtubeUrl, { agent })
-        const audioFormats = youtubeInfo.formats.filter(f => f.mimeType.match(audioRegex))
+        const audioFormats = youtubeInfo.formats.filter(f => f?.mimeType?.match(audioRegex))
         const audioFormatSorted = [...audioFormats].sort((a, b) => Number(b.contentLength) - Number(a.contentLength))
 
         const format = quality === "lowest" ? audioFormatSorted.at(-1) : audioFormatSorted.at(0)
