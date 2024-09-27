@@ -65,6 +65,8 @@ export function parseFromVideoInfo(content: VideoInfo): Song {
     }
 
     
+    console.log({ basicData })
+
     return {
         ...basicData,
         type: "video",
