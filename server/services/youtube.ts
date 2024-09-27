@@ -25,7 +25,7 @@ export async function getPlaylist(listId: string){
 
 export async function getSong(songId: string){
     if(!songId) throw new Error("Song not found")
-    Log.setLevel(Log.Level.NONE)
+    // Log.setLevel(Log.Level.NONE)
     const songRawData = await innertube.getInfo(songId, "YTMUSIC")
     console.log(songRawData.basic_info)
     const song = parseFromVideoInfo(songRawData)
