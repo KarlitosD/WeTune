@@ -3,11 +3,14 @@ import type { ObservedArray } from "youtubei.js/dist/src/parser/helpers"
 import type { ItemSection, MusicCardShelf, MusicResponsiveListItem, MusicShelf } from "youtubei.js/dist/src/parser/nodes"
 import type { Song } from "~/db/schema"
 
-import { Innertube, Log } from "youtubei.js"
+import { Innertube } from "youtubei.js"
 import { parseFromPlaylistVideo, parseFromVideoInfo, parseSongFromYTNodeLike } from "../parsers/youtube"
 import { getStore } from "@netlify/blobs"
+import { youtubeCookieString } from "../data/cookies"
 
-const innertube = await Innertube.create()
+const innertube = await Innertube.create({
+    cookie: youtubeCookieString
+})
 
 export async function getPlaylist(listId: string){
     if(!listId) throw new Error("List not found")
