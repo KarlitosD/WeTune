@@ -3,7 +3,7 @@ import type { ObservedArray } from "youtubei.js/dist/src/parser/helpers"
 import type { ItemSection, MusicCardShelf, MusicResponsiveListItem, MusicShelf } from "youtubei.js/dist/src/parser/nodes"
 import type { Song } from "~/db/schema"
 
-import { Innertube } from "youtubei.js"
+import { Innertube, Log } from "youtubei.js"
 import { parseFromPlaylistVideo, parseFromVideoInfo, parseSongFromYTNodeLike } from "../parsers/youtube"
 
 const innertube = await Innertube.create()
@@ -25,8 +25,9 @@ export async function getPlaylist(listId: string){
 
 export async function getSong(songId: string){
     if(!songId) throw new Error("Song not found")
-
-    const songRawData = await innertube.getInfo(songId)
+    Log.setLevel(Log.Level.NONE)
+    const songRawData = await innertube.getInfo(songId, "YTMUSIC")
+    console.log(songRawData.basic_info)
     const song = parseFromVideoInfo(songRawData)
 
     return song
