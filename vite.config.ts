@@ -68,18 +68,18 @@ export default defineConfig({
         ]
       },
       workbox: {
-        runtimeCaching: [{
-          urlPattern: new RegExp('^https://wsrv\\.nl/\\?url=https%3A%2F%2Fi\\.ytimg\\.com%2Fvi%2F.*%2Fmqdefault\\.jpg'),
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'yt-thumbnails',
-            expiration: {
-              maxEntries: 200,
-              maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-              purgeOnQuotaError: true,
-            },
-          }
-        }]
+        // runtimeCaching: [{
+        //   urlPattern: new RegExp('^https://wsrv\\.nl/\\?url=https%3A%2F%2Fi\\.ytimg\\.com%2Fvi%2F.*%2Fmqdefault\\.jpg'),
+        //   handler: 'NetworkFirst',
+        //   options: {
+        //     cacheName: 'yt-thumbnails',
+        //     expiration: {
+        //       maxEntries: 200,
+        //       maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+        //       purgeOnQuotaError: true,
+        //     },
+        //   }
+        // }]
       }
     })
   ],
