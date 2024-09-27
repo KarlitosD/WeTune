@@ -5,7 +5,6 @@ import type { Song } from "~/db/schema"
 
 import { Innertube } from "youtubei.js"
 import { parseFromPlaylistVideo, parseFromVideoInfo, parseSongFromYTNodeLike } from "../parsers/youtube"
-import { getStore } from "@netlify/blobs"
 import { youtubeCookieString } from "../data/cookies"
 
 const innertube = await Innertube.create({
@@ -29,11 +28,7 @@ export async function getPlaylist(listId: string){
 
 export async function getSong(songId: string){
     if(!songId) throw new Error("Song not found")
-    const store = getStore("help")
-    // Log.setLevel(Log.Level.NONE)
     const songRawData = await innertube.getInfo(songId, "YTMUSIC")
-    await store.set(songId, JSON.stringify(songRawData, null, 2))
-    // console.log(songRawData.basic_info)
     const song = parseFromVideoInfo(songRawData)
 
     return song
