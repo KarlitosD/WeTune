@@ -21,16 +21,22 @@ async function getAudioBlob(songId: string, quality: Quality) {
 
         const format = quality === "lowest" ? audioFormatSorted.at(-1) : audioFormatSorted.at(0)
 
-        const audioRes = await fetch(format.url, {
-            headers: { "range": "bytes=0-", 'Cookie': youtubeCookieString, }
-        })
-
-        if(!audioRes.ok) return null
-
-        const blob = await audioRes.blob()
-
-        return blob
+        try {
+            const audioRes = await fetch(format.url, {
+                headers: { "range": "bytes=0-", 'Cookie': youtubeCookieString, }
+            })
+    
+            if(!audioRes.ok) return null
+    
+            const blob = await audioRes.blob()
+    
+            return blob
+        } catch (error) {
+            console.log("Error fetching audio", error.message)
+            return null
+        }
     } catch (e) {
+        console.log("Error getting audio format", e.message)
         console.error(e.message)
 
         return null
