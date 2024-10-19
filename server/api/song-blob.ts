@@ -1,25 +1,15 @@
 import { getStore } from "@netlify/blobs";
-import ytdl from "@distube/ytdl-core"
-import { YOUTUBE_COKIES, youtubeCookieString } from "../data/cookies";
+import { youtubeCookieString } from "../data/cookies";
+import { getAudioFormats } from "../services/player";
 
 type Quality = "highest" | "lowest"
 
-const audioRegex = /^audio\/\w+/
-
-const YOUTUBE_URL = "https://www.youtube.com/watch?v="
-
-
-const agent = ytdl.createAgent(YOUTUBE_COKIES)
 
 async function getAudioBlob(songId: string, quality: Quality) {
     try {
-        const youtubeUrl = YOUTUBE_URL + songId
+        const audioFormats = await getAudioFormats(songId)
 
-        const youtubeInfo = await ytdl.getInfo(youtubeUrl, { agent })
-        const audioFormats = youtubeInfo.formats.filter(f => f?.mimeType?.match(audioRegex))
-        const audioFormatSorted = [...audioFormats].sort((a, b) => Number(b.contentLength) - Number(a.contentLength))
-
-        const format = quality === "lowest" ? audioFormatSorted.at(-1) : audioFormatSorted.at(0)
+        const format = quality === "lowest" ? audioFormats.at(-1) : audioFormats.at(0)
 
         try {
             const audioRes = await fetch(format.url, {
