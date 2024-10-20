@@ -47,7 +47,7 @@ const getBodyPlayer = (videoId: string) => ({
 
 export async function getInfoPlayer(videoId: string) {
   const headers = {
-    "Cookie": youtubeCookieString,
+    // "Cookie": youtubeCookieString,
     'X-YouTube-Client-Name': '5',
     'User-Agent': `com.google.android.youtube/${PLAYER_DATA.clientVersion} (Linux; U; Android ${PLAYER_DATA.osVersion}; en_US) gzip`,
     'content-type': 'application/json',
