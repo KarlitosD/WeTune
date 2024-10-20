@@ -66,6 +66,8 @@ export async function getInfoPlayer(videoId: string) {
 export async function getAudioFormats(videoId: string) {
     const info = await getInfoPlayer(videoId);
 
+    console.log(info)
+
     // get formats
     const formats = info.streamingData.adaptiveFormats;
     const audio = formats.filter(f => !f.mimeType.includes('video'));
