@@ -1,6 +1,6 @@
 import { Static, Type } from "@sinclair/typebox"
 
-const songRawChema = Type.Object({
+const songSchema = Type.Object({
     title: Type.String(),
     youtubeId: Type.String(),
     album: Type.Optional(Type.Object({
@@ -16,17 +16,11 @@ const songRawChema = Type.Object({
     duration: Type.Number()
 })
 
-export const songSchema = Object.assign({ version: 0, primaryKey: "youtubeId", key: "song" }, songRawChema)
-
-
-const playlistRawChema = Type.Object({
+const playlistSchema = Type.Object({
     id: Type.String(),
     title: Type.String(),
     songs: Type.Array(songSchema)
 })
 
-export const playlistSchema = Object.assign({ version: 0, primaryKey: "id", key: "playlist" }, playlistRawChema)
-
-
-export type Song = Static<typeof songRawChema>
-export type Playlist = Static<typeof playlistRawChema>
+export type Song = Static<typeof songSchema>
+export type Playlist = Static<typeof playlistSchema>
