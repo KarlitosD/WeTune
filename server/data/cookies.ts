@@ -279,4 +279,5 @@ export const YOUTUBE_COKIES = [
     }
 ]
 
-export const youtubeCookieString = YOUTUBE_COKIES.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+// export const youtubeCookieString = YOUTUBE_COKIES.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+export const youtubeCookieString = `APISID=xZFHCwblHuMt5KqD/A6-PA_2skFdn_dFcB; SAPISID=Ss7koNd1MIFUXKbB/AqroTLGh4IfEN7GK5; __Secure-1PAPISID=Ss7koNd1MIFUXKbB/AqroTLGh4IfEN7GK5; __Secure-3PAPISID=Ss7koNd1MIFUXKbB/AqroTLGh4IfEN7GK5; SID=g.a000pQhrbpiUMRsvdkaSIR4OTmSRGzxea3JN7gqjQgx7tq4bsKPyI9XPP2lR0ylnE2VHvDhv_AACgYKAa8SAQ8SFQHGX2Mi1VKI8Wt4gfzSdLm9nUyHcBoVAUF8yKqzBBW31oVrVLqFk8rHN4I40076; PREF=f6=40000000&tz=America.Buenos_Aires&f7=100; SIDCC=AKEyXzWEsLJl_TYKGXUu3mgIqryb9r3mg5hmQ1za1W1IVOpjG8bzGYhYiNMZmDT5-BPZLRar6g`
