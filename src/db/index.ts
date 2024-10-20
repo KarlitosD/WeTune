@@ -8,6 +8,8 @@ export const playlistCollection = new Collection<Playlist>({
   persistence: createLocalStorageAdapter("playlist")
 });
 
+await new Promise(res => playlistCollection.on("persistence.init", () => res(null)))
+
 if(playlistCollection.find({}).fetch().length === 0){
     playlistCollection.insert({ id: PLAYLISTS.HISTORY, title: "Recents", songs: [] })
 }

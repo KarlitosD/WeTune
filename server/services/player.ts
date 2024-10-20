@@ -1,4 +1,4 @@
-import { youtubeCookieString } from "../data/cookies";
+import { youtubeCookieString } from "../data/cookies.ts";
 
 const API_KEY = 'AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc'
 

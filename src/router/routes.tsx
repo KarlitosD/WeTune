@@ -48,7 +48,7 @@ export const routes: RouteDefinition[] = [
       const searchParams = new URLSearchParams(location.search)
       if(!searchParams.get("songId")) redirect("/")
       
-      fetch(`/api/song/blob?songId=${searchParams.get("songId")}`)
+      fetch(`/edge/song/blob?songId=${searchParams.get("songId")}`)
       await getSongData(searchParams.get("songId"))
     }
   },
