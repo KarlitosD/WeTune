@@ -13,7 +13,7 @@ async function getAudioBlob(songId: string, quality: Quality) {
 
         try {
             const audioRes = await fetch(format.url, {
-                headers: { "range": "bytes=0-", 'Cookie': youtubeCookieString, }
+                headers: { "range": "bytes=0-", 'Cookie': youtubeCookieString }
             })
     
             if(!audioRes.ok) return null

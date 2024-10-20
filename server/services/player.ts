@@ -1,7 +1,7 @@
-import { PO_TOKEN, VISITOR_DATA } from "../data/youtubeCredentials.ts"
-import { YtdlCore } from "@ybd-project/ytdl-core"
+import { PO_TOKEN, VISITOR_DATA } from "../data/youtubeCredentials"
+import * as core from "@ybd-project/ytdl-core/serverless"
 
-const ydtl = new YtdlCore({ poToken: PO_TOKEN, visitorData: VISITOR_DATA })
+const ydtl = new core.YtdlCore({ poToken: PO_TOKEN, visitorData: VISITOR_DATA, fetcher: (url, options) => fetch(url, options) })
 
 const BASE_URL = "https://www.youtube.com/watch?v="
 
