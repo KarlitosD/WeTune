@@ -22,7 +22,6 @@ export function addSongToPlaylist(playlistId: string, song: Song){
         $push: { songs: song }
     })
 
-    db.playlist.updateOne({ id: playlistId }, { $set: { seed: Math.random() } })
     return res
 }
 
@@ -31,7 +30,6 @@ export function setSongsInPlaylist(playlistId: string, songs: Song[]){
         $set: { songs }
     })
 
-    db.playlist.updateOne({ id: playlistId }, { $set: { seed: Math.random() } })
     return res
 }
 
@@ -40,7 +38,6 @@ export function removeSongFromPlaylist(playlistId: string, songId: string){
         $pull: { songs: { youtubeId: songId } }
     })
     
-    db.playlist.updateOne({ id: playlistId }, { $set: { seed: Math.random() } })
     return res
 }
 
