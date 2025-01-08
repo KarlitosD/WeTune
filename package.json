@@ -27,24 +27,24 @@
   },
   "dependencies": {
     "@netlify/blobs": "^8.1.0",
-    "@netlify/functions": "^2.8.2",
-    "@sinclair/typebox": "^0.33.22",
+    "@netlify/functions": "^3.0.0",
+    "@sinclair/typebox": "^0.34.13",
     "@solid-primitives/event-bus": "^1.0.11",
     "@solid-primitives/set": "^0.5.0",
     "@solidjs/meta": "^0.29.4",
-    "@solidjs/router": "^0.15.1",
+    "@solidjs/router": "^0.15.2",
     "@typeschema/typebox": "^0.14.0",
     "@ybd-project/ytdl-core": "^6.0.8",
-    "daisyui": "^4.12.14",
+    "daisyui": "^4.12.23",
     "nanoid": "^5.0.9",
     "npm-run-all": "^4.1.5",
-    "signaldb": "^0.24.0",
+    "signaldb": "^0.24.5",
     "signaldb-plugin-solid": "^1.1.0",
     "solid-icons": "^1.1.0",
-    "solid-js": "^1.9.2",
+    "solid-js": "^1.9.4",
     "tailwindcss-members": "^0.0.4",
     "tailwindcss-signals": "^0.0.25",
     "typesafe-i18n": "^5.26.2",
-    "youtubei.js": "^10.5.0"
+    "youtubei.js": "^12.2.0"
   }
 }
