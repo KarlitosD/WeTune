@@ -1,8 +1,8 @@
 import type { Song } from "~/types/playlist"
-import { cache, redirect } from "@solidjs/router"
+import { query, redirect } from "@solidjs/router"
 import { getApiUrl } from "~/config"
 
-export const searchResults = cache(async (search: string) => {
+export const searchResults = query(async (search: string) => {
     if (!search) throw redirect("/")
     try {
       const res = await fetch(getApiUrl(`search?query=${search}`))
