@@ -1,11 +1,12 @@
 import { ReactiveSet } from "@solid-primitives/set"
 import { createEffect } from "solid-js"
+import { getApiUrl } from "~/config"
 
 export const audioCache = await caches.open("audios")
 
 export const audiosCached = new ReactiveSet<string>(JSON.parse(localStorage.getItem("audioCached") ?? "[]"))
 
-const getAudioUrl = (id: string) => "/api/song/blob?songId=" + id
+const getAudioUrl = (id: string) => getApiUrl("song/blob?songId=" + id)
 
 export const existsAudioInCache = (id: string) => audiosCached.has(id)
 

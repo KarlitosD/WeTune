@@ -6,6 +6,7 @@ import { usePlaylist } from "~/context/playlist"
 import { getThumbnailUrl } from "~/utils/thumbnail"
 import { useI18nContext } from "~/i18n/i18n-solid"
 import { PLAYLISTS } from "~/consts"
+import { getApiUrl } from "~/config"
 
 const playlistCardSize = "w-32 h-32"
 
@@ -61,7 +62,7 @@ function CreatePlaylistModal(props: { addPlaylist: (playlist: Playlist) => void 
             !["music.youtube.com", "www.youtube.com"].includes(url.host)
         ) return
         
-        const res = await fetch(`/api/playlist?list=${url.searchParams.get("list")}`)
+        const res = await fetch(getApiUrl(`playlist?list=${url.searchParams.get("list")}`))
         const playlist = await res.json()
         
         props.addPlaylist(playlist)

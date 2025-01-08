@@ -14,6 +14,7 @@ import PlaylistPage from '~/pages/playlist/[playlistId]';
 
 import ShareSong from '~/pages/share/song';
 import { getSongData } from '~/pages/share/song.data';
+import { getApiUrl } from '~/config';
 
 const Playground = lazy(() => import('~/pages/playground'));
 const NotFound = lazy(() => import('~/pages/404'));
@@ -30,7 +31,7 @@ export const routes: RouteDefinition[] = [
       {
         path: "/results",
         component: Results,
-        load: ({ location }) => searchResults(location.query.search)
+        load: ({ location }) => searchResults(location.query.search as string)
       },{
         path: "/playlist/:playlistId",
         component: PlaylistPage,
@@ -48,7 +49,7 @@ export const routes: RouteDefinition[] = [
       const searchParams = new URLSearchParams(location.search)
       if(!searchParams.get("songId")) redirect("/")
       
-      fetch(`/api/song/blob?songId=${searchParams.get("songId")}`)
+      fetch(getApiUrl(`song/blob?songId=${searchParams.get("songId")}`))
       await getSongData(searchParams.get("songId"))
     }
   },

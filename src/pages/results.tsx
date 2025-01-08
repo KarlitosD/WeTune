@@ -41,7 +41,7 @@ export default function Results(props: RouteSectionProps) {
       console.error(error)
       return <ErrorPage />
     }}>
-      <ResultList search={props.location.query.search} />
+      <ResultList search={props.location.query.search as string} />
     </ErrorBoundary>
   )
 }
