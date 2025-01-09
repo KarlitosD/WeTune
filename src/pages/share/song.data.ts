@@ -1,4 +1,5 @@
 import { query } from "@solidjs/router"
+import { fetch } from "@tauri-apps/plugin-http"
 import { getApiUrl } from "~/config"
 import { Song } from "~/db/schema"
 

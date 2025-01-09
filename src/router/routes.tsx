@@ -1,5 +1,6 @@
 import { lazy } from 'solid-js';
 import { Router, RouteDefinition, redirect } from '@solidjs/router';
+import { fetch } from "@tauri-apps/plugin-http"
 
 import App from '~/app';
 

@@ -1,5 +1,6 @@
 import type { Song } from "~/types/playlist"
 import { query, redirect } from "@solidjs/router"
+import { fetch } from "@tauri-apps/plugin-http"
 import { getApiUrl } from "~/config"
 
 export const searchResults = query(async (search: string) => {
