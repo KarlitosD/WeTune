@@ -1,6 +1,6 @@
 export function isMobile(){
     if("userAgentData" in navigator){
-        return (navigator.userAgentData.mobile) as boolean
+        return (navigator.userAgentData["mobile"]) as boolean
     }
 
     const toMatch = [
