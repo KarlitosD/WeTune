@@ -9,7 +9,6 @@
     "serve": "vite preview",
     "vite": "vite --port=3000",
     "typesafe-i18n": "typesafe-i18n",
-    "delete-blobs": "bun run scripts/blobs-delete.js",
     "tauri": "tauri"
   },
   "license": "MIT",
@@ -19,18 +18,13 @@
     "@tauri-apps/cli": "^2.2.2",
     "@types/node": "^22.10.5",
     "autoprefixer": "^10.4.20",
-    "netlify-cli": "^18.0.0",
     "postcss": "^8.4.49",
     "tailwind-scrollbar": "^3.1.0",
     "tailwindcss": "^3.4.17",
     "vite": "^6.0.7",
-    "vite-plugin-pwa": "^0.21.1",
-    "vite-plugin-solid": "^2.11.0",
-    "workbox-window": "^7.3.0"
+    "vite-plugin-solid": "^2.11.0"
   },
   "dependencies": {
-    "@netlify/blobs": "^8.1.0",
-    "@netlify/functions": "^3.0.0",
     "@signaldb/core": "^1.0.0",
     "@signaldb/indexeddb": "^1.0.0",
     "@signaldb/solid": "^1.0.0",
@@ -41,7 +35,6 @@
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.15.2",
     "@tauri-apps/plugin-http": "^2.2.0",
-    "@ybd-project/ytdl-core": "^6.0.8",
     "daisyui": "^4.12.23",
     "events": "^3.3.0",
     "nanoid": "^5.0.9",
@@ -50,8 +43,7 @@
     "solid-js": "^1.9.4",
     "tailwindcss-members": "^0.0.4",
     "tailwindcss-signals": "^0.0.25",
-    "typesafe-i18n": "^5.26.2",
-    "youtubei.js": "^12.2.0"
+    "typesafe-i18n": "^5.26.2"
   },
   "overrides": {
     "vite": "^6.0.7"

@@ -21,7 +21,6 @@
 
 - [-] Consider preload next song of a playlist
 
-- [] Fix pwa icons
 
 - [-] Consider use cloudflare web analytics and turnsile
     - [X] Using cloudflare web analytics
