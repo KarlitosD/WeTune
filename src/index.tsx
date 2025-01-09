@@ -2,6 +2,7 @@
 
 import { render } from 'solid-js/web';
 import { Routes } from './router/routes';
+import '@solid-devtools/debugger/setup'
 
 import "./index.css"
 
