@@ -49,5 +49,8 @@
     "tailwindcss-signals": "^0.0.25",
     "typesafe-i18n": "^5.26.2",
     "youtubei.js": "^12.2.0"
+  },
+  "overrides": {
+    "vite": "^6.0.7"
   }
 }
