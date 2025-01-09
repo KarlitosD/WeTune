@@ -1,5 +1,5 @@
 import { ReactiveSet } from "@solid-primitives/set"
-import { createEffect } from "solid-js"
+import { createEffect, createRoot } from "solid-js"
 import { getApiUrl } from "~/config"
 
 export const audioCache = await caches.open("audios")
@@ -39,7 +39,9 @@ export async function removeAudioFromCache(id: string){
     }
 }
 
-createEffect(() => {
-    const entries = [...audiosCached]
-    localStorage.setItem("audioCached", JSON.stringify(entries))
+createRoot(() => {
+    createEffect(() => {
+        const entries = [...audiosCached]
+        localStorage.setItem("audioCached", JSON.stringify(entries))
+    })
 })
