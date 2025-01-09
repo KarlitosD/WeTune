@@ -1,23 +1,6 @@
-import { Collection, createLocalStorageAdapter, createReactivityAdapter } from 'signaldb';
-import { createSignal, onCleanup } from 'solid-js';
-
-const solidReactivityAdapter = createReactivityAdapter({
-  create: () => {
-    const [depend, rerun] = createSignal(0);
-    return {
-      depend: () => {
-        depend();
-      },
-      notify: () => {
-        rerun(depend() + 1);
-      },
-    };
-  },
-  isInScope: undefined,
-  onDispose: (callback) => {
-    onCleanup(callback);
-  },
-});
+import { Collection } from '@signaldb/core';
+import createIndexedDBAdapter from '@signaldb/indexeddb';
+import solidReactivityAdapter from '@signaldb/solid';
 
 type Item = { 
     id: string,
@@ -30,7 +13,7 @@ type Item = {
 
 export const items = new Collection<Item>({
   reactivity: solidReactivityAdapter,
-  persistence: createLocalStorageAdapter("items")
+  persistence: createIndexedDBAdapter("items")
 });
 
 await new Promise(res => items.on("persistence.init", () => res(null)))
