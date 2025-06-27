@@ -6,7 +6,8 @@ import { getApiUrl } from "~/config"
 export const searchResults = query(async (search: string) => {
     if (!search) throw redirect("/")
     try {
-      const res = await fetch(getApiUrl(`search?query=${search}`))
+      const url = getApiUrl(`search?query=${search}`)
+      const res = await fetch(url)
       if (!res.ok) throw new Error("An unexpected error has occurred")
       const result = await res.json() as { songs: Song[], videos: Song[] }
       return {
