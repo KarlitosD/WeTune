@@ -1,5 +1,5 @@
 import { For, Show } from "solid-js"
-import { fetch } from "@tauri-apps/plugin-http"
+import { fetch } from "~/utils/fetch"
 import IconMusic from "~/components/Icons/IconMusic"
 import type { Playlist } from "~/types/playlist"
 import { createId } from "~/utils/id"
