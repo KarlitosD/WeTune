@@ -20,7 +20,7 @@ export default function PlaylistPage(props: RouteSectionProps) {
         <section class="h-full">
             <Show when={playlist()?.id}>
                 <PlaylistHeader playlist={playlist()} />
-                <article class="flex flex-col my-4 px-4 gap-2 max-h-[700px] sm:max-h-[750px] h-[85%] overflow-y-scroll scrollbar scrollbar-track-base-100 scrollbar-thumb-primary">
+                <article class="flex flex-col my-4 px-4 gap-2 max-h-175 sm:max-h-187.5 h-[85%] overflow-y-scroll scrollbar scrollbar-track-base-100 scrollbar-thumb-primary">
                     <For each={playlist().songs}>{ song =>
                         <SongItem song={song} onSelect={() => playSong(song, playlist().id)}>
                             <DropdownItem>
@@ -81,7 +81,7 @@ function PlaylistHeader(props: { playlist: Playlist }) {
                     </Dropdown>
                 </Show>
             </div>
-            <button class="btn btn-primary rounded-full" onClick={handlePlayPlaylist}>
+            <button class="btn btn-primary rounded-full size-14" onClick={handlePlayPlaylist}>
                 <Show when={isActualPlaylist()} fallback={<IconPlay />}>
                     <IconPause />
                 </Show>
