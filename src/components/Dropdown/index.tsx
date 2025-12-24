@@ -21,7 +21,7 @@ export function Dropdown(props: DropdownProps) {
     return (
         <div class="dropdown" classList={{ [props.class]: !!props.class, [POSITIONS[props.position]]: !!props.position, "dropdown-end": !!props.end }}>
             <div tabindex="0" role="button" class="p-1 cursor-pointer" classList={{ [props.summaryClass]: !!props.summaryClass }}>{props.summary}</div>
-            <ul tabindex="0" class="p-2 dropdown-content z-[1] menu shadow bg-base-200 rounded-box w-52">
+            <ul tabindex="0" class="p-2 dropdown-content z-1 menu w-56 shadow-sm bg-base-200 rounded-box">
                 {props.children}
             </ul>
         </div>

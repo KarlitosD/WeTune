@@ -25,16 +25,17 @@ function PlaylistDropdown(props: { song: Song }) {
   }
 
   return (
-    <details class="dropdown dropdown-left">
-      <summary class="p-1 list-none flex items-center gap-3">
+    <div class="dropdown dropdown-left">
+      <div tabIndex={0} role="button" class="p-1 list-none flex items-center gap-3">
         <IconLabel icon={<IconPlus size={14} />} label={LL().ADD_PLAYLIST()} />
-      </summary>
-      <ul class="p-2 shadow menu dropdown-content z-[2] bg-base-200 rounded-box w-52">
+      </div>
+      {/* <ul class="menu dropdown-content p-2 shadow-sm z-10 bg-base-200 rounded-box w-full"> */}
+      <ul tabIndex={-1} class="dropdown-content bg-base-100 rounded-box z-20 w-52 p-2 shadow-sm">
         <For each={playlists()}>
           {playlist => <li><a onClick={() => handleAdd(playlist.id)}>{playlist.title}</a></li>}
         </For>
       </ul>
-    </details>
+    </div>
   )
 }
 

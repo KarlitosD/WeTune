@@ -1,19 +1,60 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin "tailwind-scrollbar";
+@plugin "daisyui";
+
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark, night;
+}
+
+@theme {
+  --transition-property-size: width, height;
+
+  --animate-logoOut: logoOut 0.2s forwards;
+
+  @keyframes logoOut {
+    0% {
+      width: 4rem;
+    }
+    99% {
+      width: 0;
+    }
+    100% {
+      width: 0;
+      display: none;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+/* @layer base {
+  *,
+  ::after,
+  ::before,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+} */
+
+@utility signal {
+  --signal: true;
+}
+
+@utility signal-scope {
+  --signal: false;
+}
+
+@variant signal (@container style(--signal: true));
 
 @layer base {
     :root:has(:is(.modal-open, .modal:target, .modal-toggle:checked + .modal, .modal[open])) {
       scrollbar-gutter: revert !important;
     }
   }
-
-
-@layer utilities {
-  .signal {
-    --signal: true;
-  }
-  .signal-scope {
-    --signal: false;
-  }
-}

@@ -23,8 +23,8 @@ export function Header() {
             <LogoApp />
           </a>
           <form class="form-control flex items-end w-full sm:w-auto ml-0 sm:ml-4 lg:ml-0" action={searchAction} method="post">
-            <fieldset class="join w-full justify-end sm:justify-start" disabled={isRouting()}>
-              <input class="member input input-bordered text-neutral-content w-full sm:w-96 join-item focus:delay-75 transition-size" type="search" name="search" placeholder={LL().SEARCH()} value={location?.query?.search || ""} />      
+            <fieldset class="fieldset join w-full justify-end sm:justify-start" disabled={isRouting()}>
+              <input class="member input w-full text-neutral-content sm:w-96 join-item focus:delay-75 transition-size" type="search" name="search" placeholder={LL().SEARCH()} value={location?.query?.search || ""} />      
               <button class="btn btn-neutral btn-square join-item">
                 <IconMagnifyingGlass size={24} />
               </button>

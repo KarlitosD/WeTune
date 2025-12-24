@@ -21,7 +21,7 @@ function ResultList(props: { search: string }) {
   return (
     <>
       <div class="flex flex-col gap-2 p-4 h-full overflow-y-scroll scrollbar-track-base-100 scrollbar-thumb-primary">
-        <div role="tablist" class="tabs tabs-boxed">
+        <div role="tablist" class="tabs tabs-box">
           <a role="tab" class="tab" classList={{ "tab-active": activeTab() === "songs" }} onClick={() => setActiveTab("songs")}>{LL().SONGS()}</a>
           <a role="tab" class="tab" classList={{ "tab-active": activeTab() === "videos" }} onClick={() => setActiveTab("videos")}>{LL().VIDEOS()}</a>
         </div>

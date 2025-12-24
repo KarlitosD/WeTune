@@ -31,8 +31,8 @@ export default function Playground(){
     return (
         <>
             {/* <p>{count()}</p> */}
-            <button onClick={addItem} class="bg-primary text-white p-3 rounded">Agregar item</button>
-            <button onClick={addCosa} class="bg-primary text-white p-3 rounded">Agregar cosa</button>
+            <button onClick={addItem} class="bg-primary text-white p-3 rounded-sm">Agregar item</button>
+            <button onClick={addCosa} class="bg-primary text-white p-3 rounded-sm">Agregar cosa</button>
         </>
     )
 }
