@@ -8,15 +8,16 @@ export const searchResults = query(async (search: string) => {
     try {
       const url = getApiUrl(`search?query=${search}`)
       const res = await fetch(url)
-      if (!res.ok) throw new Error("An unexpected error has occurred")
+      // if (!res.ok) throw new Error("An unexpected error has occurred")
       const result = await res.json() as { songs: Song[], videos: Song[] }
+      console.log(result)
       return {
         songs: result.songs.filter(Boolean),
         videos: result.videos.filter(Boolean)
       }
     } catch (error) {
       console.error(error)
-      throw error
-      // return []
+      // throw error
+      return []
     }
 }, "search")
