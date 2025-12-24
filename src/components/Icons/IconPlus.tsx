@@ -1,6 +1,8 @@
-import type { IconProps } from "solid-icons";
-import { FaSolidPlus } from "solid-icons/fa";
+import type { ComponentProps } from "solid-js";
+import { Plus } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof Plus>;
 
 export default function IconPlus(props: IconProps) {
-    return <FaSolidPlus {...props} />
+    return <Plus {...props} />
 }

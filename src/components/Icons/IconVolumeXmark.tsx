@@ -1,6 +1,8 @@
-import type { IconProps } from "solid-icons";
-import { FaSolidVolumeXmark } from "solid-icons/fa";
+import type { ComponentProps } from "solid-js";
+import { VolumeX } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof VolumeX>;
 
 export default function IconVolumeXmark(props: IconProps) {
-    return <FaSolidVolumeXmark {...props} />
+    return <VolumeX {...props} />
 }

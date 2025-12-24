@@ -1,6 +1,8 @@
-import type { IconProps } from "solid-icons";
-import { FaSolidShare } from "solid-icons/fa";
+import type { ComponentProps } from "solid-js";
+import { Share } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof Share>;
 
 export default function IconShare(props: IconProps) {
-    return <FaSolidShare {...props} />
+    return <Share {...props} />
 }

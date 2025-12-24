@@ -1,6 +1,8 @@
-import type { IconProps } from "solid-icons";
-import { FaSolidEllipsisVertical } from "solid-icons/fa";
+import type { ComponentProps } from "solid-js";
+import { EllipsisVertical } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof EllipsisVertical>;
 
 export default function IconEllipsis(props: IconProps) {
-    return <FaSolidEllipsisVertical {...props} />
+    return <EllipsisVertical {...props} />
 }

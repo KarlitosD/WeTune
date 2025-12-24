@@ -1,6 +1,8 @@
-import type { IconProps } from "solid-icons";
-import { FaSolidCircleArrowDown } from "solid-icons/fa";
+import type { ComponentProps } from "solid-js";
+import { CircleArrowDown } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof CircleArrowDown>;
 
 export default function IconCircleArrowDown(props: IconProps) {
-    return <FaSolidCircleArrowDown {...props} />
+    return <CircleArrowDown {...props} />
 }

@@ -1,6 +1,8 @@
-import type { IconProps } from "solid-icons";
-import { FaSolidMagnifyingGlass } from "solid-icons/fa";
+import type { ComponentProps } from "solid-js";
+import { Search } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof Search>;
 
 export default function IconMagnifyingGlass(props: IconProps) {
-    return <FaSolidMagnifyingGlass {...props} />
+    return <Search {...props} />
 }

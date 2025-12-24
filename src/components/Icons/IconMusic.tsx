@@ -1,6 +1,8 @@
-import type { IconProps } from "solid-icons";
-import { FaSolidMusic } from "solid-icons/fa";
+import type { ComponentProps } from "solid-js";
+import { Music } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof Music>;
 
 export default function IconMusic(props: IconProps) {
-    return <FaSolidMusic {...props} />
+    return <Music {...props} />
 }

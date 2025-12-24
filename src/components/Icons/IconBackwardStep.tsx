@@ -1,6 +1,8 @@
-import type { IconProps } from "solid-icons";
-import { FaSolidBackwardStep } from "solid-icons/fa";
+import type { ComponentProps } from "solid-js";
+import { SkipBack } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof SkipBack>;
 
 export default function IconBackwardStep(props: IconProps) {
-    return <FaSolidBackwardStep {...props} />
+    return <SkipBack {...props} />
 }

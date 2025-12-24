@@ -1,6 +1,8 @@
-import type { IconProps } from "solid-icons";
-import { FaSolidPause } from "solid-icons/fa";
+import type { ComponentProps } from "solid-js";
+import { Pause } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof Pause>;
 
 export default function IconPause(props: IconProps) {
-    return <FaSolidPause {...props} />
+    return <Pause {...props} />
 }

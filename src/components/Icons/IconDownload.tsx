@@ -1,6 +1,8 @@
-import { FaSolidDownload } from "solid-icons/fa";
-import type { IconProps } from "solid-icons";
+import type { ComponentProps } from "solid-js";
+import { Download } from "lucide-solid";
+
+type IconProps = ComponentProps<typeof Download>;
 
 export default function IconDownload(props: IconProps) {
-    return <FaSolidDownload {...props} />
+    return <Download {...props} />
 }
