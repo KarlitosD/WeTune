@@ -1,8 +1,6 @@
 import type { Config } from "tailwindcss"
 import daisyui  from "daisyui"
-
-import tailwindSignals from "tailwindcss-signals"
-import tailwindMembers from "tailwindcss-members"
+import plugin from "tailwindcss/plugin"
 
 import tailwindScrollbar from "tailwind-scrollbar"
 
@@ -31,7 +29,13 @@ export default {
       }
     },
   },
-  plugins: [daisyui, tailwindMembers, tailwindSignals, tailwindScrollbar],
+  plugins: [
+    daisyui,  
+    tailwindScrollbar,
+    plugin(({ addVariant }) => {
+      addVariant("signal", "@container style(--signal: true)")
+    }),
+  ],
   daisyui: {
     themes: ["light", "dark", "night"]
   }

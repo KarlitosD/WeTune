@@ -18,7 +18,7 @@ export function Header() {
 
     return (
       <>
-        <nav class="container mx-auto flex items-center justify-center sm:justify-around py-4 px-6 sm:px-0 gap-10 text-gray-600 member-focus:signal">
+        <nav class="container mx-auto flex items-center justify-center sm:justify-around py-4 px-6 sm:px-0 gap-10 text-gray-600 has-[.member:focus]:signal">
           <a href="/" class="w-16 flex items-center mt-1 signal:animate-logoOut signal:sm:animate-none transition-size">   
             <LogoApp />
           </a>

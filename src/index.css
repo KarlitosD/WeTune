@@ -7,3 +7,13 @@
       scrollbar-gutter: revert !important;
     }
   }
+
+
+@layer utilities {
+  .signal {
+    --signal: true;
+  }
+  .signal-scope {
+    --signal: false;
+  }
+}

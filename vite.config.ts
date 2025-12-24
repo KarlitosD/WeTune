@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import devtools from '@solid-devtools/transform'
+import devtools from 'solid-devtools/vite'
 import solidPlugin from 'vite-plugin-solid';
 import path from "path"
 
