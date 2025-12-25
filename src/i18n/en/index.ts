@@ -23,6 +23,8 @@ const en = {
 	NO_INTERNET: "No internet connection",
 	NO_RESULTS: "No results",
 	CHECK_CONNECTION: "Please check your connection",
+
+	DOWNLOAD_STARTED: "Download started for '{song}'",
 } satisfies BaseTranslation
 
 export default en

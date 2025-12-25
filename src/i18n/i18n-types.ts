@@ -99,6 +99,11 @@ type RootTranslation = {
 	 * P​l​e​a​s​e​ ​c​h​e​c​k​ ​y​o​u​r​ ​c​o​n​n​e​c​t​i​o​n
 	 */
 	CHECK_CONNECTION: string
+	/**
+	 * D​o​w​n​l​o​a​d​ ​s​t​a​r​t​e​d​ ​f​o​r​ ​'​{​s​o​n​g​}​'
+	 * @param {unknown} song
+	 */
+	DOWNLOAD_STARTED: RequiredParams<'song'>
 }
 
 export type TranslationFunctions = {
@@ -186,6 +191,10 @@ export type TranslationFunctions = {
 	 * Please check your connection
 	 */
 	CHECK_CONNECTION: () => LocalizedString
+	/**
+	 * Download started for '{song}'
+	 */
+	DOWNLOAD_STARTED: (arg: { song: unknown }) => LocalizedString
 }
 
 export type Formatters = {}
