@@ -13,6 +13,7 @@
       "allow": [
         { "url": "https://*.tauri.app" },
         { "url": "http://localhost:3001" },
+        { "url": "https://wetune-backend.vercel.app" },
         { "url": "https://www.youtube.com" },
         { "url": "https://*.googlevideo.com" }
       ],
