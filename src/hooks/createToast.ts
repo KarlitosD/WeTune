@@ -11,20 +11,15 @@ export type Toast = {
     duration?: number
 }
 
-let toasts: Toast[] = []
-let listeners: Array<(toasts: readonly Toast[]) => void> = []
-
-function notify() {
-    listeners.forEach(listenerFn => listenerFn([...toasts]))
-}
+// Simple signal store
+const [toastsSignal, setToastsSignal] = createSignal<readonly Toast[]>([])
 
 function addToast(data: ToastEventData) {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
     const toastItem = { ...data, id }
     const duration = data.duration ?? 4000
 
-    toasts.push(toastItem)
-    notify()
+    setToastsSignal(current => [...current, toastItem])
 
     if (duration > 0) {
         setTimeout(() => {
@@ -36,8 +31,7 @@ function addToast(data: ToastEventData) {
 }
 
 function dismissToast(id: string) {
-    toasts = toasts.filter(t => t.id !== id)
-    notify()
+    setToastsSignal(current => current.filter(t => t.id !== id))
 }
 
 toastEvent.on("add", (data: ToastEventData) => {
@@ -73,11 +67,5 @@ toast.dismiss = (id: string) => {
 }
 
 toast.useToasts = () => {
-    const [toastsSignal, setToastsSignal] = createSignal<readonly Toast[]>([])
-    const updateListener = (newToasts: readonly Toast[]) => {
-        setToastsSignal(newToasts)
-    }
-    listeners.push(updateListener)
-    notify()
     return toastsSignal
 }
