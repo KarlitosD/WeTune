@@ -1,26 +1,21 @@
 type _RequestInfo = URL | RequestInfo | string;
 
-type TauriFetch = typeof fetch | null;
+let tauriFetch: typeof fetch | null = null;
 
-let tauriFetch: TauriFetch | null = null;
-
-async function getTauriFetch(): Promise<TauriFetch | null> {
-  if (tauriFetch !== null) return tauriFetch;
+async function getTauriFetch(): Promise<typeof fetch | null> {
+  if (tauriFetch) return tauriFetch;
 
   // Check if running in Tauri
-  if (typeof window !== 'undefined' && '__TAURI__' in window) {
+  if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
     try {
       const { fetch: tauriHttpFetch } = await import('@tauri-apps/plugin-http');
       tauriFetch = tauriHttpFetch;
       return tauriFetch;
     } catch {
-      // Tauri HTTP plugin not available
-      tauriFetch = null;
       return null;
     }
   }
 
-  tauriFetch = null;
   return null;
 }
 
@@ -31,6 +26,5 @@ export async function fetch(input: _RequestInfo, init?: RequestInit): Promise<Re
     return tauri(input, init);
   }
 
-  // Use native fetch
   return window.fetch(input, init);
 }
