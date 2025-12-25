@@ -15,7 +15,7 @@ let toasts: Toast[] = []
 let listeners: Array<(toasts: readonly Toast[]) => void> = []
 
 function notify() {
-    listeners.forEach(listener => listener([...toasts]))
+    listeners.forEach(listenerFn => listenerFn([...toasts]))
 }
 
 function addToast(data: ToastEventData) {
@@ -73,8 +73,11 @@ toast.dismiss = (id: string) => {
 }
 
 toast.useToasts = () => {
-    const [toastsSignal] = createSignal<readonly Toast[]>([])
-    listeners.push(toastsSignal[1])
+    const [toastsSignal, setToastsSignal] = createSignal<readonly Toast[]>([])
+    const updateListener = (newToasts: readonly Toast[]) => {
+        setToastsSignal(newToasts)
+    }
+    listeners.push(updateListener)
     notify()
     return toastsSignal
 }
