@@ -1,6 +1,10 @@
-- [] Implement "virtual playlist"
+- [] Implement "virtual playlist" (for a correct shuffle state and implement autoplay recommendations in a future)
 
 - [] Investigate song not reproduce in the start
+
+- [] Refactor context of playlist to manage more easy the playlist operations
+
+- [] Consider visual redesign of the audio player
 
 - [-] Integrate Media Session API
 
@@ -9,24 +13,22 @@
     - [X] Refactor playlist data with playlistId (using InnerTube)
     - [X] Import from youtube and youtube music
     - [-] Add playlist operations (rename, delete)
-    - [] Add playlist of songs downloaded
     - [X] Save last song played in the playlist
-    - [] Button for sync songs of a imported playlist from youtube
     - [X] Button for download all songs of a playlist
-        - [] Add method to diferenciate between local playlist and imported playlist
+    - [] Add playlist of songs downloaded
+    - [] Button for sync songs of a imported playlist from youtube
+    - [] Add method to diferenciate between local playlist and imported playlist
 
 - [] Add drawer for song player in mobile
 
-- [] Consider visual redesign of the audio player
 
 - [-] Consider preload next song of a playlist
 
-
-- [-] Consider use cloudflare web analytics and turnsile
-    - [X] Using cloudflare web analytics
-    - [] Using turnsile
-
 ----
+
+- [X] Consider use cloudflare web analytics and turnsile
+    - [X] Using cloudflare web analytics
+    - [DESCARTADO] Using turnsile
 
 - [X] Use wsrv.nl for image proxy (e.g. https://wsrv.nl/?url=https://i.ytimg.com/vi/3vVSBLkpO-8/mqdefault.jpg&fit=cover&w=128&h=128)
 
