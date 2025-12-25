@@ -120,8 +120,6 @@ export async function downloadYoutubeAudio(
   const headResponse = await fetch(downloadUrl, { method: 'HEAD' });
   const totalBytes = parseInt(headResponse.headers.get('content-length') || '0');
 
-  console.log(downloadUrl)
-
   const response = await fetch(downloadUrl, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -133,5 +131,5 @@ export async function downloadYoutubeAudio(
     throw new Error(`Download failed: ${response.status}`);
   }
 
-  return await response.blob();
+  return new Blob([await response.arrayBuffer()], { type: selectedFormat.mimeType.split(';')[0] });
 }
