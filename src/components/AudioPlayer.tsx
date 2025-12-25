@@ -13,7 +13,7 @@ import {
 import Thumbnail from "~/components/Thumbnail";
 import { ShareSongButton } from "~/components/ShareSongButton";
 
-import { getAudioFromCache, addAudioToCache, existsAudioInCache } from "~/services/cache";
+import { fetchAudioURL, addAudioToCache, existsAudioInCache } from "~/services/cache";
 import { formatSeconds } from "~/utils/seconds";
 import { getThumbnailUrl } from "~/utils/thumbnail";
 import { isMobile } from "~/utils/device";
@@ -30,7 +30,7 @@ const getDefaultVolumenAccordingToDevice = () => isMobile() ? 1 : 0.5
 
 const preloadSong = async (song: Song) => {
     const youtubeId = song.youtubeId
-    const audioUrl = await getAudioFromCache(youtubeId)
+    const audioUrl = await fetchAudioURL(youtubeId)
 
     const audio = new Audio(audioUrl)
 
@@ -62,7 +62,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     props.selected.index = lastSongIndexPlayed()
 
     const youtubeId  = () => props.song.youtubeId
-    const [audioUrl] = createResource(youtubeId, youtubeId => getAudioFromCache(youtubeId))
+    const [audioUrl] = createResource(youtubeId, youtubeId => fetchAudioURL(youtubeId))
 
     const [playing, setPlaying] = createSignal(false)
 

@@ -11,7 +11,8 @@ import { existsAudioInCache } from "~/services/cache"
 import { formatSeconds } from "~/utils/seconds"
 import { getThumbnailUrl } from "~/utils/thumbnail"
 import { useI18nContext } from "~/i18n/i18n-solid"
-import { getApiUrl } from "~/config"
+import { downloadYoutubeAudio } from "~/lib/youtube"
+import { toast } from "~/hooks/createToast"
 
 
 function PlaylistDropdown(props: { song: Song }) {
@@ -46,6 +47,20 @@ export function SongItem(props: ParentProps & {
   const { LL } = useI18nContext()
   const { handleShare, isCompatible: shareIsCompatible } = useShare(() => props.song)
 
+  const handleDownload = async () => {
+    const blob = await downloadYoutubeAudio(props.song.youtubeId, "highest")
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `${props.song.title} - ${props?.song?.author?.name}.mp3`
+    link.click()
+
+    URL.revokeObjectURL(url)
+    const message = LL().DOWNLOAD_STARTED({ song: props.song.title })
+    toast.success(message)
+  }
+
   return (
     <div class="flex items-center justify-between text-slate-300">
       <div class="flex items-center gap-2 w-80 sm:w-96 cursor-pointer text-left" onClick={props.onSelect}>
@@ -63,9 +78,9 @@ export function SongItem(props: ParentProps & {
       <Dropdown end summary={<IconEllipsis />}>
         <DropdownItem><PlaylistDropdown song={props.song} /></DropdownItem>
         <DropdownItem>
-          <a class="p-1 flex items-center gap-3" href={getApiUrl(`song/blob?songId=${props.song.youtubeId}`)} download={`${props.song.title} - ${props?.song?.author?.name}.mp3`}>
+          <button class="p-1 flex items-center gap-3" type="button" onClick={handleDownload}>
             <IconLabel icon={<IconDownload size={14} />} label={LL().DOWNLOAD_MP3()} />
-          </a>
+          </button>
         </DropdownItem>
         <Show when={shareIsCompatible()}>
           <DropdownItem >
