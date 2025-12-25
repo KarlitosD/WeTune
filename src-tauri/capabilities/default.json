@@ -10,7 +10,12 @@
     "http:default",
     {
       "identifier": "http:default",
-      "allow": [{ "url": "https://peterson-recording-groups-nd.trycloudflare.com" }, { "url": "https://*.tauri.app" }, { "url": "http://localhost:3001" }],
+      "allow": [
+        { "url": "https://*.tauri.app" },
+        { "url": "http://localhost:3001" },
+        { "url": "https://www.youtube.com" },
+        { "url": "https://*.googlevideo.com" }
+      ],
       "deny": [{ "url": "https://private.tauri.app" }]
     }
   ]
