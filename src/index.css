@@ -51,6 +51,15 @@
   --signal: false;
 }
 
+@utility pb-safe-* {
+  padding-bottom: calc(---spacing(--value(integer)) + env(safe-area-inset-bottom));
+}
+
+@utility pt-safe-* {
+  padding-top: calc(---spacing(--value(integer)) + env(safe-area-inset-top));
+}
+
+
 @variant signal (@container style(--signal: true));
 
 @layer base {

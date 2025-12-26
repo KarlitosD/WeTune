@@ -8,9 +8,9 @@ export default function HomeWrapper(props: RouteSectionProps) {
 
   return (
     <>
-      <main class="container max-h-full h-full mx-auto text-center text-gray-700">
+      <main class="container max-h-full h-full mx-auto text-center text-gray-700 pb-safe-20">
         {props.children}
-        <div class="fixed left-0 bottom-0 w-full bg-base-100 shadow-lg shadow-slate-50">
+        <div class="fixed left-0 bottom-0 w-full bg-base-100 shadow-lg shadow-slate-50 pb-safe">
           <Show when={selected?.song}>
             <AudioPlayer song={selected.song} selected={selected} />
           </Show>
