@@ -51,19 +51,31 @@
   --signal: false;
 }
 
-@utility pb-safe-* {
-  padding-bottom: calc(---spacing(--value(integer)) + env(safe-area-inset-bottom));
+@utility pt-safe-* {
+  padding-top: calc(--value(--spacing-*) + env(safe-area-inset-top));
+  padding-top: calc(--value([length]) + env(safe-area-inset-top));
 }
 
-@utility pt-safe-* {
-  padding-top: calc(---spacing(--value(integer)) + env(safe-area-inset-top));
+@utility pb-safe-* {
+  padding-bottom: calc(--value(--spacing-*) + env(safe-area-inset-bottom));
+  padding-bottom: calc(--value([length]) + env(safe-area-inset-bottom));
 }
 
 
 @variant signal (@container style(--signal: true));
 
 @layer base {
-    :root:has(:is(.modal-open, .modal:target, .modal-toggle:checked + .modal, .modal[open])) {
-      scrollbar-gutter: revert !important;
-    }
+  :root:has(:is(.modal-open, .modal:target, .modal-toggle:checked + .modal, .modal[open])) {
+    scrollbar-gutter: revert !important;
   }
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  height: 100dvh;
+}
+
+.player {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);
+}

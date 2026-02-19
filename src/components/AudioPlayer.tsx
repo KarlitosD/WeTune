@@ -6,9 +6,9 @@ import type { Song } from "~/db/schema";
 import { createAudio } from "~/hooks/createAudio";
 import { useMediaSession } from "~/hooks/createMediaSession";
 import { createPersistedSignal } from "~/hooks/createPersistedSignal";
-import { 
-    IconBackwardStep, IconCircleArrowDown, IconForwardStep, IconPause, 
-    IconPlay, IconRepeat, IconShuffle, IconVolumeHigh, IconVolumeXmark 
+import {
+    IconBackwardStep, IconCircleArrowDown, IconForwardStep, IconPause,
+    IconPlay, IconRepeat, IconShuffle, IconVolumeHigh, IconVolumeXmark
 } from "~/components/Icons";
 import Thumbnail from "~/components/Thumbnail";
 import { ShareSongButton } from "~/components/ShareSongButton";
@@ -61,7 +61,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     createEffect(() => setLastSongIndexPlayed(props.selected.index))
     props.selected.index = lastSongIndexPlayed()
 
-    const youtubeId  = () => props.song.youtubeId
+    const youtubeId = () => props.song.youtubeId
     const [audioUrl] = createResource(youtubeId, youtubeId => fetchAudioURL(youtubeId))
 
     const [playing, setPlaying] = createSignal(false)
@@ -82,7 +82,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     const [currentTime, setCurrentTime] = createSignal(0)
     const [loop, setLoop] = createPersistedSignal<RepeatState>("loop", "NONE")
     const [shuffle, setShuffle] = createPersistedSignal("shuffle", false)
-    
+
     const { audio, duration, seek: seekAudio } = createAudio(audioUrl, {
         playing,
         volume: volumeLevelAlvaMajo,
@@ -91,7 +91,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     const play = () => setPlaying(true)
     const pause = () => setPlaying(false)
-    
+
     const seek = (time: number) => {
         setCurrentTime(time)
         seekAudio(time)
@@ -120,7 +120,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     }
 
     const handlePrevious = () => {
-        if(props.selected.hasPrevious && currentTime() < 10){
+        if (props.selected.hasPrevious && currentTime() < 10) {
             return props.selected.index -= 1
         }
         pause()
@@ -129,10 +129,10 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     }
 
     const handleNext = () => {
-        if(shuffle()){
+        if (shuffle()) {
             return props.selected.setRandom()
         }
-        if(props.selected.hasNext){
+        if (props.selected.hasNext) {
             return props.selected.index += 1
         }
         props.selected.index = 0
@@ -143,9 +143,9 @@ export default function AudioPlayer(props: AudioPlayerProps) {
 
     audio.addEventListener("timeupdate", () => playing() && setCurrentTime(audio.currentTime))
     audio.addEventListener("ended", () => {
-        if(props.selected.hasNext && loop() != "ONE" ){
+        if (props.selected.hasNext && loop() != "ONE") {
             handleNext()
-        }else if(!props.selected.hasNext && loop() == "NONE"){
+        } else if (!props.selected.hasNext && loop() == "NONE") {
             setPlaying(false)
             setCurrentTime(0)
         } else {
@@ -154,11 +154,11 @@ export default function AudioPlayer(props: AudioPlayerProps) {
         }
     })
 
-    const [downloading, setDownloading] = createSignal(false)     
+    const [downloading, setDownloading] = createSignal(false)
     const isAudioDownloaded = () => existsAudioInCache(props.song.youtubeId)
 
     const handleDownload = async () => {
-        if(isAudioDownloaded()) return
+        if (isAudioDownloaded()) return
         setDownloading(true)
         await addAudioToCache(youtubeId())
         setDownloading(false)
@@ -167,37 +167,37 @@ export default function AudioPlayer(props: AudioPlayerProps) {
     const [isFirstSong, setIsFirstSong] = createSignal(true)
 
     audio.addEventListener("canplaythrough", () => {
-        if(!isFirstSong() && !isSeeking()){
+        if (!isFirstSong() && !isSeeking()) {
             play()
         }
     })
 
     createEffect(() => {
-        if(isFirstSong() && playing()){
+        if (isFirstSong() && playing()) {
             setIsFirstSong(false)
         }
     })
 
     const controls = { play, pause, handlePrevious, handleNext, seek }
-    useMediaSession({ 
-        selected: props.selected, 
-        controls, 
-        times: { duration, current: currentTime } 
+    useMediaSession({
+        selected: props.selected,
+        controls,
+        times: { duration, current: currentTime }
     })
 
     audioPlayerEvent.on("togglePlay", () => setPlaying(playing => !playing))
-    
-    
+
+
     createEffect(() => {
-        if(props.selected.hasNext && loop() != "ONE" ){
+        if (props.selected.hasNext && loop() != "ONE") {
             const song = props.selected.nextSong
             preloadSong(song)
         }
-    }) 
+    })
 
     return (
-        <div class="container min-h-12 mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-2 py-3 text-white"> 
-            <div class="my-1 sm:my-0 max-w-lg min-w-[290px] sm:min-w-min flex items-center gap-2"> 
+        <div class="container min-h-12 mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-2 py-3 text-white player">
+            <div class="my-1 sm:my-0 max-w-lg min-w-[290px] sm:min-w-min flex items-center gap-2">
                 <Thumbnail src={getThumbnailUrl(props.song.youtubeId)} title={props.song.title} isSmall={true} />
                 <div class="text-left">
                     <p class="w-64 truncate" title={props.song.title}>{props.song?.title}</p>
@@ -255,7 +255,7 @@ export default function AudioPlayer(props: AudioPlayerProps) {
             </div>
             <div class="w-64 gap-2 hidden sm:flex items-center justify-center">
                 <button onClick={togleVolumeLevel}>
-                    { volume() > 0 ? <IconVolumeHigh size={20} /> : <IconVolumeXmark size={20} /> }
+                    {volume() > 0 ? <IconVolumeHigh size={20} /> : <IconVolumeXmark size={20} />}
                 </button>
                 <input
                     type="range"
