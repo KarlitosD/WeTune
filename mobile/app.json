@@ -9,7 +9,10 @@
     "scheme": "wetune",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.wetune.dev"
+      "bundleIdentifier": "com.wetune.dev",
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"]
+      }
     },
     "android": {
       "package": "com.wetune.dev",

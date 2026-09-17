@@ -1,9 +1,25 @@
+import { useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { View } from "react-native";
+import { usePlaylistStore } from "~/store/usePlaylistStore";
+import { usePlayerStore } from "~/store/usePlayerStore";
+import MiniPlayer from "~/components/MiniPlayer";
+import PlayerSheet from "~/components/PlayerSheet";
+import Toasts from "~/components/Toasts";
 
+// Equivale a web ~/app.tsx (providers) + ~/layouts/main.tsx (player fijo).
 export default function RootLayout() {
+  useEffect(() => {
+    void usePlaylistStore
+      .getState()
+      .hydrate()
+      .then(() => usePlayerStore.getState().ensureSelectionLoaded())
+      .catch(console.error);
+  }, []);
+
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: "#0f0f0f" }}>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -16,6 +32,9 @@ export default function RootLayout() {
         <Stack.Screen name="playlist/[playlistId]" options={{ title: "" }} />
         <Stack.Screen name="share/song" options={{ title: "" }} />
       </Stack>
-    </>
+      <MiniPlayer />
+      <PlayerSheet />
+      <Toasts />
+    </View>
   );
 }
