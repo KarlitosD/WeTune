@@ -6,12 +6,7 @@ import { PLAYLISTS } from "~/consts";
 import type { Playlist } from "~/db/schema";
 import { getDictionary } from "~/i18n";
 import { getThumbnailUrl } from "~/utils/thumbnail";
-
-function formatCount(n: number, template: string) {
-  // "{songs:number} Song{{s}}" -> "3 Songs" / "1 Song"
-  const plural = n === 1 ? "" : template.includes("{{es}}") ? "es" : "s";
-  return template.replace("{songs:number}", String(n)).replace(/\{\{[^}]*\}\}/, plural);
-}
+import { formatCount } from "~/utils/plural";
 
 // Puerto de web PlaylistCard (home.tsx).
 export default function PlaylistCard({ playlist }: { playlist: Playlist }) {

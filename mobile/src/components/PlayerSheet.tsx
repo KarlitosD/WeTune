@@ -19,6 +19,7 @@ import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { useShare } from "~/hooks/useShare";
 import { existsAudioInCache } from "~/services/offline-cache";
+import { getDictionary } from "~/i18n";
 import { theme } from "~/theme";
 import { formatSeconds } from "~/utils/seconds";
 import { Resolution, getThumbnailUrl } from "~/utils/thumbnail";
@@ -27,6 +28,7 @@ import { Resolution, getThumbnailUrl } from "~/utils/thumbnail";
 // Sin slider de volumen (iOS/Android usan botones hardware); el nivel persiste
 // igual en el store para cuando exista UI.
 export default function PlayerSheet() {
+  const t = getDictionary();
   const insets = useSafeAreaInsets();
   const song = usePlaylistStore((s) => s.selectedSong());
   const expanded = usePlayerStore((s) => s.expanded);
@@ -45,16 +47,18 @@ export default function PlayerSheet() {
   const toggleLoop = usePlayerStore((s) => s.toggleLoop);
   const toggleShuffle = usePlayerStore((s) => s.toggleShuffle);
   const handleDownload = usePlayerStore((s) => s.handleDownload);
+  // Después de todos los hooks: useShare debe correr siempre (rules-of-hooks),
+  // acepta undefined y no hace nada en ese caso.
+  const { handleShare } = useShare(song);
 
   if (!song) return null;
-  const { handleShare } = useShare(song);
   const downloaded = existsAudioInCache(song.youtubeId);
   const shown = sliding ?? position;
 
   return (
     <Modal visible={expanded} animationType="slide" onRequestClose={() => setExpanded(false)}>
       <View style={{ flex: 1, backgroundColor: theme.base100, paddingTop: insets.top + 8, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}>
-        <Pressable onPress={() => setExpanded(false)} hitSlop={12} style={{ alignSelf: "flex-end", padding: 8 }}>
+        <Pressable onPress={() => setExpanded(false)} hitSlop={12} accessibilityRole="button" style={{ alignSelf: "flex-end", padding: 8 }}>
           <X size={24} color="#fff" />
         </Pressable>
 
@@ -93,26 +97,26 @@ export default function PlayerSheet() {
         </View>
 
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-around", marginTop: 16 }}>
-          <Pressable onPress={() => void handleShare()} hitSlop={12}>
+          <Pressable onPress={() => void handleShare()} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.SHARE}>
             <Share2 size={20} color="#fff" />
           </Pressable>
-          <Pressable onPress={toggleShuffle} hitSlop={12}>
+          <Pressable onPress={toggleShuffle} hitSlop={12} accessibilityRole="button">
             <Shuffle size={22} color={shuffle ? theme.primary : "#fff"} />
           </Pressable>
-          <Pressable onPress={() => void handlePrevious()} hitSlop={12}>
+          <Pressable onPress={() => void handlePrevious()} hitSlop={12} accessibilityRole="button">
             <SkipBack size={32} color="#fff" />
           </Pressable>
-          <Pressable onPress={() => void togglePlay()} hitSlop={12}>
+          <Pressable onPress={() => void togglePlay()} hitSlop={12} accessibilityRole="button">
             {playing ? <Pause size={56} color="#fff" /> : <Play size={56} color="#fff" />}
           </Pressable>
-          <Pressable onPress={() => void handleNext()} hitSlop={12}>
+          <Pressable onPress={() => void handleNext()} hitSlop={12} accessibilityRole="button">
             <SkipForward size={32} color="#fff" />
           </Pressable>
-          <Pressable onPress={toggleLoop} hitSlop={12} style={{ alignItems: "center" }}>
+          <Pressable onPress={toggleLoop} hitSlop={12} accessibilityRole="button" style={{ alignItems: "center" }}>
             <Repeat size={22} color={loop !== "NONE" ? theme.primary : "#fff"} />
             {loop === "ONE" ? <Text style={{ color: theme.primary, fontSize: 10 }}>1</Text> : null}
           </Pressable>
-          <Pressable onPress={() => void handleDownload()} hitSlop={12} disabled={downloaded}>
+          <Pressable onPress={() => void handleDownload()} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.DOWNLOAD} disabled={downloaded}>
             {downloading ? (
               <ActivityIndicator size="small" color={theme.primary} />
             ) : (

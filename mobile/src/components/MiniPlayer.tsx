@@ -33,7 +33,7 @@ export default function MiniPlayer() {
             {song.author?.name}
           </Text>
         </View>
-        <Pressable onPress={() => void togglePlay()} hitSlop={12} style={{ padding: 8 }}>
+        <Pressable onPress={() => void togglePlay()} hitSlop={12} accessibilityRole="button" style={{ padding: 8 }}>
           {playing ? <Pause size={28} color="#fff" /> : <Play size={28} color="#fff" />}
         </Pressable>
       </View>

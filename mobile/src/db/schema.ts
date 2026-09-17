@@ -1,6 +1,6 @@
 import { Static, Type } from "@sinclair/typebox"
 
-const songSchema = Type.Object({
+export const songSchema = Type.Object({
     title: Type.String(),
     youtubeId: Type.String(),
     album: Type.Optional(Type.Object({
@@ -16,7 +16,7 @@ const songSchema = Type.Object({
     duration: Type.Number()
 })
 
-const playlistSchema = Type.Object({
+export const playlistSchema = Type.Object({
     id: Type.String(),
     title: Type.String(),
     songs: Type.Array(songSchema)

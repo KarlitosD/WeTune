@@ -20,7 +20,22 @@ Copiar `.env.example` a `.env`:
 
 - `npm start` — Metro.
 - `npm run android/ios` — dev build local (requiere Android SDK / Xcode).
-- `npm run typecheck` — `tsc --noEmit`.
+- `npm run typecheck` — `tsc --noEmit` (strict + noUnusedLocals/Parameters).
+- `npm run lint` — ESLint (config Expo).
+- `npm run test` — Vitest (lógica pura: utils, api client, schema, audio contract).
+
+## Deep links https
+
+La app declara App Links (`wetune.app/share/*`, ver `intentFilters` y
+`associatedDomains` en `app.json`). Falta la contraparte en el servidor web:
+
+- `https://wetune.app/.well-known/assetlinks.json`:
+  `[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"com.wetune.dev","sha256_cert_fingerprints":["<SHA256_RELEASE_AÚN_NO_GENERADO>"]}}]`
+- `https://wetune.app/.well-known/apple-app-site-association` (sin extensión):
+  `{"applinks":{"apps":[],"details":[{"appID":"<TEAMID>.com.wetune.dev","paths":["/share/*"]}]}}`
+
+Sin esos ficheros (más el SHA256 del keystore release), los links https
+abren el navegador en vez de la app. El scheme `wetune://` funciona sin nada.
 
 ## Audio (placeholder)
 
@@ -46,6 +61,11 @@ Cuando exista la implementación real, nada más cambia: player
 - Sin slider de volumen en UI (botones hardware del SO); el nivel persiste igual.
 - Idioma fijo al arrancar (`expo-localization`); cambiar idioma del SO requiere
   reiniciar la app. El adapter react completo de typesafe-i18n queda para Fase 3b.
+- Branding generado desde web `LogoApp.svg` (`assets/icon.png`,
+  `android-icon-*.png`, `splash.png`, `favicon.png`); refinable por diseño.
+- Verificado por prebuild: scheme `wetune://` en el manifest; los permisos
+  `FOREGROUND_SERVICE*` del player los fusiona Gradle desde el AAR
+  (no aparecen en el manifest de prebuild, es lo esperado).
 
 ## Riesgo conocido
 

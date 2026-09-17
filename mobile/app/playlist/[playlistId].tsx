@@ -14,7 +14,6 @@ import { theme } from "~/theme";
 
 // Puerto de web ~/pages/playlist/[playlistId].tsx.
 export default function PlaylistPage() {
-  const t = getDictionary();
   const { playlistId } = useLocalSearchParams<{ playlistId: string }>();
   const playlists = usePlaylistStore((s) => s.playlists);
   const playlist = playlists.find((p) => p.id === playlistId);
@@ -88,11 +87,11 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
           <Text numberOfLines={1} style={{ color: "#fff", fontSize: 20 }}>
             {playlist.id === PLAYLISTS.HISTORY ? t.RECENTS : playlist.title}
           </Text>
-          <Pressable onPress={() => void handleDownloadAll()} hitSlop={12}>
+          <Pressable onPress={() => void handleDownloadAll()} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.DOWNLOAD}>
             <CircleArrowDown size={22} color={allCached ? theme.primary : "#fff"} />
           </Pressable>
           {playlist.id !== PLAYLISTS.HISTORY ? (
-            <Pressable onPress={() => setMenuOpen(true)} hitSlop={12}>
+            <Pressable onPress={() => setMenuOpen(true)} hitSlop={12} accessibilityRole="button">
               <EllipsisVertical size={20} color="#fff" />
             </Pressable>
           ) : null}

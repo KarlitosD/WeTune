@@ -63,6 +63,7 @@ export function SongItem({
           setMenuOpen(true);
         }}
         hitSlop={12}
+        accessibilityRole="button"
         style={{ padding: 4 }}
       >
         <EllipsisVertical size={20} color="#e5e5e5" />

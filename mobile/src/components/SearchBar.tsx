@@ -28,6 +28,8 @@ export default function SearchBar({
       />
       <Pressable
         onPress={() => onSubmit(value.trim())}
+        accessibilityRole="button"
+        accessibilityLabel={t.SEARCH}
         style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: "#404040", alignItems: "center", justifyContent: "center" }}
       >
         <Search size={20} color="#fff" />

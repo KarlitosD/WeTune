@@ -9,8 +9,9 @@ export function shareUrlFor(song: Pick<Song, "youtubeId">) {
   return `${WEB_URL}/share/song?songId=${song.youtubeId}`;
 }
 
-export function useShare(song: Song) {
+export function useShare(song: Song | undefined) {
   const handleShare = async () => {
+    if (!song) return;
     const url = shareUrlFor(song);
     try {
       if (Platform.OS === "ios") {
