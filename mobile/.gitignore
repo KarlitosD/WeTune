@@ -1,0 +1,2 @@
+# Re-incluir el lockfile de npm (el .gitignore raíz lo excluye para la web con bun)
+!package-lock.json

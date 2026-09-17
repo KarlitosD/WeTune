@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "WeTune",
+    "slug": "wetune",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "wetune",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.wetune.dev"
+    },
+    "android": {
+      "package": "com.wetune.dev",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-router"]
+  }
+}
