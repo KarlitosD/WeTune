@@ -19,6 +19,8 @@ export default function Results() {
   const [videos, setVideos] = useState<Song[]>([]);
   const [searched, setSearched] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [lastQuery, setLastQuery] = useState("");
   const playSong = usePlaylistStore((s) => s.playSong);
 
   const runSearch = async (query: string) => {
@@ -26,10 +28,18 @@ export default function Results() {
     router.setParams({ search: query });
     setSearching(true);
     setSearched(true);
-    const result = await searchSongs(query);
-    setSongs(result.songs);
-    setVideos(result.videos);
-    setSearching(false);
+    setFailed(false);
+    setLastQuery(query);
+    try {
+      const result = await searchSongs(query);
+      setSongs(result.songs);
+      setVideos(result.videos);
+    } catch (e) {
+      console.error(e);
+      setFailed(true);
+    } finally {
+      setSearching(false);
+    }
   };
 
   const list = activeTab === "songs" ? songs : videos;
@@ -58,7 +68,17 @@ export default function Results() {
             <SongItemSkeleton key={i} />
           ))}
         </View>
-      ) : !searched ? null : list.length === 0 ? (
+      ) : !searched ? null : failed ? (
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 12 }}>
+          <Text style={{ color: "#fff", fontSize: 20 }}>{t.RESULTS_ERROR}</Text>
+          <Pressable
+            onPress={() => void runSearch(lastQuery)}
+            style={{ backgroundColor: "#404040", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10 }}
+          >
+            <Text style={{ color: "#fff" }}>{t.SEARCH}</Text>
+          </Pressable>
+        </View>
+      ) : list.length === 0 ? (
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
           <Text style={{ color: "#fff", fontSize: 20 }}>{t.NO_RESULTS}</Text>
         </View>

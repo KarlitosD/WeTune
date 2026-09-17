@@ -2,8 +2,10 @@ import { drizzle } from "drizzle-orm/expo-sqlite";
 import { openDatabaseSync } from "expo-sqlite";
 
 // DDL explícito en vez de drizzle-kit/migrations: una sola DB local,
-// sin sync con servidor. Si el schema cambia, subir DB_VERSION y migrar aquí.
-const DB_VERSION = 1;
+// sin sync con servidor.
+// Al cambiar el schema: subir DB_VERSION y añadir el ALTER correspondiente
+// en migrateIfNeeded() (las columnas deben seguir espejando drizzle-schema.ts).
+export const DB_VERSION = 1;
 
 const sqlite = openDatabaseSync("wetune.db");
 
@@ -34,6 +36,9 @@ sqlite.execSync(`
 const row = sqlite.getFirstSync<{ value: string }>("SELECT value FROM meta WHERE key = 'version'");
 if (!row) {
   sqlite.runSync("INSERT INTO meta (key, value) VALUES ('version', ?)", [String(DB_VERSION)]);
+} else if (row.value !== String(DB_VERSION)) {
+  // Sin migración definida: fallar alto en dev en vez de corromper datos.
+  throw new Error(`[db] Unsupported version ${row.value}, expected ${DB_VERSION}. Define migrateIfNeeded().`);
 }
 
 export const db = drizzle(sqlite);

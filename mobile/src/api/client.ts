@@ -3,19 +3,17 @@ import type { Playlist, Song } from "~/db/schema";
 
 // Reutiliza el backend Nitro tal cual (no se migra):
 // GET /api/search?query= -> { songs, videos }
+// Lanza en error de red/HTTP para que la pantalla distinga
+// "sin resultados" (RESULTS vacío) de "fallo" (RESULTS_ERROR).
 export async function searchSongs(query: string): Promise<{ songs: Song[]; videos: Song[] }> {
   if (!query) return { songs: [], videos: [] };
-  try {
-    const res = await fetch(getApiUrl(`search?query=${encodeURIComponent(query)}`));
-    const result = (await res.json()) as { songs: Song[]; videos: Song[] };
-    return {
-      songs: (result.songs ?? []).filter(Boolean),
-      videos: (result.videos ?? []).filter(Boolean),
-    };
-  } catch (error) {
-    console.error(error);
-    return { songs: [], videos: [] };
-  }
+  const res = await fetch(getApiUrl(`search?query=${encodeURIComponent(query)}`));
+  if (!res.ok) throw new Error(`Search failed: ${res.status}`);
+  const result = (await res.json()) as { songs: Song[]; videos: Song[] };
+  return {
+    songs: (result.songs ?? []).filter(Boolean),
+    videos: (result.videos ?? []).filter(Boolean),
+  };
 }
 
 // GET /api/playlist?list= -> Playlist

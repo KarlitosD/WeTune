@@ -4,6 +4,8 @@
 //    YouTube bloquea datacenters y las URLs van firmadas por IP).
 //  - Devuelve una URL reproducible por TrackPlayer:
 //    remota (streaming) o file:// local (offline).
+//  - Credenciales/cookies (cfr. web ~/lib/cookie.ts) se gestionan aquí
+//    dentro cuando exista la implementación (SecureStore, refresco remoto).
 
 export type Quality = "highest" | "lowest";
 
