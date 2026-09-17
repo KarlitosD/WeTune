@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
+import { theme } from "~/theme";
 import MiniPlayer from "~/components/MiniPlayer";
 import PlayerSheet from "~/components/PlayerSheet";
 import Toasts from "~/components/Toasts";
@@ -19,13 +20,13 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0f0f0f" }}>
+    <View style={{ flex: 1, backgroundColor: theme.base100 }}>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: "#0f0f0f" },
+          headerStyle: { backgroundColor: theme.base100 },
           headerTintColor: "#fff",
-          contentStyle: { backgroundColor: "#0f0f0f" },
+          contentStyle: { backgroundColor: theme.base100 },
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

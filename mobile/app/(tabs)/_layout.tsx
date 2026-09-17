@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { ListMusic, Search } from "lucide-react-native";
 import { getDictionary } from "~/i18n";
+import { theme } from "~/theme";
 
 export default function TabsLayout() {
   const t = getDictionary();
@@ -8,12 +9,12 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: "#0f0f0f" },
+        headerStyle: { backgroundColor: theme.base100 },
         headerTintColor: "#fff",
-        tabBarStyle: { backgroundColor: "#0f0f0f", borderTopColor: "#262626" },
+        tabBarStyle: { backgroundColor: theme.base100, borderTopColor: "#262626" },
         tabBarActiveTintColor: "#fff",
         tabBarInactiveTintColor: "#737373",
-        sceneStyle: { backgroundColor: "#0f0f0f" },
+        sceneStyle: { backgroundColor: theme.base100 },
       }}
     >
       <Tabs.Screen

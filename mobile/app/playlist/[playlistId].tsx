@@ -10,6 +10,7 @@ import { toast } from "~/store/useToastStore";
 import { addAudioToCache, existsAudioInCache } from "~/services/offline-cache";
 import { SongItem } from "~/components/SongItem";
 import { ActionMenu, ActionMenuItem } from "~/components/ActionMenu";
+import { theme } from "~/theme";
 
 // Puerto de web ~/pages/playlist/[playlistId].tsx.
 export default function PlaylistPage() {
@@ -20,7 +21,7 @@ export default function PlaylistPage() {
 
   if (!playlist) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#0f0f0f", alignItems: "center", justifyContent: "center", gap: 12 }}>
+      <View style={{ flex: 1, backgroundColor: theme.base100, alignItems: "center", justifyContent: "center", gap: 12 }}>
         <Text style={{ color: "#fff", fontSize: 18 }}>Playlist not found</Text>
         <Link href="/(tabs)" asChild>
           <Pressable style={{ backgroundColor: "#404040", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10 }}>
@@ -81,14 +82,14 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0f0f0f" }}>
+    <View style={{ flex: 1, backgroundColor: theme.base100 }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#404040" }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12, flex: 1 }}>
           <Text numberOfLines={1} style={{ color: "#fff", fontSize: 20 }}>
             {playlist.id === PLAYLISTS.HISTORY ? t.RECENTS : playlist.title}
           </Text>
           <Pressable onPress={() => void handleDownloadAll()} hitSlop={12}>
-            <CircleArrowDown size={22} color={allCached ? "#22c55e" : "#fff"} />
+            <CircleArrowDown size={22} color={allCached ? theme.primary : "#fff"} />
           </Pressable>
           {playlist.id !== PLAYLISTS.HISTORY ? (
             <Pressable onPress={() => setMenuOpen(true)} hitSlop={12}>
@@ -98,9 +99,9 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
         </View>
         <Pressable
           onPress={handlePlayAll}
-          style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "#22c55e", alignItems: "center", justifyContent: "center" }}
+          style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: theme.primary, alignItems: "center", justifyContent: "center" }}
         >
-          {isActual ? <Pause size={24} color="#000" /> : <Play size={24} color="#000" />}
+          {isActual ? <Pause size={24} color={theme.primaryContent} /> : <Play size={24} color={theme.primaryContent} />}
         </Pressable>
       </View>
 

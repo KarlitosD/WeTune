@@ -56,7 +56,7 @@ export function SongItem({
           </Text>
         </View>
       </Pressable>
-      {cached ? <CircleArrowDown size={16} color="#22c55e" /> : null}
+      {cached ? <CircleArrowDown size={16} color="#cbd5e1" /> : null}
       <Pressable
         onPress={() => {
           setCached(existsAudioInCache(song.youtubeId));

@@ -8,6 +8,7 @@ import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { SongItem, SongItemSkeleton } from "~/components/SongItem";
 import SearchBar from "~/components/SearchBar";
+import { theme } from "~/theme";
 
 // Puerto de web ~/pages/results.tsx (createAsync/load -> estado local).
 export default function Results() {
@@ -38,14 +39,14 @@ export default function Results() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0f0f0f" }}>
+    <View style={{ flex: 1, backgroundColor: theme.base100 }}>
       <SearchBar initialValue={params.search ?? ""} onSubmit={(q) => void runSearch(q)} />
       <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: 16, paddingBottom: 8 }}>
         {(["songs", "videos"] as const).map((tab) => (
           <Pressable
             key={tab}
             onPress={() => setActiveTab(tab)}
-            style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, backgroundColor: activeTab === tab ? "#404040" : "#1c1c1c" }}
+            style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, backgroundColor: activeTab === tab ? "#404040" : theme.base200 }}
           >
             <Text style={{ color: "#fff" }}>{tab === "songs" ? t.SONGS : t.VIDEOS}</Text>
           </Pressable>

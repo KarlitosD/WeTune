@@ -5,6 +5,7 @@ import { PLAYLISTS } from "~/consts";
 import { getSong } from "~/api/client";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
+import { theme } from "~/theme";
 
 // Puerto de web ~/pages/share/song.tsx:
 // getSong -> playSong(HISTORY) -> reproducir -> volver al home.
@@ -36,7 +37,7 @@ export default function ShareSong() {
   }, [songId]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0f0f0f", alignItems: "center", justifyContent: "center", gap: 16 }}>
+    <View style={{ flex: 1, backgroundColor: theme.base100, alignItems: "center", justifyContent: "center", gap: 16 }}>
       {error ? (
         <>
           <Text style={{ color: "#fff", fontSize: 16 }}>{error}</Text>
@@ -47,7 +48,7 @@ export default function ShareSong() {
           </Link>
         </>
       ) : (
-        <ActivityIndicator size="large" color="#22c55e" />
+        <ActivityIndicator size="large" color={theme.primary} />
       )}
     </View>
   );

@@ -19,6 +19,7 @@ import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { useShare } from "~/hooks/useShare";
 import { existsAudioInCache } from "~/services/offline-cache";
+import { theme } from "~/theme";
 import { formatSeconds } from "~/utils/seconds";
 import { Resolution, getThumbnailUrl } from "~/utils/thumbnail";
 
@@ -52,7 +53,7 @@ export default function PlayerSheet() {
 
   return (
     <Modal visible={expanded} animationType="slide" onRequestClose={() => setExpanded(false)}>
-      <View style={{ flex: 1, backgroundColor: "#0f0f0f", paddingTop: insets.top + 8, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}>
+      <View style={{ flex: 1, backgroundColor: theme.base100, paddingTop: insets.top + 8, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}>
         <Pressable onPress={() => setExpanded(false)} hitSlop={12} style={{ alignSelf: "flex-end", padding: 8 }}>
           <X size={24} color="#fff" />
         </Pressable>
@@ -96,7 +97,7 @@ export default function PlayerSheet() {
             <Share2 size={20} color="#fff" />
           </Pressable>
           <Pressable onPress={toggleShuffle} hitSlop={12}>
-            <Shuffle size={22} color={shuffle ? "#22c55e" : "#fff"} />
+            <Shuffle size={22} color={shuffle ? theme.primary : "#fff"} />
           </Pressable>
           <Pressable onPress={() => void handlePrevious()} hitSlop={12}>
             <SkipBack size={32} color="#fff" />
@@ -108,14 +109,14 @@ export default function PlayerSheet() {
             <SkipForward size={32} color="#fff" />
           </Pressable>
           <Pressable onPress={toggleLoop} hitSlop={12} style={{ alignItems: "center" }}>
-            <Repeat size={22} color={loop !== "NONE" ? "#22c55e" : "#fff"} />
-            {loop === "ONE" ? <Text style={{ color: "#22c55e", fontSize: 10 }}>1</Text> : null}
+            <Repeat size={22} color={loop !== "NONE" ? theme.primary : "#fff"} />
+            {loop === "ONE" ? <Text style={{ color: theme.primary, fontSize: 10 }}>1</Text> : null}
           </Pressable>
           <Pressable onPress={() => void handleDownload()} hitSlop={12} disabled={downloaded}>
             {downloading ? (
-              <ActivityIndicator size="small" color="#22c55e" />
+              <ActivityIndicator size="small" color={theme.primary} />
             ) : (
-              <CircleArrowDown size={20} color={downloaded ? "#22c55e" : "#fff"} />
+              <CircleArrowDown size={20} color={downloaded ? theme.primary : "#fff"} />
             )}
           </Pressable>
         </View>

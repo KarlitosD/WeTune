@@ -3,6 +3,7 @@ import { Pause, Play } from "lucide-react-native";
 import { useProgress } from "react-native-track-player";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
+import { theme } from "~/theme";
 import Thumbnail from "./Thumbnail";
 
 // Mini-player fijo sobre las tabs (equivale al <AudioPlayer> colapsado;
@@ -18,12 +19,12 @@ export default function MiniPlayer() {
   const progress = duration > 0 ? position / duration : 0;
 
   return (
-    <Pressable onPress={() => setExpanded(true)} style={{ backgroundColor: "#171717" }}>
+    <Pressable onPress={() => setExpanded(true)} style={{ backgroundColor: theme.base100 }}>
       <View style={{ height: 2, backgroundColor: "#262626" }}>
         <View style={{ width: `${Math.min(100, progress * 100)}%`, height: 2, backgroundColor: "#fff" }} />
       </View>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8, padding: 8 }}>
-        <Thumbnail youtubeId={song.youtubeId} title={song.title} size={44} />
+        <Thumbnail youtubeId={song.youtubeId} title={song.title} size={48} />
         <View style={{ flex: 1 }}>
           <Text numberOfLines={1} style={{ color: "#fff", fontWeight: "600" }}>
             {song.title}

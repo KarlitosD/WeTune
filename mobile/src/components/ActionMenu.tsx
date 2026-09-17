@@ -1,5 +1,6 @@
 import { Modal, Pressable, View, type StyleProp, type ViewStyle } from "react-native";
 import type { ReactNode } from "react";
+import { theme } from "~/theme";
 
 // Reemplaza web ~/components/Dropdown (DaisyUI) con bottom-sheet nativo.
 export function ActionMenu({
@@ -19,7 +20,7 @@ export function ActionMenu({
         style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" }}
         onPress={onClose}
       >
-        <View style={[{ backgroundColor: "#1c1c1c", borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 8 }, style]}>
+        <View style={[{ backgroundColor: theme.base200, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 8 }, style]}>
           {children}
         </View>
       </Pressable>

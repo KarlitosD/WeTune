@@ -5,6 +5,7 @@ import { getDictionary } from "~/i18n";
 import { getPlaylist } from "~/api/client";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { toast } from "~/store/useToastStore";
+import { theme } from "~/theme";
 import { createId } from "~/utils/id";
 import PlaylistCard from "~/components/PlaylistCard";
 
@@ -41,7 +42,7 @@ export default function Home() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0f0f0f", padding: 16 }}>
+    <View style={{ flex: 1, backgroundColor: theme.base100, padding: 16 }}>
       <Text style={{ color: "#fff", fontSize: 24, marginVertical: 12 }}>{t.PLAYLISTS}</Text>
       <FlatList
         data={playlists}
@@ -62,7 +63,7 @@ export default function Home() {
 
       <Modal visible={modalOpen} transparent animationType="fade" onRequestClose={() => setModalOpen(false)}>
         <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", padding: 24 }} onPress={() => setModalOpen(false)}>
-          <View style={{ backgroundColor: "#1c1c1c", borderRadius: 12, padding: 20, gap: 12 }} onStartShouldSetResponder={() => true}>
+          <View style={{ backgroundColor: theme.base200, borderRadius: 12, padding: 20, gap: 12 }} onStartShouldSetResponder={() => true}>
             <Text style={{ color: "#fff", fontSize: 20, textAlign: "center" }}>{t.CREATE_PLAYLIST}</Text>
             <View style={{ flexDirection: "row", gap: 8 }}>
               <TextInput
@@ -71,7 +72,7 @@ export default function Home() {
                 placeholder="Youtube Playlist URL"
                 placeholderTextColor="#737373"
                 autoCapitalize="none"
-                style={{ flex: 1, backgroundColor: "#0f0f0f", color: "#fff", borderRadius: 8, paddingHorizontal: 12, height: 44 }}
+                style={{ flex: 1, backgroundColor: theme.base100, color: "#fff", borderRadius: 8, paddingHorizontal: 12, height: 44 }}
               />
               <Pressable onPress={() => void importPlaylist()} style={{ backgroundColor: "#404040", borderRadius: 8, paddingHorizontal: 16, justifyContent: "center" }}>
                 <Text style={{ color: "#fff" }}>{t.IMPORT}</Text>
@@ -84,7 +85,7 @@ export default function Home() {
                 onChangeText={setName}
                 placeholder={t.NAME_PLAYLIST}
                 placeholderTextColor="#737373"
-                style={{ flex: 1, backgroundColor: "#0f0f0f", color: "#fff", borderRadius: 8, paddingHorizontal: 12, height: 44 }}
+                style={{ flex: 1, backgroundColor: theme.base100, color: "#fff", borderRadius: 8, paddingHorizontal: 12, height: 44 }}
               />
               <Pressable onPress={createPlaylist} style={{ backgroundColor: "#404040", borderRadius: 8, paddingHorizontal: 16, justifyContent: "center" }}>
                 <Text style={{ color: "#fff" }}>{t.ADD}</Text>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Pressable, TextInput, View } from "react-native";
 import { Search } from "lucide-react-native";
 import { getDictionary } from "~/i18n";
+import { theme } from "~/theme";
 
 // Puerto de web ~/components/Layout/Header (form action -> router).
 export default function SearchBar({
@@ -23,7 +24,7 @@ export default function SearchBar({
         returnKeyType="search"
         placeholder={t.SEARCH}
         placeholderTextColor="#737373"
-        style={{ flex: 1, backgroundColor: "#1c1c1c", color: "#fff", borderRadius: 8, paddingHorizontal: 12, height: 44 }}
+        style={{ flex: 1, backgroundColor: theme.base200, color: "#fff", borderRadius: 8, paddingHorizontal: 12, height: 44 }}
       />
       <Pressable
         onPress={() => onSubmit(value.trim())}
