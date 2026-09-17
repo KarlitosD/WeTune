@@ -6,10 +6,14 @@ import { usePlaylistStore } from "~/store/usePlaylistStore";
 // Registrado en index.ts top-level. Autocontenido: rehidrata SQLite/MMKV
 // porque en el isolate headless el estado en memoria está vacío.
 async function withHydrated(fn: () => Promise<void> | void) {
-  const pl = usePlaylistStore.getState();
-  if (!pl.hydrated) await pl.hydrate();
-  await usePlayerStore.getState().init();
-  await fn();
+  try {
+    const pl = usePlaylistStore.getState();
+    if (!pl.hydrated) await pl.hydrate();
+    await usePlayerStore.getState().init();
+    await fn();
+  } catch (e) {
+    console.error("[playback-service]", e);
+  }
 }
 
 export async function playbackService() {

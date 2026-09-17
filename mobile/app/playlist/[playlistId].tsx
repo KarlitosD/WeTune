@@ -112,14 +112,19 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
           <SongItem
             song={item}
             onSelect={() => void playSong(item, playlist.id).then(() => usePlayerStore.getState().playSelected())}
-            trailing={
-              <ActionMenuItem onPress={() => void removeSong(item, playlist.id)}>
+            trailing={(close) => (
+              <ActionMenuItem
+                onPress={() => {
+                  void removeSong(item, playlist.id);
+                  close();
+                }}
+              >
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
                   <Trash2 size={16} color="#ef4444" />
                   <Text style={{ color: "#ef4444" }}>{t.DELETE}</Text>
                 </View>
               </ActionMenuItem>
-            }
+            )}
           />
         )}
       />

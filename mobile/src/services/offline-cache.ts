@@ -4,7 +4,7 @@ import { resolveAudioUrl, type Quality } from "~/lib/audio-source";
 
 // Puerto de web ~/services/cache (Cache API "audios" + ReactiveSet en
 // localStorage) a expo-file-system + MMKV.
-// NOTE: addAudioToCache/fetchOfflineUri lanzan el TODO de audio-source
+// NOTE: addAudioToCache/fetchAudioUri lanzan el TODO de audio-source
 // hasta que la nueva implementación cliente exista. removeAudioFromCache
 // y existsAudioInCache funcionan desde ya.
 

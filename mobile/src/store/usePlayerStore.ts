@@ -54,11 +54,12 @@ type PlayerStore = {
   handleDownload: () => Promise<void>;
 };
 
-async function loadCurrent(autoplay: boolean) {
+async function loadCurrent(autoplay: boolean): Promise<boolean> {
   const song = usePlaylistStore.getState().selectedSong();
-  if (!song) return;
+  if (!song) return false;
   await loadSong(song, autoplay);
   loadedYoutubeId = song.youtubeId;
+  return true;
 }
 
 export const usePlayerStore = create<PlayerStore>()((set, get) => ({
@@ -80,8 +81,7 @@ export const usePlayerStore = create<PlayerStore>()((set, get) => ({
 
   playSelected: async () => {
     await get().init();
-    await loadCurrent(true);
-    set({ playing: true });
+    if (await loadCurrent(true)) set({ playing: true });
   },
 
   // Primera carga al abrir la app: deja la pista lista en pausa (como la web).
@@ -94,6 +94,11 @@ export const usePlayerStore = create<PlayerStore>()((set, get) => ({
 
   play: async () => {
     await get().init();
+    const song = usePlaylistStore.getState().selectedSong();
+    if (!song && loadedYoutubeId === null) return;
+    if (song && loadedYoutubeId !== song.youtubeId) {
+      if (!(await loadCurrent(false))) return;
+    }
     await playPlayer();
     set({ playing: true });
   },
@@ -144,15 +149,16 @@ export const usePlayerStore = create<PlayerStore>()((set, get) => ({
 
   handleNext: async () => {
     const pl = usePlaylistStore.getState();
+    if (!pl.selectedSong()) return;
     if (get().shuffle) pl.setRandom();
     else if (pl.hasNext()) pl.setSelectedIndex(pl.selectedIndex + 1);
     else pl.setSelectedIndex(0);
-    await loadCurrent(true);
-    set({ playing: true });
+    if (await loadCurrent(true)) set({ playing: true });
   },
 
   handlePrevious: async () => {
     const pl = usePlaylistStore.getState();
+    if (!pl.selectedSong()) return;
     let position = 0;
     try {
       position = await getPlayerPosition();
@@ -171,6 +177,7 @@ export const usePlayerStore = create<PlayerStore>()((set, get) => ({
 
   handleQueueEnded: async () => {
     const pl = usePlaylistStore.getState();
+    if (!pl.selectedSong()) return;
     const loop = get().loop;
     if (loop === "ONE") {
       await seekPlayerTo(0);

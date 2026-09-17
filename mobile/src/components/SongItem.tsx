@@ -20,7 +20,8 @@ export function SongItem({
 }: {
   song: Song;
   onSelect: () => void;
-  trailing?: ReactNode;
+  // Como render-prop recibe close() para cerrar el menú tras la acción.
+  trailing?: ReactNode | ((close: () => void) => ReactNode);
 }) {
   const t = getDictionary();
   const playlists = usePlaylistStore((s) => s.playlists);
@@ -52,12 +53,18 @@ export function SongItem({
           <Text numberOfLines={1} style={{ color: "#a3a3a3", fontSize: 12, marginTop: 2 }}>
             {song.author?.name}
             {song.album?.name ? ` - ${song.album.name}` : ""} - {formatSeconds(song.duration)}
-            {cached ? "  ⬇" : ""}
           </Text>
         </View>
       </Pressable>
       {cached ? <CircleArrowDown size={16} color="#22c55e" /> : null}
-      <Pressable onPress={() => setMenuOpen(true)} hitSlop={12} style={{ padding: 4 }}>
+      <Pressable
+        onPress={() => {
+          setCached(existsAudioInCache(song.youtubeId));
+          setMenuOpen(true);
+        }}
+        hitSlop={12}
+        style={{ padding: 4 }}
+      >
         <EllipsisVertical size={20} color="#e5e5e5" />
       </Pressable>
 
@@ -90,7 +97,7 @@ export function SongItem({
             <Text style={{ color: "#e5e5e5" }}>{t.SHARE}</Text>
           </View>
         </ActionMenuItem>
-        {trailing}
+        {typeof trailing === "function" ? trailing(() => setMenuOpen(false)) : trailing}
       </ActionMenu>
 
       <ActionMenu visible={playlistPickerOpen} onClose={() => setPlaylistPickerOpen(false)}>

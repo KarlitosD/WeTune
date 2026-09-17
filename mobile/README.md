@@ -44,6 +44,8 @@ Cuando exista la implementación real, nada más cambia: player
 - `localStorage/createPersistedSignal` → MMKV (`src/store/storage.ts`).
 - `DaisyUI Dropdown/dialog` → `ActionMenu` (bottom-sheet) y `Modal`.
 - Sin slider de volumen en UI (botones hardware del SO); el nivel persiste igual.
+- Idioma fijo al arrancar (`expo-localization`); cambiar idioma del SO requiere
+  reiniciar la app. El adapter react completo de typesafe-i18n queda para Fase 3b.
 
 ## Riesgo conocido
 
