@@ -9,6 +9,7 @@
     "serve": "vite preview",
     "vite": "vite --port=3000",
     "typesafe-i18n": "typesafe-i18n",
+    "applinks": "node scripts/generate-app-links.mjs",
     "tauri": "tauri"
   },
   "license": "MIT",
