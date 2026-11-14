@@ -55,11 +55,7 @@
         {
           "image": "./assets/splash.png",
           "imageWidth": 200,
-          "backgroundColor": "#0f172a",
-          "dark": {
-            "image": "./assets/splash.png",
-            "backgroundColor": "#0f172a"
-          }
+          "backgroundColor": "#0f172a"
         }
       ],
       "expo-sqlite"
