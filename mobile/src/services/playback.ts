@@ -1,6 +1,7 @@
 import TrackPlayer, { AppKilledPlaybackBehavior, Capability } from "react-native-track-player";
 import { fetchAudioUri } from "./offline-cache";
 import { getThumbnailUrl } from "~/utils/thumbnail";
+import { mediaHeaders } from "~/lib/youtube";
 import type { Song } from "~/db/schema";
 
 // Ops finas sobre TrackPlayer. Sin imports al store (el headless service
@@ -10,7 +11,13 @@ let ready = false;
 
 export async function ensurePlayer(): Promise<void> {
   if (ready) return;
-  await TrackPlayer.setupPlayer();
+  try {
+    await TrackPlayer.setupPlayer();
+  } catch (error) {
+    // El headless playback service comparte el player nativo ya inicializado
+    // por la UI: setupPlayer rechaza con este código y debe continuar.
+    if ((error as { code?: string })?.code !== "player_already_initialized") throw error;
+  }
   await TrackPlayer.updateOptions({
     capabilities: [
       Capability.Play,
@@ -30,8 +37,10 @@ export async function ensurePlayer(): Promise<void> {
 
 export async function loadSong(song: Song, autoplay = true): Promise<void> {
   await ensurePlayer();
-  // file:// si está en offline-cache, si no streaming (TODO audio-source).
+  // file:// si está en offline-cache, si no streaming (fetchYT on-device).
   const url = await fetchAudioUri(song.youtubeId, "lowest");
+  const headers = mediaHeaders(`https://www.youtube.com/watch?v=${song.youtubeId}`);
+  const { "User-Agent": userAgent, ...httpHeaders } = headers;
   await TrackPlayer.reset();
   await TrackPlayer.add({
     url,
@@ -39,6 +48,9 @@ export async function loadSong(song: Song, autoplay = true): Promise<void> {
     artist: song.author.name,
     album: song.album?.name,
     artwork: getThumbnailUrl(song.youtubeId),
+    // ExoPlayer debe enviar el mismo UA/Referer que usó el probe de fetchYT.
+    userAgent,
+    headers: httpHeaders,
   });
   if (autoplay) await TrackPlayer.play();
 }

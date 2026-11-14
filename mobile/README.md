@@ -37,25 +37,36 @@ La app declara App Links (`wetune.app/share/*`, ver `intentFilters` y
 Sin esos ficheros (más el SHA256 del keystore release), los links https
 abren el navegador en vez de la app. El scheme `wetune://` funciona sin nada.
 
-## Audio (placeholder)
+## Audio
 
-`src/lib/audio-source.ts::resolveAudioUrl` lanza `TODO` a posta: la descarga
-debe salir desde la IP del dispositivo (YouTube bloquea datacenters y las
-URLs van firmadas por IP). Para desarrollar UI usar
-`src/lib/audio-source.mock.ts` (MP3 de prueba).
+Implementado en `src/lib/youtube.ts` siguiendo el perfil mínimo de la
+especificación de `audio-downloader`: `visitorData` → player VISIONOS →
+selección AAC (descarta DRC/DRM/pistas no default) → probe `Range: bytes=0-0` →
+descarga por chunks de 2 MiB con validación estricta de `Content-Range` y
+tamaño. Todo se resuelve desde la IP del dispositivo; no pasa por el backend.
 
-Cuando exista la implementación real, nada más cambia: player
-(`src/store/usePlayerStore.ts`), offline-cache
-(`src/services/offline-cache.ts`) y pantallas ya dependen del contrato.
+- Streaming: `resolveAudioSource` devuelve la URL directa de `googlevideo`.
+- Offline: `downloadAudio` escribe el archivo validado con `FileHandle` en
+  `Paths.cache/audios` (índice en MMKV).
+- `src/services/playback.ts` pasa a TrackPlayer el `User-Agent` y `Referer` que
+  exige el media URL; sin ellos ExoPlayer recibe 403.
+- Test real opcional:
+  `YOUTUBE_INTEGRATION=1 npx vitest run src/lib/youtube.integration.test.ts`.
+
+Si YouTube rompe VISIONOS, actualizar el perfil desde
+`core/src/shared/client-profiles.json` del repo `audio-downloader`. InnerTube
+no es una API estable; este perfil no resuelve firmas ni PO Tokens.
 
 ## Notas de port
 
 - `context/playlist.tsx` → `src/store/usePlaylistStore.ts` (misma lógica:
   HISTORY, dedup, unshift, `setRandom`).
 - `SignalDB/IndexedDB` → `expo-sqlite + drizzle` (`src/db/`, `src/services/playlist.ts`).
-- `HTMLAudio + MediaSession` → `react-native-track-player` + headless service
-  (`src/services/playback-service.ts`, registrado en `index.ts`).
-- `Cache API` → `expo-file-system` (`Paths.cache/audios`) + índice en MMKV.
+- `HTMLAudio + MediaSession` → `react-native-track-player@5.0.0-alpha0` + headless
+  service (`src/services/playback-service.ts`); `package.json#main` debe ser
+  `index.ts` para registrarlo antes de que arranque el player.
+- `Cache API` → `expo-file-system` (`Paths.cache/audios`) + índice en MMKV,
+  con descarga por rangos validados (no `downloadFileAsync` a ciegas).
 - `localStorage/createPersistedSignal` → MMKV (`src/store/storage.ts`).
 - `DaisyUI Dropdown/dialog` → `ActionMenu` (bottom-sheet) y `Modal`.
 - Sin slider de volumen en UI (botones hardware del SO); el nivel persiste igual.
@@ -69,6 +80,11 @@ Cuando exista la implementación real, nada más cambia: player
 
 ## Riesgo conocido
 
-`expo-doctor` avisa que `react-native-track-player` figura sin soporte New
-Architecture en el directorio. Validar en el primer `prebuild`/dev-build;
-si falla, fallback: `expo-audio` + manejo manual de background.
+- `react-native-track-player@5.0.0-alpha0` es un TurboModule y compila/arranca
+  en RN 0.86, pero los controles remotos/lockscreen (play/pause vía MediaSession
+  y headless service) no quedaron verificados en el emulador. Validar en
+  dispositivo físico antes de release.
+- `expo-doctor` sigue marcando RNTP como "Unsupported on New Architecture" por
+  metadata desactualizado de React Native Directory; el build real usa codegen
+  TurboModule.
+- Quedan 6 paquetes Expo con patch desactualizado (`npx expo install --check`).

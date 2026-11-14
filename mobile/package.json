@@ -3,7 +3,7 @@
   "description": "WeTune mobile client - React Native + Expo",
   "license": "MIT",
   "version": "0.1.0",
-  "main": "expo-router/entry",
+  "main": "index.ts",
   "dependencies": {
     "@react-native-community/slider": "5.2.0",
     "@sinclair/typebox": "^0.34.52",
@@ -28,7 +28,7 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
     "react-native-svg": "15.15.4",
-    "react-native-track-player": "^4.1.2",
+    "react-native-track-player": "^5.0.0-alpha0",
     "typesafe-i18n": "^5.27.1",
     "zustand": "^5.0.15"
   },

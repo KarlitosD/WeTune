@@ -1,6 +1,6 @@
-import { Directory, File, Paths } from "expo-file-system";
+import { Directory, File, FileMode, Paths } from "expo-file-system";
 import { mmkv } from "~/store/storage";
-import { resolveAudioUrl, type Quality } from "~/lib/audio-source";
+import { downloadAudio, resolveAudioSource, type Quality } from "~/lib/audio-source";
 
 // Puerto de web ~/services/cache (Cache API "audios" + ReactiveSet en
 // localStorage) a expo-file-system + MMKV.
@@ -40,17 +40,38 @@ export function listCachedAudioIds(): string[] {
   return readIndex();
 }
 
-/** file:// local si está descargado, si no resuelve streaming (TODO). */
+/** file:// local si está descargado, si no resuelve streaming. */
 export async function fetchAudioUri(id: string, quality: Quality = "lowest"): Promise<string> {
   const file = audioFile(id);
   if (existsAudioInCache(id) && file.exists) return file.uri;
-  return resolveAudioUrl(id, quality);
+  const source = await resolveAudioSource(id, quality);
+  return source.url;
 }
 
 export async function addAudioToCache(id: string, quality: Quality = "highest"): Promise<string> {
   if (existsAudioInCache(id) && audioFile(id).exists) return audioFile(id).uri;
-  const url = await resolveAudioUrl(id, quality);
-  const file = await File.downloadFileAsync(url, audioFile(id));
+  const source = await resolveAudioSource(id, quality);
+  const file = audioFile(id);
+  if (file.exists) file.delete();
+  file.create();
+  const handle = file.open(FileMode.WriteOnly);
+  try {
+    const total = await downloadAudio(source, {
+      onChunk: (bytes) => handle.writeBytes(bytes),
+    });
+    if (file.size !== total) {
+      throw new Error(`[audio] archivo incompleto: ${file.size}/${total} bytes`);
+    }
+  } catch (error) {
+    try {
+      file.delete();
+    } catch {
+      // El archivo parcial puede no existir.
+    }
+    throw error;
+  } finally {
+    handle.close();
+  }
   writeIndex([...readIndex(), id]);
   return file.uri;
 }
