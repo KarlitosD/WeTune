@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
+import { playbackService } from "~/services/playback-service";
 import { theme } from "~/theme";
 import MiniPlayer from "~/components/MiniPlayer";
 import PlayerSheet from "~/components/PlayerSheet";
@@ -12,6 +13,9 @@ import Toasts from "~/components/Toasts";
 // Equivale a web ~/app.tsx (providers) + ~/layouts/main.tsx (player fijo).
 export default function RootLayout() {
   useEffect(() => {
+    // Fallback para RNTP 5 alpha: el headless service no siempre recibe los
+    // botones de la notificación; estos listeners viven en el runtime principal.
+    void playbackService();
     void usePlaylistStore
       .getState()
       .hydrate()

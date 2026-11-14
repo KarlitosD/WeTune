@@ -16,7 +16,14 @@ async function withHydrated(fn: () => Promise<void> | void) {
   }
 }
 
+// El headless service de RNTP 5 alpha no siempre entrega los eventos remotos
+// al JS. El mismo listener se registra también desde el contexto principal
+// (ver app/_layout.tsx); este flag evita duplicados dentro de cada runtime.
+let attached = false;
+
 export async function playbackService() {
+  if (attached) return;
+  attached = true;
   TrackPlayer.addEventListener(Event.RemotePlay, () => void withHydrated(() => usePlayerStore.getState().play()));
   TrackPlayer.addEventListener(Event.RemotePause, () => void withHydrated(() => usePlayerStore.getState().pause()));
   TrackPlayer.addEventListener(Event.RemoteNext, () => void withHydrated(() => usePlayerStore.getState().handleNext()));

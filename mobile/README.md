@@ -27,15 +27,24 @@ Copiar `.env.example` a `.env`:
 ## Deep links https
 
 La app declara App Links (`wetune.app/share/*`, ver `intentFilters` y
-`associatedDomains` en `app.json`). Falta la contraparte en el servidor web:
+`associatedDomains` en `app.json`). El generador de los archivos del dominio es
+`scripts/generate-app-links.mjs`:
 
-- `https://wetune.app/.well-known/assetlinks.json`:
-  `[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"com.wetune.dev","sha256_cert_fingerprints":["<SHA256_RELEASE_AÚN_NO_GENERADO>"]}}]`
-- `https://wetune.app/.well-known/apple-app-site-association` (sin extensión):
-  `{"applinks":{"apps":[],"details":[{"appID":"<TEAMID>.com.wetune.dev","paths":["/share/*"]}]}}`
+```bash
+ANDROID_SHA256="AA:BB:...:FF" APPLE_TEAM_ID="XXXXXXXXXX" \
+  node scripts/generate-app-links.mjs
+```
 
-Sin esos ficheros (más el SHA256 del keystore release), los links https
-abren el navegador en vez de la app. El scheme `wetune://` funciona sin nada.
+- `public/.well-known/assetlinks.json` está generado con el fingerprint del
+  debug keystore actual para poder probar en desarrollo; antes de publicar hay
+  que añadir el SHA-256 del keystore de **release**.
+- `public/.well-known/apple-app-site-association` no existe todavía: falta el
+  `APPLE_TEAM_ID`.
+- `wetune.app` hoy responde con un lander HTML (114 bytes), no con el build web;
+  mientras siga así, ningún App Link https verificará. El scheme `wetune://`
+  funciona sin nada.
+- `apple-app-site-association` debe servirse con `Content-Type: application/json`
+  y sin extensión.
 
 ## Audio
 
@@ -62,6 +71,9 @@ no es una API estable; este perfil no resuelve firmas ni PO Tokens.
 - `context/playlist.tsx` → `src/store/usePlaylistStore.ts` (misma lógica:
   HISTORY, dedup, unshift, `setRandom`).
 - `SignalDB/IndexedDB` → `expo-sqlite + drizzle` (`src/db/`, `src/services/playlist.ts`).
+- Las respuestas del backend se validan con TypeBox en `src/api/client.ts`;
+  `/api/song` inválido ahora produce un error amigable en lugar de un
+  `NOT NULL constraint failed` en SQLite.
 - `HTMLAudio + MediaSession` → `react-native-track-player@5.0.0-alpha0` + headless
   service (`src/services/playback-service.ts`); `package.json#main` debe ser
   `index.ts` para registrarlo antes de que arranque el player.
@@ -78,13 +90,21 @@ no es una API estable; este perfil no resuelve firmas ni PO Tokens.
   `FOREGROUND_SERVICE*` del player los fusiona Gradle desde el AAR
   (no aparecen en el manifest de prebuild, es lo esperado).
 
+## EAS
+
+`eas.json` tiene los perfiles `development`, `preview` y `production`, pero
+falta `eas login` + `eas init` para crear `extra.eas.projectId`. Sin esa sesión
+no se pueden lanzar builds/submits cloud; por ahora el build local es
+`npx expo run:android`.
+
 ## Riesgo conocido
 
 - `react-native-track-player@5.0.0-alpha0` es un TurboModule y compila/arranca
-  en RN 0.86, pero los controles remotos/lockscreen (play/pause vía MediaSession
-  y headless service) no quedaron verificados en el emulador. Validar en
-  dispositivo físico antes de release.
-- `expo-doctor` sigue marcando RNTP como "Unsupported on New Architecture" por
-  metadata desactualizado de React Native Directory; el build real usa codegen
-  TurboModule.
-- Quedan 6 paquetes Expo con patch desactualizado (`npx expo install --check`).
+  en RN 0.86. Los eventos remotos se registran también en el runtime principal
+  como fallback del headless service (ver `app/_layout.tsx`); validar lockscreen
+  y Bluetooth en un dispositivo físico antes de release.
+- `expo-doctor` marca RNTP como "Unsupported on New Architecture" por metadata
+  desactualizado de React Native Directory; el build real usa codegen TurboModule.
+- `expo-sqlite@57.0.5` publica un AAR con `libexpo-sqlite.so` solo para
+  `arm64-v8a`. `mobile/package.json` fuerza `expo.autolinking.buildFromSource`
+  para compilarlo desde fuente y que funcione en emuladores x86_64.

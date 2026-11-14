@@ -10,9 +10,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.wetune.dev",
-      "associatedDomains": ["applinks:wetune.app"],
+      "associatedDomains": [
+        "applinks:wetune.app"
+      ],
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "android": {
@@ -34,7 +38,10 @@
               "pathPrefix": "/share"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -54,7 +61,8 @@
             "backgroundColor": "#0f172a"
           }
         }
-      ]
+      ],
+      "expo-sqlite"
     ]
   }
 }
