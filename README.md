@@ -1,41 +1,80 @@
-## Usage
+# WeTune
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+Cliente de música personal para crear playlists desde YouTube, escucharlas y
+guardarlas offline. Esta rama es **Expo-only**: la app móvil es el único cliente
+del producto.
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+El backend es externo (`/api/...`); este repo contiene la app, los artefactos de
+App Links y el branding.
+
+## Estructura
+
+| Ruta | Qué contiene |
+| --- | --- |
+| `mobile/` | App React Native + Expo Router, SQLite/Drizzle, MMKV, TrackPlayer |
+| `app-links/` | Generador y README de `.well-known` + plan del share web |
+| `brand/` | Fuente del logo/icono |
+| `.github/workflows/mobile.yml` | Typecheck, lint, tests y export Android |
+
+La app no usa Expo Go: requiere un **development build** por los módulos nativos
+(`react-native-track-player`, `react-native-mmkv`, `expo-sqlite`,
+`expo-file-system`).
+
+## Desarrollo
 
 ```bash
-$ npm install # or pnpm install or yarn install
+cd mobile
+npm ci
+npm start
 ```
 
-## Exploring the template
+En otra terminal, con un emulador/dispositivo:
 
-This template's goal is to showcase the routing features of Solid.
-It also showcase how the router and Suspense work together to parallelize data fetching tied to a route via the `.data.ts` pattern.
+```bash
+cd mobile
+npm run android   # o npm run ios en macOS
+```
 
-You can learn more about it on the [`@solidjs/router` repository](https://github.com/solidjs/solid-router)
+Checks:
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+```bash
+cd mobile
+npm run typecheck
+npm run lint
+npm test
+npm run i18n      # tras cambiar en/ o es/
+```
 
-## Available Scripts
+Variables públicas en `mobile/.env`:
 
-In the project directory, you can run:
+- `EXPO_PUBLIC_API_URL`: backend Nitro.
+- `EXPO_PUBLIC_WEB_URL`: base de los links de share.
 
-### `npm dev` or `npm start`
+No pongas secretos en variables `EXPO_PUBLIC_*`: se bundlean en la app.
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## App Links y share
 
-The page will reload if you make edits.<br>
+Los archivos de asociación se generan aparte y se despliegan en `wetune.app`:
 
-### `npm run build`
+```bash
+ANDROID_SHA256="AA:BB:...:FF" \
+APPLE_TEAM_ID="XXXXXXXXXX" \
+node app-links/scripts/generate-app-links.mjs
+```
 
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
+Ver [app-links/README.md](app-links/README.md). El share público
+(`/share/song`) todavía no tiene sitio; es un bloqueo de release.
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+## Estado
 
-## Deployment
+- La app Expo cubre playlists, búsqueda, detalle, player, descargas, share,
+  i18n, offline, rediseño, chips (Todas/Recientes/Favoritas/Descargadas),
+  schema v2 y “Add songs”.
+- La versión Tauri/web y el target Android de Tauri fueron retirados de esta
+  rama. El desktop ya no es un target.
+- No hay migración de datos: no había usuarios previos.
+- Release pendiente: EAS, keystore, applicationId final, App Links, sitio de
+  share y metadata de stores.
 
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+Más detalle: [mobile/README.md](mobile/README.md),
+[docs/expo-migration.md](docs/expo-migration.md) y [AGENTS.md](AGENTS.md).

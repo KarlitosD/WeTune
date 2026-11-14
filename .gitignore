@@ -1,8 +1,16 @@
 node_modules
 dist
+
 .env
-.vercel
-# Local Netlify folder
-.netlify
-bun.lockb
-package-lock.json
+.env.*
+!.env.example
+
+.expo
+
+# Signing material nunca se versiona.
+*.jks
+*.keystore
+
+# App Links generados con identidad de release.
+app-links/.well-known/assetlinks.json
+app-links/.well-known/apple-app-site-association

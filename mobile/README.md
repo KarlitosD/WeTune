@@ -1,20 +1,21 @@
 # WeTune Mobile (React Native + Expo, SDK 57)
 
-Port de la web SolidJS/Tauri. El backend Nitro **no** se migra: se reutiliza
-(`EXPO_PUBLIC_API_URL`).
+Cliente único de WeTune. El backend Nitro es externo y se reutiliza
+(`EXPO_PUBLIC_API_URL`). La web/Tauri y el target Android de Tauri se retiraron;
+no hay migración de datos porque no hubo usuarios previos.
 
 ## Requisitos
 
 - **No funciona en Expo Go.** Usa módulos nativos (`react-native-track-player`,
-  `react-native-mmkv`, `expo-sqlite`) → development build:
+  `react-native-mmkv`, `expo-sqlite`, `expo-file-system`) → development build:
   `npx expo run:android` / `npx expo run:ios` o EAS (`eas build --profile development`).
 
 ## Env
 
 Copiar `.env.example` a `.env`:
 
-- `EXPO_PUBLIC_API_URL` — backend Nitro (igual que `VITE_API_URL` en web).
-- `EXPO_PUBLIC_WEB_URL` — web pública para links `/share/song`.
+- `EXPO_PUBLIC_API_URL` — backend Nitro.
+- `EXPO_PUBLIC_WEB_URL` — base pública de los links de share.
 
 ## Scripts
 
@@ -23,26 +24,28 @@ Copiar `.env.example` a `.env`:
 - `npm run typecheck` — `tsc --noEmit` (strict + noUnusedLocals/Parameters).
 - `npm run lint` — ESLint (config Expo).
 - `npm run test` — Vitest (lógica pura: utils, api client, schema, audio contract).
+- `npm run i18n` — regenera `src/i18n/i18n-types.ts` tras cambiar las traducciones en `en/` o `es/`.
 
 ## Deep links https
 
 La app declara App Links (`wetune.app/share/*`, ver `intentFilters` y
-`associatedDomains` en `app.json`). El generador de los archivos del dominio es
-`scripts/generate-app-links.mjs`:
+`associatedDomains` en `app.json`). El generador vive en el proyecto de
+artefactos de dominio y se ejecuta desde la raíz del repo:
 
 ```bash
 ANDROID_SHA256="AA:BB:...:FF" APPLE_TEAM_ID="XXXXXXXXXX" \
-  node scripts/generate-app-links.mjs
+  node app-links/scripts/generate-app-links.mjs
 ```
 
 - No hay `assetlinks.json`/AASA versionados: el generador exige el SHA-256 del
   keystore de **release** y el `APPLE_TEAM_ID`. El fingerprint de debug solo
   sirve para pruebas locales y no debe ser el único.
-- `public/.well-known/apple-app-site-association` no existe todavía: falta el
-  `APPLE_TEAM_ID`.
-- `wetune.app` hoy responde con un lander HTML (114 bytes), no con el build web;
+- El output queda en `app-links/.well-known/`; está ignorado por git.
+- `wetune.app` hoy responde con un lander y no sirve los archivos de asociación;
   mientras siga así, ningún App Link https verificará. El scheme `wetune://`
   funciona sin nada.
+- El share público (`/share/song`) todavía no tiene sitio. Ver
+  `app-links/README.md`.
 - `apple-app-site-association` debe servirse con `Content-Type: application/json`
   y sin extensión.
 
@@ -56,7 +59,8 @@ tamaño. Todo se resuelve desde la IP del dispositivo; no pasa por el backend.
 
 - Streaming: `resolveAudioSource` devuelve la URL directa de `googlevideo`.
 - Offline: `downloadAudio` escribe el archivo validado con `FileHandle` en
-  `Paths.cache/audios` (índice en MMKV).
+  `Paths.document/audios` (índice en MMKV). Va a Documents, no a Cache, para que
+  el SO no purgue las descargas.
 - `src/services/playback.ts` pasa a TrackPlayer el `User-Agent` y `Referer` que
   exige el media URL; sin ellos ExoPlayer recibe 403.
 - Test real opcional:
@@ -66,36 +70,47 @@ Si YouTube rompe VISIONOS, actualizar el perfil desde
 `core/src/shared/client-profiles.json` del repo `audio-downloader`. InnerTube
 no es una API estable; este perfil no resuelve firmas ni PO Tokens.
 
-## Notas de port
+## Notas de implementación
 
-- `context/playlist.tsx` → `src/store/usePlaylistStore.ts` (misma lógica:
-  HISTORY, dedup, unshift, `setRandom`).
-- `SignalDB/IndexedDB` → `expo-sqlite + drizzle` (`src/db/`, `src/services/playlist.ts`).
+- Playlists: `src/store/usePlaylistStore.ts` (HISTORY, dedup, unshift,
+  `setRandom`).
+- Persistencia: `expo-sqlite + drizzle` (`src/db/`, `src/services/playlist.ts`).
+- DB local v2: `playlists.favorite` y `playlists.last_played_at`.
+  `migrateIfNeeded()` en `src/db/client.ts` agrega las columnas a una DB v1 sin
+  perder datos.
 - Las respuestas del backend se validan con TypeBox en `src/api/client.ts`;
-  `/api/song` inválido ahora produce un error amigable en lugar de un
+  `/api/song` inválido produce un error amigable en lugar de un
   `NOT NULL constraint failed` en SQLite.
-- `HTMLAudio + MediaSession` → `react-native-track-player@5.0.0-alpha0` + headless
-  service (`src/services/playback-service.ts`); `package.json#main` debe ser
-  `index.ts` para registrarlo antes de que arranque el player.
-- `Cache API` → `expo-file-system` (`Paths.cache/audios`) + índice en MMKV,
-  con descarga por rangos validados (no `downloadFileAsync` a ciegas).
-- `localStorage/createPersistedSignal` → MMKV (`src/store/storage.ts`).
-- `DaisyUI Dropdown/dialog` → `ActionMenu` (bottom-sheet) y `Modal`.
+- Playback: `react-native-track-player@5.0.0-alpha0` + headless service
+  (`src/services/playback-service.ts`); `package.json#main` debe ser `index.ts`
+  para registrarlo antes de que arranque el player.
+- Offline: `expo-file-system` (`Paths.document/audios`) + índice en MMKV, con
+  descarga por rangos validados (no `downloadFileAsync` a ciegas).
+- Settings/index: MMKV (`src/store/storage.ts`).
+- Menús: `ActionMenu` (bottom-sheet) y `Modal`.
 - Sin slider de volumen en UI (botones hardware del SO); el nivel persiste igual.
 - Idioma fijo al arrancar (`expo-localization`); cambiar idioma del SO requiere
   reiniciar la app. El adapter react completo de typesafe-i18n queda para Fase 3b.
-- Branding generado desde web `LogoApp.svg` (`assets/icon.png`,
-  `android-icon-*.png`, `splash.png`, `favicon.png`); refinable por diseño.
+- Branding: `brand/icon.svg` y `brand/icon.png`; los assets de la app están en
+  `assets/` (`icon.png`, `android-icon-*.png`, `splash.png`, `favicon.png`).
 - Verificado por prebuild: scheme `wetune://` en el manifest; los permisos
   `FOREGROUND_SERVICE*` del player los fusiona Gradle desde el AAR
   (no aparecen en el manifest de prebuild, es lo esperado).
 
-## EAS
+## EAS y release
 
 `eas.json` tiene los perfiles `development`, `preview` y `production`, pero
 falta `eas login` + `eas init` para crear `extra.eas.projectId`. Sin esa sesión
 no se pueden lanzar builds/submits cloud; por ahora el build local es
 `npx expo run:android`.
+
+Pendientes antes de publicar:
+
+- Keystore de release nuevo y applicationId final (hoy `com.wetune.dev`).
+- App Links desplegados en `wetune.app`.
+- Sitio mínimo de share.
+- Build/test iOS.
+- QA de dispositivo: lockscreen/Bluetooth, descargas, share.
 
 ## Riesgo conocido
 

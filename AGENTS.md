@@ -1,163 +1,149 @@
-# WeTune - Agent Guidelines
+# WeTune — Agent Guide
 
-## Tech Stack
-- **Frontend**: SolidJS (JSX, reactive signals), TypeScript, Tailwind CSS + DaisyUI
-- **Desktop**: Tauri v2 (Rust backend, cross-platform)
-- **Database**: SignalDB with IndexedDB adapter
-- **Build**: Vite 7.x
-- **i18n**: typesafe-i18n
+## Working agreement
 
-## Available Commands
+- Prioritize correctness, readability, minimal functional scope, then clear
+  verification.
+- Inspect the relevant code before editing. Follow nearby conventions rather than
+  introducing a new architecture, dependency, or formatting style.
+- Start with `git status --short`. Preserve unrelated and in-progress changes;
+  never reset, discard, or reformat them to simplify your task.
+- For bugs, reproduce the failure and add a regression check at an existing test
+  seam when practical. Fix the cause, not the symptom.
+- Keep small tasks small. Use subagents only for genuinely independent work or
+  broad investigation, not routine edits.
+- Never commit credentials, cookies, signing material, or local `.env` files.
 
-```bash
-# Development (runs typesafe-i18n watcher + Vite dev server)
-npm run dev
+This branch is **Expo-only**. The legacy Solid/Vite/Tauri client and the Tauri
+Android target were retired. Do not reintroduce them or add web/desktop code
+without an explicit product decision.
 
-# Production build
-npm run build
+## Repository map
 
-# Preview production build
-npm run serve
+| Path | Stack and responsibilities |
+| --- | --- |
+| `mobile/` | React Native + Expo SDK 57, Expo Router, TypeScript |
+| `app-links/` | App Links generator + deployment notes for `wetune.app` |
+| `brand/` | Logo/icon source assets |
+| `.github/workflows/mobile.yml` | Typecheck, lint, tests, Android JS export |
+| `docs/expo-migration.md` | Why web/Tauri was retired and what was/wasn't ported |
 
-# Tauri commands
-npm run tauri <command>  # e.g., `npm run tauri dev`, `npm run tauri build`
-```
+The API backend is external to this repository. The mobile app uses
+`EXPO_PUBLIC_API_URL` (public, bundled; never put secrets there).
 
-**No test runner configured** - Add testing infrastructure before writing tests.
+Read `mobile/README.md` before mobile audio, native-build, App Links, or release
+work. Use `mobile/package.json` and `mobile/app.json` as the source of truth for
+commands and versions.
 
-## Code Style Guidelines
+## Commands and verification — `cd mobile`
 
-### Imports & Path Aliases
-- Use `~` alias for src directory imports: `~/components/...`, `~/utils/...`, etc.
-- Import order: 1) External dependencies, 2) Internal with `~` alias, 3) Relative imports
-- Group imports by type (React/Solid primitives, types, components, utils)
-- Use barrel exports (`index.ts`) for component groups (e.g., Icons, services)
+| Command | Purpose |
+| --- | --- |
+| `npm ci` | Install locked dependencies |
+| `npm start` | Start Metro |
+| `npm run android` / `npm run ios` | Build/run locally; requires Android SDK / Xcode |
+| `npm run typecheck` | Strict TypeScript check, including unused locals/parameters |
+| `npm run lint` | ESLint with Expo configuration |
+| `npm test` | Vitest (`src/**/*.test.ts`, Node environment) |
+| `npm test -- src/utils/seconds.test.ts` | Run a targeted test file |
+| `npm run i18n` | Regenerate `src/i18n/i18n-types.ts` after changing `en/` or `es/` |
 
-```typescript
-import { createSignal, createEffect } from "solid-js"
-import type { Song } from "~/db/schema"
-import { fetchAudioURL } from "~/services/cache"
-import { formatSeconds } from "~/utils/seconds"
-```
+Mobile CI runs typecheck, lint, tests, then `npx expo export --platform android`.
+Export verifies bundling, not native compilation or device behavior.
 
-### Component Conventions
-- Use PascalCase for component files and exports (`AudioPlayer.tsx`)
-- Define props interfaces before the component function
-- Use PascalCase for component prop types with descriptive names
-- Export default for main component, named exports for utilities
+Live integration tests are opt-in:
 
-```typescript
-type AudioPlayerProps = {
-    selected: PlaylistContextData["selected"]
-    song: PlaylistContextData["selected"]["song"]
-}
+- API: `API_INTEGRATION=1 EXPO_PUBLIC_API_URL=<backend-url> npx vitest run src/api/client.integration.test.ts`
+- YouTube: `YOUTUBE_INTEGRATION=1 npx vitest run src/lib/youtube.integration.test.ts`
 
-export default function AudioPlayer(props: AudioPlayerProps) {
-    // ...
-}
-```
+There is no root package, test, lint, or typecheck script. Run commands from
+`mobile/`.
 
-### TypeScript & Types
-- Use `@sinclair/typebox` for runtime validation schemas in `src/db/schema.ts`
-- Export types from TypeBox schemas: `export type Song = Static<typeof songSchema>`
-- Prefer explicit type annotations for function parameters
-- Use `Accessor<T>` for signal arguments, direct return values for signals
-- Avoid `any` - never suppress type errors
+Expo Go is **not supported**: the app needs a native development build because of
+`react-native-track-player`, `react-native-mmkv`, `expo-sqlite`, and
+`expo-file-system`. JS tests/export do not verify lockscreen/Bluetooth controls;
+exercise those on a device before a playback release.
 
-### SolidJS Reactive Patterns
-- Use `createSignal` for primitive state, `createMemo` for derived state
-- Use `createEffect` for side effects, `onCleanup` for cleanup
-- Use `createMutable` for objects with internal mutability (like `selected` in context)
-- Wrap related state updates in `batch()` to avoid unnecessary re-renders
-- Call signals as functions: `volume()`, not `volume`
+## App architecture
 
-```typescript
-const [playing, setPlaying] = createSignal(false)
-const volumeLevel = () => volume() ** 2
+- Expo Router screens live in `mobile/app/`; reusable code in `mobile/src/`.
+- Use React hooks, Zustand stores (`src/store/`), React Native components, and
+  tokens from `src/theme.ts`. Solid primitives and DaisyUI do not apply.
+- API calls and TypeBox response validation belong in `src/api/client.ts`.
+  `EXPO_PUBLIC_WEB_URL` is only for public share links.
+- Playlists persist in SQLite + Drizzle; settings/indexes in MMKV.
+- Playback uses `react-native-track-player`. Preserve `package.json`'s
+  `main: "index.ts"` and top-level playback-service registration in `index.ts`.
+- Audio resolves on the device (`src/lib/youtube.ts`), not through the backend.
+  Preserve byte-range/content-length validation and required request headers.
+- Offline audio lives in `Paths.document/audios` and is indexed in MMKV
+  (`src/services/offline-cache.ts`). Do not move downloads back to `Paths.cache`:
+  the OS can purge it.
+- i18n sources are `src/i18n/en/` and `src/i18n/es/`; `i18n-types.ts` is
+  generated by `npm run i18n`, never hand-edited.
 
-// Batch updates together
-batch(() => {
-    setVolume(lastVolumeLevel())
-    setLastVolumeLevel(volumeLevel)
-})
-```
+## Persistence and migrations
 
-### Naming Conventions
-- **Components**: PascalCase (`AudioPlayer`, `PlaylistCard`)
-- **Functions**: camelCase (`createAudio`, `playSong`, `handleDownload`)
-- **Event handlers**: `handle*` prefix (`handlePrevious`, `handleNext`, `handleSubmit`)
-- **Constants**: SCREAMING_SNAKE_CASE only for true constants (`PLAYLISTS.HISTORY`)
-- **Signals**: descriptive names with `get` prefix if accessor pattern (`getYoutubeId()`)
+`src/db/client.ts` owns an explicit SQLite DDL and `DB_VERSION`. When changing
+the schema:
 
-### Error Handling
-- Throw descriptive `Error` objects for validation failures
-- Return early on preconditions: `if(!playlistId || !song) throw new Error("PlaylistId and song are required")`
-- Use async/await for all async operations
-- No empty catch blocks - always handle errors appropriately
+1. Update `src/db/drizzle-schema.ts` and the DDL in `client.ts`.
+2. Bump `DB_VERSION`.
+3. Add an idempotent step in `migrateIfNeeded()` (check `PRAGMA table_info` or
+   equivalent) that preserves existing rows.
+4. Update the TypeBox shape in `src/db/schema.ts` only for fields that cross a
+   boundary; local-only fields stay optional or outside API validation.
+5. Test migration from the previous version on a real DB, not only a fresh one.
 
-### Styling (Tailwind + DaisyUI)
-- Use `class` attribute (not `className`) for SolidJS
-- Leverage DaisyUI utility classes: `btn`, `input`, `modal`, `dialog`, `divider`
-- Use `classList={{ "active": condition }}` for conditional classes
-- Responsive design: prefix mobile-first, use `sm:` for larger screens
-- Size utilities: `text-3xl`, `w-32`, `h-32`, `p-4`, `gap-2`, etc.
+Raising `DB_VERSION` alone is not a migration. Never drop/recreate tables with
+user data to “fix” a version mismatch.
 
-### File Organization
-```
-src/
-├── components/        # UI components (PascalCase files)
-│   ├── Icons/         # Icon components with barrel export (index.ts)
-│   └── Layout/        # Layout components
-├── hooks/             # Custom Solid hooks (create* pattern)
-├── context/           # Solid contexts with Provider + use* hook
-├── services/          # Business logic, API calls, data layer
-├── utils/             # Pure utility functions
-├── db/                # Database schemas and access
-├── types/             # Type definitions (avoid if using schema exports)
-├── pages/             # Route components with .data.ts for data fetching
-└── router/            # Route definitions
-```
+Current schema: v2 (`playlists.favorite`, `playlists.last_played_at`). The v1→v2
+migration backfills both columns with defaults.
 
-### Icon Components
-- Wrap lucide-solid icons in thin wrapper components
-- Export from `index.ts` barrel file
-- Pass through all props using spread operator
+## App Links and share
 
-```typescript
-export default function IconPlay(props: IconProps) {
-    return <Play {...props} />
-}
-```
+- `app-links/scripts/generate-app-links.mjs` writes release association files to
+  `app-links/.well-known/`. They are deployed to `wetune.app`, not bundled in the
+  app.
+- Never commit `assetlinks.json`/AASA generated with a debug-only fingerprint.
+  Include the release signing identity; debug fingerprints may be added, never
+  alone.
+- The app handles `wetune://share/song?songId=...` and `/share/song`.
+- The public share landing at `wetune.app/share/song` is still pending. The
+  domain currently returns a lander; this is a release blocker, not an app bug.
+- Keep `mobile/app.json` identifiers, signing fingerprints, and the generated
+  association files consistent.
 
-### Data Fetching & API
-- Use custom `fetch` wrapper from `~/utils/fetch` (handles Tauri vs web)
-- Tauri builds use `@tauri-apps/plugin-http`, web builds use native fetch
-- API URLs from `~/config` with `getApiUrl()`
-- Cache API responses in Cache API for offline support
+## Coding conventions
 
-### i18n (Internationalization)
-- Get context: `const { LL } = useI18nContext()`
-- Use `LL()` to access translations: `LL().PLAYLISTS()`, `LL().SONGS_IN_PLAYLIST({ songs: count })`
-- Run `npm run dev` to start typesafe-i18n watcher
-- Locale files in `src/i18n/` with formatters in `src/i18n/formatters.ts`
+- Use `~/...` for imports from `mobile/src/`; group external imports, internal
+  alias imports, then relative imports. Use `import type` for type-only imports.
+- Descriptive camelCase functions; PascalCase components/prop types. Preserve
+  each file's existing formatting; no drive-by cleanup.
+- Avoid `any`, type-error suppressions, and empty catches. Validate external
+  data at boundaries with the existing TypeBox schemas and expose useful errors.
+- Separate logical stages with blank lines. Prefer guard clauses to deep
+  nesting. Extract helpers to name a cohesive responsibility, not just to shorten
+  a function.
+- Comments explain rationale, invariants, or recovery decisions—not headers
+  everywhere.
+- Use `theme.ts` tokens (colors, spacing, radius, typography) rather than new
+  hardcoded values. Keep the dark navy + cyan identity.
+- Keep string keys in both `en/` and `es/`; run `npm run i18n`.
+- Do not add dependencies casually. Prefer existing Expo/RN modules and the
+  current design system.
 
-### State Persistence
-- Use `createPersistedSignal` from `~/hooks/createPersistedSignal` for localStorage
-- Pass key and default value: `const [volume, setVolume] = createPersistedSignal("volume", 0.5)`
+## Release status (2026-11-14)
 
-### Audio Caching
-- Audio files cached using Cache API (`audios` cache)
-- Track cached IDs in ReactiveSet persisted to localStorage
-- Use `~/services/cache` for audio caching operations
+Not release-ready yet:
 
-## Tauri-Specific Notes
-- Rust backend in `src-tauri/`
-- Use `@tauri-apps/plugin-http` for HTTP requests in Tauri builds
-- Check for Tauri environment: `typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window`
-- Tauri dev server runs on fixed port (see vite.config.ts)
+- EAS project/login, release keystore, and final `applicationId` are pending.
+  `com.wetune.dev` is still a development identifier.
+- App Links are not deployed; `wetune.app/.well-known/*` is a lander.
+- No public share landing.
+- iOS build/test is pending (EAS; no local macOS).
+- Device QA for lockscreen/Bluetooth, offline downloads, and share is pending.
 
-## When in Doubt
-- Follow existing patterns in the codebase
-- Check similar components/files for conventions
-- SolidJS docs: https://www.solidjs.com
-- Tauri docs: https://tauri.app
+The old Tauri signing keystore was removed from the tree but remains in git
+history. Treat it as compromised; rotate it and do not reuse it for Expo.
