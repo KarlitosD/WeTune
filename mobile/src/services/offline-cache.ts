@@ -2,11 +2,9 @@ import { Directory, File, FileMode, Paths } from "expo-file-system";
 import { mmkv } from "~/store/storage";
 import { downloadAudio, resolveAudioSource, type Quality } from "~/lib/audio-source";
 
-// Puerto de web ~/services/cache (Cache API "audios" + ReactiveSet en
-// localStorage) a expo-file-system + MMKV.
-// NOTE: addAudioToCache/fetchAudioUri lanzan el TODO de audio-source
-// hasta que la nueva implementación cliente exista. removeAudioFromCache
-// y existsAudioInCache funcionan desde ya.
+// Descargas offline en expo-file-system + índice en MMKV.
+// Van a Documents, no a Cache: el SO puede purgar Cache y el usuario pierde
+// sus descargas. addAudioToCache/fetchAudioUri dependen de audio-source.
 
 const CACHE_KEY = "audioCached";
 
@@ -19,11 +17,11 @@ function readIndex(): string[] {
 }
 
 function writeIndex(ids: string[]) {
-  mmkv.set(CACHE_KEY, JSON.stringify(ids));
+  mmkv.set(CACHE_KEY, JSON.stringify([...new Set(ids)]));
 }
 
 function audioDir(): Directory {
-  const dir = new Directory(Paths.cache, "audios");
+  const dir = new Directory(Paths.document, "audios");
   if (!dir.exists) dir.create();
   return dir;
 }
@@ -33,23 +31,23 @@ function audioFile(id: string): File {
 }
 
 export function existsAudioInCache(id: string): boolean {
-  return readIndex().includes(id);
+  return readIndex().includes(id) && audioFile(id).exists;
 }
 
 export function listCachedAudioIds(): string[] {
-  return readIndex();
+  return readIndex().filter((id) => audioFile(id).exists);
 }
 
 /** file:// local si está descargado, si no resuelve streaming. */
 export async function fetchAudioUri(id: string, quality: Quality = "lowest"): Promise<string> {
   const file = audioFile(id);
-  if (existsAudioInCache(id) && file.exists) return file.uri;
+  if (existsAudioInCache(id)) return file.uri;
   const source = await resolveAudioSource(id, quality);
   return source.url;
 }
 
 export async function addAudioToCache(id: string, quality: Quality = "highest"): Promise<string> {
-  if (existsAudioInCache(id) && audioFile(id).exists) return audioFile(id).uri;
+  if (existsAudioInCache(id)) return audioFile(id).uri;
   const source = await resolveAudioSource(id, quality);
   const file = audioFile(id);
   if (file.exists) file.delete();
