@@ -51,6 +51,7 @@
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "i18n": "typesafe-i18n --no-watch"
   }
 }
