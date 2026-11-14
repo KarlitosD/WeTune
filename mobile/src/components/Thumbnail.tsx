@@ -1,7 +1,8 @@
 import { Image } from "expo-image";
+import { radius, theme } from "~/theme";
 import { getThumbnailUrl } from "~/utils/thumbnail";
 
-// Puerto de web ~/components/Thumbnail.
+// Thumbnail de YouTube con proxy y fallback de fondo.
 export default function Thumbnail({
   youtubeId,
   title,
@@ -15,7 +16,12 @@ export default function Thumbnail({
     <Image
       source={{ uri: getThumbnailUrl(youtubeId) }}
       alt={title}
-      style={{ width: size, height: size, borderRadius: 4, backgroundColor: "#262626" }}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: radius.sm,
+        backgroundColor: theme.base300,
+      }}
       contentFit="cover"
     />
   );

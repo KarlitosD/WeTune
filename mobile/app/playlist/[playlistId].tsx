@@ -1,32 +1,71 @@
 import { useState } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
-import { Link, router, useLocalSearchParams } from "expo-router";
-import { CircleArrowDown, EllipsisVertical, Pause, Play, Trash2 } from "lucide-react-native";
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { Image } from "expo-image";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  ArrowLeft,
+  CircleArrowDown,
+  EllipsisVertical,
+  Heart,
+  Music,
+  Pause,
+  Play,
+  Plus,
+  Shuffle,
+  Trash2,
+} from "lucide-react-native";
 import { PLAYLISTS } from "~/consts";
+import type { Song } from "~/db/schema";
 import { getDictionary } from "~/i18n";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { toast } from "~/store/useToastStore";
 import { addAudioToCache, existsAudioInCache } from "~/services/offline-cache";
+import { radius, spacing, theme, typography } from "~/theme";
+import { formatCount } from "~/utils/plural";
+import { getPlaylistTotalDuration } from "~/utils/playlist";
+import { formatTotalDuration } from "~/utils/seconds";
+import { getThumbnailUrl, Resolution } from "~/utils/thumbnail";
 import { SongItem } from "~/components/SongItem";
 import { ActionMenu, ActionMenuItem } from "~/components/ActionMenu";
-import { theme } from "~/theme";
+import MiniPlayer from "~/components/MiniPlayer";
+import SongPicker from "~/components/SongPicker";
 
-// Puerto de web ~/pages/playlist/[playlistId].tsx.
+// Detalle de playlist: hero, acciones y tracklist.
 export default function PlaylistPage() {
+  const t = getDictionary();
   const { playlistId } = useLocalSearchParams<{ playlistId: string }>();
   const playlists = usePlaylistStore((s) => s.playlists);
   const playlist = playlists.find((p) => p.id === playlistId);
 
   if (!playlist) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme.base100, alignItems: "center", justifyContent: "center", gap: 12 }}>
-        <Text style={{ color: "#fff", fontSize: 18 }}>Playlist not found</Text>
-        <Link href="/(tabs)" asChild>
-          <Pressable style={{ backgroundColor: "#404040", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10 }}>
-            <Text style={{ color: "#fff" }}>Home</Text>
-          </Pressable>
-        </Link>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.base100,
+          alignItems: "center",
+          justifyContent: "center",
+          gap: spacing.lg,
+          padding: spacing.xl,
+        }}
+      >
+        <Text style={{ color: theme.text, fontSize: 18, textAlign: "center" }}>
+          {t.PLAYLIST_NOT_FOUND}
+        </Text>
+        <Pressable
+          onPress={() => router.replace("/(tabs)")}
+          accessibilityRole="button"
+          style={{
+            backgroundColor: theme.primary,
+            borderRadius: radius.full,
+            paddingHorizontal: spacing.lg,
+            paddingVertical: 10,
+          }}
+        >
+          <Text style={{ color: theme.primaryContent, fontWeight: "700" }}>{t.HOME}</Text>
+        </Pressable>
       </View>
     );
   }
@@ -36,33 +75,52 @@ export default function PlaylistPage() {
 
 function PlaylistDetail({ playlistId }: { playlistId: string }) {
   const t = getDictionary();
+  const insets = useSafeAreaInsets();
   const playlist = usePlaylistStore((s) => s.playlists.find((p) => p.id === playlistId));
   const playSong = usePlaylistStore((s) => s.playSong);
   const removeSong = usePlaylistStore((s) => s.removeSong);
   const removePlaylist = usePlaylistStore((s) => s.removePlaylist);
   const actualPlaylistId = usePlaylistStore((s) => s.actualPlaylistId);
+  const toggleFavorite = usePlaylistStore((s) => s.toggleFavorite);
+  const playing = usePlayerStore((s) => s.playing);
+  const shuffle = usePlayerStore((s) => s.shuffle);
   const togglePlay = usePlayerStore((s) => s.togglePlay);
+  const toggleShuffle = usePlayerStore((s) => s.toggleShuffle);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [cacheBump, setCacheBump] = useState(0);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [downloadingAll, setDownloadingAll] = useState(false);
+  const [, setCacheBump] = useState(0);
 
   if (!playlist) return null;
+
+  const first = playlist.songs[0];
+  const hasSongs = playlist.songs.length > 0;
   const isActual = actualPlaylistId === playlist.id;
-  // cacheBump fuerza relectura de existsAudioInCache tras descargar todo.
+  const isPlaying = isActual && playing;
+  const isHistory = playlist.id === PLAYLISTS.HISTORY;
+  const favorite = playlist.favorite === true;
+  const title = isHistory ? t.RECENTS : playlist.title;
+  const totalDuration = formatTotalDuration(getPlaylistTotalDuration(playlist));
+  const subtitle = [formatCount(playlist.songs.length, t.SONGS_IN_PLAYLIST), totalDuration]
+    .filter(Boolean)
+    .join(" • ");
+
+  // setCacheBump fuerza relectura de existsAudioInCache tras descargar todo.
   const allCached =
-    cacheBump >= 0 && playlist.songs.length > 0 && playlist.songs.every((s) => existsAudioInCache(s.youtubeId));
+    hasSongs && playlist.songs.every((s) => existsAudioInCache(s.youtubeId));
 
   const handlePlayAll = () => {
-    if (!isActual) {
-      const first = playlist.songs[0];
-      if (!first) return;
-      void playSong(first, playlist.id).then(() => usePlayerStore.getState().playSelected());
-    } else {
+    if (!first) return;
+    if (isActual) {
       void togglePlay();
+      return;
     }
+    void playSong(first, playlist.id).then(() => usePlayerStore.getState().playSelected());
   };
 
   const handleDownloadAll = async () => {
-    if (allCached) return;
+    if (allCached || downloadingAll || !hasSongs) return;
+    setDownloadingAll(true);
     try {
       for (const song of playlist.songs) {
         await addAudioToCache(song.youtubeId, "highest");
@@ -71,6 +129,8 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
       toast.success(t.DOWNLOAD);
     } catch (e) {
       toast.error(String((e as Error)?.message ?? e));
+    } finally {
+      setDownloadingAll(false);
     }
   };
 
@@ -82,61 +142,434 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.base100 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#404040" }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, flex: 1 }}>
-          <Text numberOfLines={1} style={{ color: "#fff", fontSize: 20 }}>
-            {playlist.id === PLAYLISTS.HISTORY ? t.RECENTS : playlist.title}
-          </Text>
-          <Pressable onPress={() => void handleDownloadAll()} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.DOWNLOAD}>
-            <CircleArrowDown size={22} color={allCached ? theme.primary : "#fff"} />
-          </Pressable>
-          {playlist.id !== PLAYLISTS.HISTORY ? (
-            <Pressable onPress={() => setMenuOpen(true)} hitSlop={12} accessibilityRole="button">
-              <EllipsisVertical size={20} color="#fff" />
-            </Pressable>
-          ) : null}
-        </View>
-        <Pressable
-          onPress={handlePlayAll}
-          style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: theme.primary, alignItems: "center", justifyContent: "center" }}
-        >
-          {isActual ? <Pause size={24} color={theme.primaryContent} /> : <Play size={24} color={theme.primaryContent} />}
-        </Pressable>
-      </View>
-
       <FlatList
         data={playlist.songs}
-        keyExtractor={(s) => s.youtubeId}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8, gap: 4 }}
-        renderItem={({ item }) => (
-          <SongItem
-            song={item}
-            onSelect={() => void playSong(item, playlist.id).then(() => usePlayerStore.getState().playSelected())}
-            trailing={(close) => (
-              <ActionMenuItem
-                onPress={() => {
-                  void removeSong(item, playlist.id);
-                  close();
-                }}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                  <Trash2 size={16} color="#ef4444" />
-                  <Text style={{ color: "#ef4444" }}>{t.DELETE}</Text>
+        keyExtractor={(song) => song.youtubeId}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: spacing.xl, gap: spacing.xs }}
+        ListHeaderComponent={
+          <>
+            <PlaylistHero
+              title={title}
+              subtitle={subtitle}
+              first={first}
+              hasSongs={hasSongs}
+              isPlaying={isPlaying}
+              shuffle={shuffle}
+              allCached={allCached}
+              downloadingAll={downloadingAll}
+              favorite={favorite}
+              showFavorite={!isHistory}
+              showMore={!isHistory}
+              onPlay={handlePlayAll}
+              onShuffle={toggleShuffle}
+              onDownload={() => void handleDownloadAll()}
+              onToggleFavorite={() => void toggleFavorite(playlist.id)}
+              onAddSongs={() => setPickerOpen(true)}
+              onMore={() => setMenuOpen(true)}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingHorizontal: spacing.lg,
+                paddingTop: spacing.xl,
+                paddingBottom: spacing.sm,
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
+                <Text style={typography.sectionTitle}>{t.SONGS}</Text>
+                <View
+                  style={{
+                    minWidth: 24,
+                    height: 20,
+                    paddingHorizontal: 7,
+                    borderRadius: radius.full,
+                    backgroundColor: theme.base200,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: theme.muted,
+                      fontSize: 11,
+                      fontWeight: "700",
+                      fontVariant: ["tabular-nums"],
+                    }}
+                  >
+                    {playlist.songs.length}
+                  </Text>
                 </View>
-              </ActionMenuItem>
-            )}
-          />
+              </View>
+              {totalDuration ? (
+                <Text style={[typography.caption, { fontVariant: ["tabular-nums"] }]}>
+                  {totalDuration}
+                </Text>
+              ) : null}
+            </View>
+          </>
+        }
+        ListEmptyComponent={
+          <View style={{ alignItems: "center", gap: spacing.md, padding: spacing.xl }}>
+            <Music size={32} color={theme.faint} />
+            <Text style={{ color: theme.muted, fontSize: 14, textAlign: "center" }}>
+              {t.EMPTY_PLAYLIST}
+            </Text>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <View style={{ paddingHorizontal: spacing.lg }}>
+            <SongItem
+              song={item}
+              onSelect={() =>
+                void playSong(item, playlist.id).then(() => usePlayerStore.getState().playSelected())
+              }
+              trailing={(close) => (
+                <ActionMenuItem
+                  onPress={() => {
+                    void removeSong(item, playlist.id);
+                    close();
+                  }}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                    <Trash2 size={16} color={theme.danger} />
+                    <Text style={{ color: theme.danger }}>{t.DELETE}</Text>
+                  </View>
+                </ActionMenuItem>
+              )}
+            />
+          </View>
         )}
+      />
+
+      <MiniPlayer />
+
+      <Pressable
+        onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+        accessibilityRole="button"
+        accessibilityLabel={t.BACK}
+        style={{
+          position: "absolute",
+          top: insets.top + 6,
+          left: spacing.lg,
+          zIndex: 10,
+          width: 40,
+          height: 40,
+          borderRadius: radius.full,
+          backgroundColor: "rgba(15, 23, 42, 0.72)",
+          borderWidth: 1,
+          borderColor: theme.outline,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <ArrowLeft size={20} color={theme.text} />
+      </Pressable>
+
+      <SongPicker
+        visible={pickerOpen}
+        playlistId={playlist.id}
+        onClose={() => setPickerOpen(false)}
       />
 
       <ActionMenu visible={menuOpen} onClose={() => setMenuOpen(false)}>
         <ActionMenuItem onPress={handleRemove}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <Trash2 size={16} color="#ef4444" />
-            <Text style={{ color: "#ef4444" }}>{t.DELETE}</Text>
+            <Trash2 size={16} color={theme.danger} />
+            <Text style={{ color: theme.danger }}>{t.DELETE}</Text>
           </View>
         </ActionMenuItem>
       </ActionMenu>
+    </View>
+  );
+}
+
+function PlaylistHero({
+  title,
+  subtitle,
+  first,
+  hasSongs,
+  isPlaying,
+  shuffle,
+  allCached,
+  downloadingAll,
+  favorite,
+  showFavorite,
+  showMore,
+  onPlay,
+  onShuffle,
+  onDownload,
+  onToggleFavorite,
+  onAddSongs,
+  onMore,
+}: {
+  title: string;
+  subtitle: string;
+  first: Song | undefined;
+  hasSongs: boolean;
+  isPlaying: boolean;
+  shuffle: boolean;
+  allCached: boolean;
+  downloadingAll: boolean;
+  favorite: boolean;
+  showFavorite: boolean;
+  showMore: boolean;
+  onPlay: () => void;
+  onShuffle: () => void;
+  onDownload: () => void;
+  onToggleFavorite: () => void;
+  onAddSongs: () => void;
+  onMore: () => void;
+}) {
+  const t = getDictionary();
+  const insets = useSafeAreaInsets();
+  // Medium (mqdefault) ya es 16:9 sin las bandas negras que YouTube agrega a
+  // hqdefault; a 160 dp sobra resolución y el blur tapa el resto.
+  const coverUri = first
+    ? getThumbnailUrl(first.youtubeId, {
+        resolution: Resolution.Medium,
+        w: "320",
+        h: "320",
+        fit: "cover",
+      })
+    : null;
+
+  return (
+    <View
+      style={{
+        overflow: "hidden",
+        borderBottomLeftRadius: radius.xl,
+        borderBottomRightRadius: radius.xl,
+        backgroundColor: theme.base200,
+      }}
+    >
+      {coverUri ? (
+        <>
+          <Image
+            source={{ uri: coverUri }}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+            blurRadius={32}
+          />
+          <View
+            style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(15, 23, 42, 0.86)" }]}
+          />
+        </>
+      ) : null}
+
+      <View
+        style={{
+          alignItems: "center",
+          paddingHorizontal: spacing.xl,
+          paddingTop: insets.top + 56,
+          paddingBottom: spacing.xl,
+        }}
+      >
+        <View
+          style={{
+            width: 160,
+            height: 160,
+            borderRadius: radius.xl,
+            overflow: "hidden",
+            backgroundColor: theme.base300,
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4)",
+          }}
+        >
+          {coverUri ? (
+            <Image
+              source={{ uri: coverUri }}
+              alt={title}
+              style={{ width: "100%", height: "100%" }}
+              contentFit="cover"
+            />
+          ) : (
+            <Music size={52} color={theme.faint} />
+          )}
+        </View>
+
+        <Text
+          numberOfLines={2}
+          style={{
+            color: theme.text,
+            fontSize: 24,
+            fontWeight: "700",
+            textAlign: "center",
+            marginTop: spacing.lg,
+          }}
+        >
+          {title}
+        </Text>
+        <Text
+          style={{
+            color: theme.muted,
+            fontSize: 12,
+            fontWeight: "500",
+            textAlign: "center",
+            marginTop: 6,
+          }}
+        >
+          {subtitle}
+        </Text>
+
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: spacing.sm,
+            marginTop: spacing.lg,
+          }}
+        >
+          <Pressable
+            onPress={onPlay}
+            disabled={!hasSongs}
+            accessibilityRole="button"
+            accessibilityLabel={isPlaying ? t.PAUSE : t.PLAY_ALL}
+            style={({ pressed }) => ({
+              width: 56,
+              height: 56,
+              borderRadius: radius.full,
+              backgroundColor: theme.primary,
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: !hasSongs ? 0.4 : pressed ? 0.8 : 1,
+            })}
+          >
+            {isPlaying ? (
+              <Pause size={24} color={theme.primaryContent} />
+            ) : (
+              <Play size={24} color={theme.primaryContent} />
+            )}
+          </Pressable>
+
+          <Pressable
+            onPress={onShuffle}
+            disabled={!hasSongs}
+            accessibilityRole="button"
+            accessibilityState={{ selected: shuffle, disabled: !hasSongs }}
+            accessibilityLabel={t.SHUFFLE}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: spacing.sm,
+              height: 44,
+              paddingHorizontal: 14,
+              borderRadius: radius.full,
+              backgroundColor: shuffle ? "rgba(56, 189, 248, 0.16)" : theme.base200,
+              borderWidth: 1,
+              borderColor: shuffle ? "rgba(56, 189, 248, 0.4)" : theme.outline,
+              opacity: hasSongs ? 1 : 0.4,
+            }}
+          >
+            <Shuffle size={18} color={shuffle ? theme.primary : theme.text} />
+            <Text
+              style={{
+                color: shuffle ? theme.primary : theme.text,
+                fontSize: 13,
+                fontWeight: "600",
+              }}
+            >
+              {t.SHUFFLE}
+            </Text>
+          </Pressable>
+
+          {showFavorite ? (
+            <Pressable
+              onPress={onToggleFavorite}
+              accessibilityRole="button"
+              accessibilityState={{ selected: favorite }}
+              accessibilityLabel={favorite ? t.REMOVE_FROM_FAVORITES : t.ADD_TO_FAVORITES}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: radius.full,
+                backgroundColor: favorite ? "rgba(56, 189, 248, 0.16)" : theme.base200,
+                borderWidth: 1,
+                borderColor: favorite ? "rgba(56, 189, 248, 0.4)" : theme.outline,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Heart
+                size={20}
+                color={favorite ? theme.primary : theme.text}
+                fill={favorite ? theme.primary : "transparent"}
+              />
+            </Pressable>
+          ) : null}
+
+          <Pressable
+            onPress={onDownload}
+            disabled={allCached || downloadingAll || !hasSongs}
+            accessibilityRole="button"
+            accessibilityLabel={t.DOWNLOAD_ALL}
+            accessibilityState={{ disabled: allCached || downloadingAll || !hasSongs }}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: radius.full,
+              backgroundColor: theme.base200,
+              borderWidth: 1,
+              borderColor: theme.outline,
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: hasSongs ? 1 : 0.4,
+            }}
+          >
+            {downloadingAll ? (
+              <ActivityIndicator size="small" color={theme.primary} />
+            ) : (
+              <CircleArrowDown size={20} color={allCached ? theme.primary : theme.text} />
+            )}
+          </Pressable>
+
+          {showMore ? (
+            <Pressable
+              onPress={onMore}
+              accessibilityRole="button"
+              accessibilityLabel={t.MORE_OPTIONS}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: radius.full,
+                backgroundColor: theme.base200,
+                borderWidth: 1,
+                borderColor: theme.outline,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <EllipsisVertical size={20} color={theme.text} />
+            </Pressable>
+          ) : null}
+        </View>
+
+        <Pressable
+          onPress={onAddSongs}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t.ADD_SONGS}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 6,
+            marginTop: spacing.md,
+            paddingHorizontal: spacing.md,
+            paddingVertical: 6,
+            borderRadius: radius.full,
+          }}
+        >
+          <Plus size={16} color={theme.primary} />
+          <Text style={{ color: theme.primary, fontSize: 13, fontWeight: "600" }}>
+            {t.ADD_SONGS}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }

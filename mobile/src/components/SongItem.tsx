@@ -7,12 +7,12 @@ import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { toast } from "~/store/useToastStore";
 import { useShare } from "~/hooks/useShare";
 import { addAudioToCache, existsAudioInCache } from "~/services/offline-cache";
+import { radius, spacing, theme } from "~/theme";
 import { formatSeconds } from "~/utils/seconds";
 import Thumbnail from "./Thumbnail";
 import { ActionMenu, ActionMenuItem } from "./ActionMenu";
 
-// Puerto de web ~/components/SongItem (dropdown -> ActionMenu,
-// descarga blob+anchor -> offline-cache, iconos lucide-solid -> -native).
+// Fila de canción: selección, descarga, share y menú de playlist.
 export function SongItem({
   song,
   onSelect,
@@ -26,10 +26,14 @@ export function SongItem({
   const t = getDictionary();
   const playlists = usePlaylistStore((s) => s.playlists);
   const addSong = usePlaylistStore((s) => s.addSong);
+  const selectedSong = usePlaylistStore((s) => s.selectedSong());
   const { handleShare } = useShare(song);
   const [menuOpen, setMenuOpen] = useState(false);
   const [playlistPickerOpen, setPlaylistPickerOpen] = useState(false);
   const [cached, setCached] = useState(() => existsAudioInCache(song.youtubeId));
+
+  const active = selectedSong?.youtubeId === song.youtubeId;
+  const subtitle = [song.author?.name, song.album?.name].filter(Boolean).join(" • ");
 
   const handleDownload = async () => {
     setMenuOpen(false);
@@ -43,30 +47,75 @@ export function SongItem({
   };
 
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 4 }}>
-      <Pressable onPress={onSelect} style={{ flexDirection: "row", alignItems: "center", gap: 8, flex: 1 }}>
-        <Thumbnail youtubeId={song.youtubeId} title={song.title} />
-        <View style={{ flex: 1 }}>
-          <Text numberOfLines={1} style={{ color: "#e5e5e5", fontSize: 14, fontWeight: "600" }}>
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.xs,
+        padding: 6,
+        borderRadius: radius.md,
+        borderCurve: "continuous",
+        backgroundColor: active ? theme.base200 : "transparent",
+      }}
+    >
+      <View
+        style={{
+          width: 3,
+          height: 36,
+          borderRadius: 2,
+          backgroundColor: active ? theme.primary : "transparent",
+        }}
+      />
+
+      <Pressable
+        onPress={onSelect}
+        accessibilityRole="button"
+        accessibilityState={{ selected: active }}
+        accessibilityLabel={`${song.title}. ${subtitle}. ${formatSeconds(song.duration)}`}
+        style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing.sm, minWidth: 0 }}
+      >
+        <Thumbnail youtubeId={song.youtubeId} title={song.title} size={48} />
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text
+            numberOfLines={1}
+            style={{
+              color: active ? theme.primary : theme.text,
+              fontSize: 15,
+              fontWeight: "600",
+            }}
+          >
             {song.title}
           </Text>
-          <Text numberOfLines={1} style={{ color: "#a3a3a3", fontSize: 12, marginTop: 2 }}>
-            {song.author?.name}
-            {song.album?.name ? ` - ${song.album.name}` : ""} - {formatSeconds(song.duration)}
+          <Text numberOfLines={1} style={{ color: theme.muted, fontSize: 12, marginTop: 3 }}>
+            {subtitle}
           </Text>
         </View>
       </Pressable>
-      {cached ? <CircleArrowDown size={16} color="#cbd5e1" /> : null}
+
+      {cached ? <CircleArrowDown size={14} color={theme.primary} /> : null}
+
+      <Text
+        style={{
+          color: theme.muted,
+          fontSize: 12,
+          fontVariant: ["tabular-nums"],
+          marginRight: 2,
+        }}
+      >
+        {formatSeconds(song.duration)}
+      </Text>
+
       <Pressable
         onPress={() => {
           setCached(existsAudioInCache(song.youtubeId));
           setMenuOpen(true);
         }}
-        hitSlop={12}
+        hitSlop={10}
         accessibilityRole="button"
-        style={{ padding: 4 }}
+        accessibilityLabel={t.MORE_OPTIONS}
+        style={{ padding: 6 }}
       >
-        <EllipsisVertical size={20} color="#e5e5e5" />
+        <EllipsisVertical size={18} color={theme.muted} />
       </Pressable>
 
       <ActionMenu visible={menuOpen} onClose={() => setMenuOpen(false)}>
@@ -77,14 +126,14 @@ export function SongItem({
           }}
         >
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <Plus size={16} color="#e5e5e5" />
-            <Text style={{ color: "#e5e5e5" }}>{t.ADD_PLAYLIST}</Text>
+            <Plus size={16} color={theme.text} />
+            <Text style={{ color: theme.text }}>{t.ADD_PLAYLIST}</Text>
           </View>
         </ActionMenuItem>
         <ActionMenuItem onPress={handleDownload}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <Download size={16} color="#e5e5e5" />
-            <Text style={{ color: "#e5e5e5" }}>{t.DOWNLOAD_MP3}</Text>
+            <Download size={16} color={theme.text} />
+            <Text style={{ color: theme.text }}>{t.DOWNLOAD_MP3}</Text>
           </View>
         </ActionMenuItem>
         <ActionMenuItem
@@ -94,8 +143,8 @@ export function SongItem({
           }}
         >
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <Share2 size={16} color="#e5e5e5" />
-            <Text style={{ color: "#e5e5e5" }}>{t.SHARE}</Text>
+            <Share2 size={16} color={theme.text} />
+            <Text style={{ color: theme.text }}>{t.SHARE}</Text>
           </View>
         </ActionMenuItem>
         {typeof trailing === "function" ? trailing(() => setMenuOpen(false)) : trailing}
@@ -110,7 +159,7 @@ export function SongItem({
               setPlaylistPickerOpen(false);
             }}
           >
-            <Text style={{ color: "#e5e5e5" }}>{p.title}</Text>
+            <Text style={{ color: theme.text }}>{p.title}</Text>
           </ActionMenuItem>
         ))}
       </ActionMenu>
@@ -120,12 +169,23 @@ export function SongItem({
 
 export function SongItemSkeleton() {
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 4 }}>
-      <View style={{ width: 60, height: 60, backgroundColor: "#262626", borderRadius: 4 }} />
-      <View style={{ gap: 6 }}>
-        <View style={{ height: 14, width: 120, backgroundColor: "#262626", borderRadius: 7 }} />
-        <View style={{ height: 12, width: 200, backgroundColor: "#262626", borderRadius: 6 }} />
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.sm,
+        padding: 6,
+        borderRadius: radius.md,
+        backgroundColor: theme.base200,
+      }}
+    >
+      <View style={{ width: 3, height: 36, borderRadius: 2, backgroundColor: theme.base300 }} />
+      <View style={{ width: 48, height: 48, borderRadius: radius.sm, backgroundColor: theme.base300 }} />
+      <View style={{ flex: 1, gap: 7 }}>
+        <View style={{ height: 13, width: "62%", backgroundColor: theme.base300, borderRadius: 7 }} />
+        <View style={{ height: 11, width: "38%", backgroundColor: theme.base300, borderRadius: 6 }} />
       </View>
+      <View style={{ width: 28, height: 11, backgroundColor: theme.base300, borderRadius: 6 }} />
     </View>
   );
 }

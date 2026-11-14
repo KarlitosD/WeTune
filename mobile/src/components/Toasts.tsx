@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useToastStore, type ToastType } from "~/store/useToastStore";
 import { theme } from "~/theme";
 
-// Puerto de web ~/components/Toaster + ToastItem (icono por tipo + botón X;
+// Toasts (icono por tipo + botón X;
 // abajo en vez de arriba-derecha: es lo correcto en móvil con el player fijo).
 const TOAST_META: Record<ToastType, { color: string; Icon: typeof Check }> = {
   success: { color: "#22c55e", Icon: Check },

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { nanoid } from "nanoid/non-secure";
 
-// Reemplaza web ~/hooks/createToast + toastEvent (event-bus).
+// Toasts globales con Zustand.
 // Renderizado por <Toasts /> en el layout raíz.
 
 export type ToastType = "success" | "error" | "info" | "loading";
@@ -32,7 +32,7 @@ export const useToastStore = create<ToastStore>()((set) => ({
   dismiss: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }));
 
-// Misma API que la web: toast.success("..."), toast.error("..."), ...
+// API: toast.success("..."), toast.error("..."), ...
 export const toast = {
   success: (title: string, description?: string) => useToastStore.getState().push("success", title, description),
   error: (title: string, description?: string) => useToastStore.getState().push("error", title, description),

@@ -64,6 +64,39 @@ type RootTranslation = {
 	 */
 	PLAYLISTS: string
 	/**
+	 * {​s​o​n​g​s​}​ ​p​l​a​y​l​i​s​t​{​{​s​}​}
+	 * @param {number} songs
+	 */
+	PLAYLIST_COUNT: RequiredParams<'songs'>
+	/**
+	 * A​l​l
+	 */
+	ALL: string
+	/**
+	 * F​a​v​o​r​i​t​e​s
+	 */
+	FAVORITES: string
+	/**
+	 * D​o​w​n​l​o​a​d​e​d
+	 */
+	DOWNLOADED: string
+	/**
+	 * N​o​ ​f​a​v​o​r​i​t​e​ ​p​l​a​y​l​i​s​t​s
+	 */
+	NO_FAVORITES: string
+	/**
+	 * N​o​ ​d​o​w​n​l​o​a​d​e​d​ ​p​l​a​y​l​i​s​t​s
+	 */
+	NO_DOWNLOADED: string
+	/**
+	 * A​d​d​ ​t​o​ ​f​a​v​o​r​i​t​e​s
+	 */
+	ADD_TO_FAVORITES: string
+	/**
+	 * R​e​m​o​v​e​ ​f​r​o​m​ ​f​a​v​o​r​i​t​e​s
+	 */
+	REMOVE_FROM_FAVORITES: string
+	/**
 	 * R​e​c​e​n​t​s
 	 */
 	RECENTS: string
@@ -71,6 +104,10 @@ type RootTranslation = {
 	 * D​o​w​n​l​o​a​d
 	 */
 	DOWNLOAD: string
+	/**
+	 * D​o​w​n​l​o​a​d​ ​a​l​l
+	 */
+	DOWNLOAD_ALL: string
 	/**
 	 * D​o​w​n​l​o​a​d​ ​M​P​3
 	 */
@@ -83,6 +120,86 @@ type RootTranslation = {
 	 * D​e​l​e​t​e
 	 */
 	DELETE: string
+	/**
+	 * P​l​a​y
+	 */
+	PLAY: string
+	/**
+	 * P​a​u​s​e
+	 */
+	PAUSE: string
+	/**
+	 * P​r​e​v​i​o​u​s
+	 */
+	PREVIOUS: string
+	/**
+	 * N​e​x​t
+	 */
+	NEXT: string
+	/**
+	 * R​e​p​e​a​t
+	 */
+	REPEAT: string
+	/**
+	 * P​l​a​y​ ​a​l​l
+	 */
+	PLAY_ALL: string
+	/**
+	 * S​h​u​f​f​l​e
+	 */
+	SHUFFLE: string
+	/**
+	 * M​o​r​e​ ​o​p​t​i​o​n​s
+	 */
+	MORE_OPTIONS: string
+	/**
+	 * S​e​a​r​c​h​ ​y​o​u​r​ ​p​l​a​y​l​i​s​t​s​.​.​.
+	 */
+	SEARCH_PLAYLISTS: string
+	/**
+	 * A​d​d​ ​s​o​n​g​s
+	 */
+	ADD_SONGS: string
+	/**
+	 * S​e​a​r​c​h​ ​s​o​n​g​s​.​.​.
+	 */
+	SEARCH_SONGS: string
+	/**
+	 * A​d​d​e​d
+	 */
+	ADDED: string
+	/**
+	 * S​e​a​r​c​h​ ​s​o​n​g​s​ ​a​n​d​ ​v​i​d​e​o​s
+	 */
+	SEARCH_HINT: string
+	/**
+	 * C​l​e​a​r
+	 */
+	CLEAR: string
+	/**
+	 * C​l​o​s​e
+	 */
+	CLOSE: string
+	/**
+	 * B​a​c​k
+	 */
+	BACK: string
+	/**
+	 * N​o​ ​p​l​a​y​l​i​s​t​s​ ​y​e​t
+	 */
+	NO_PLAYLISTS: string
+	/**
+	 * T​h​i​s​ ​p​l​a​y​l​i​s​t​ ​h​a​s​ ​n​o​ ​s​o​n​g​s
+	 */
+	EMPTY_PLAYLIST: string
+	/**
+	 * P​l​a​y​l​i​s​t​ ​n​o​t​ ​f​o​u​n​d
+	 */
+	PLAYLIST_NOT_FOUND: string
+	/**
+	 * H​o​m​e
+	 */
+	HOME: string
 	/**
 	 * A​n​ ​e​r​r​o​r​ ​o​c​c​u​r​r​e​d​ ​w​h​i​l​e​ ​s​e​a​r​c​h​i​n​g
 	 */
@@ -156,6 +273,38 @@ export type TranslationFunctions = {
 	 */
 	PLAYLISTS: () => LocalizedString
 	/**
+	 * {songs} playlist{{s}}
+	 */
+	PLAYLIST_COUNT: (arg: { songs: number }) => LocalizedString
+	/**
+	 * All
+	 */
+	ALL: () => LocalizedString
+	/**
+	 * Favorites
+	 */
+	FAVORITES: () => LocalizedString
+	/**
+	 * Downloaded
+	 */
+	DOWNLOADED: () => LocalizedString
+	/**
+	 * No favorite playlists
+	 */
+	NO_FAVORITES: () => LocalizedString
+	/**
+	 * No downloaded playlists
+	 */
+	NO_DOWNLOADED: () => LocalizedString
+	/**
+	 * Add to favorites
+	 */
+	ADD_TO_FAVORITES: () => LocalizedString
+	/**
+	 * Remove from favorites
+	 */
+	REMOVE_FROM_FAVORITES: () => LocalizedString
+	/**
 	 * Recents
 	 */
 	RECENTS: () => LocalizedString
@@ -163,6 +312,10 @@ export type TranslationFunctions = {
 	 * Download
 	 */
 	DOWNLOAD: () => LocalizedString
+	/**
+	 * Download all
+	 */
+	DOWNLOAD_ALL: () => LocalizedString
 	/**
 	 * Download MP3
 	 */
@@ -175,6 +328,86 @@ export type TranslationFunctions = {
 	 * Delete
 	 */
 	DELETE: () => LocalizedString
+	/**
+	 * Play
+	 */
+	PLAY: () => LocalizedString
+	/**
+	 * Pause
+	 */
+	PAUSE: () => LocalizedString
+	/**
+	 * Previous
+	 */
+	PREVIOUS: () => LocalizedString
+	/**
+	 * Next
+	 */
+	NEXT: () => LocalizedString
+	/**
+	 * Repeat
+	 */
+	REPEAT: () => LocalizedString
+	/**
+	 * Play all
+	 */
+	PLAY_ALL: () => LocalizedString
+	/**
+	 * Shuffle
+	 */
+	SHUFFLE: () => LocalizedString
+	/**
+	 * More options
+	 */
+	MORE_OPTIONS: () => LocalizedString
+	/**
+	 * Search your playlists...
+	 */
+	SEARCH_PLAYLISTS: () => LocalizedString
+	/**
+	 * Add songs
+	 */
+	ADD_SONGS: () => LocalizedString
+	/**
+	 * Search songs...
+	 */
+	SEARCH_SONGS: () => LocalizedString
+	/**
+	 * Added
+	 */
+	ADDED: () => LocalizedString
+	/**
+	 * Search songs and videos
+	 */
+	SEARCH_HINT: () => LocalizedString
+	/**
+	 * Clear
+	 */
+	CLEAR: () => LocalizedString
+	/**
+	 * Close
+	 */
+	CLOSE: () => LocalizedString
+	/**
+	 * Back
+	 */
+	BACK: () => LocalizedString
+	/**
+	 * No playlists yet
+	 */
+	NO_PLAYLISTS: () => LocalizedString
+	/**
+	 * This playlist has no songs
+	 */
+	EMPTY_PLAYLIST: () => LocalizedString
+	/**
+	 * Playlist not found
+	 */
+	PLAYLIST_NOT_FOUND: () => LocalizedString
+	/**
+	 * Home
+	 */
+	HOME: () => LocalizedString
 	/**
 	 * An error occurred while searching
 	 */

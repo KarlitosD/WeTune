@@ -1,4 +1,4 @@
-// Equivalente a web ~/config pero con variable Expo.
+// URL del backend desde una variable pública de Expo.
 // Definir en mobile/.env: EXPO_PUBLIC_API_URL=https://tu-backend
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "";
 

@@ -14,7 +14,7 @@ import { usePlaylistStore } from "./usePlaylistStore";
 import { toast } from "./useToastStore";
 import { mmkv } from "./storage";
 
-// Puerto de web ~/components/AudioPlayer (playing/volume²/loop/shuffle/
+// Estado del player (playing/volume²/loop/shuffle/
 // seek/preload/download) a Zustand + TrackPlayer. Sin elemento <audio>:
 // el progreso se lee con useProgress() en la UI, aquí solo settings+acciones.
 
@@ -84,7 +84,7 @@ export const usePlayerStore = create<PlayerStore>()((set, get) => ({
     if (await loadCurrent(true)) set({ playing: true });
   },
 
-  // Primera carga al abrir la app: deja la pista lista en pausa (como la web).
+  // Primera carga al abrir la app: deja la pista lista en pausa.
   ensureSelectionLoaded: async () => {
     const song = usePlaylistStore.getState().selectedSong();
     if (!song || loadedYoutubeId === song.youtubeId) return;

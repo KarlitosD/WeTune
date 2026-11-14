@@ -2,7 +2,7 @@ import { Link } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { theme } from "~/theme";
 
-// Equivalente a web ~/pages/404 (adaptado: sin links a solidjs.com).
+// Pantalla 404.
 export default function NotFound() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.base100, alignItems: "center", justifyContent: "center", gap: 16 }}>

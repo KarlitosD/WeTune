@@ -3,10 +3,20 @@ import { db } from "~/db/client";
 import { playlistSongs, playlists } from "~/db/drizzle-schema";
 import type { Playlist, Song } from "~/db/schema";
 
-// Puerto 1:1 de web ~/services/playlist sobre SQLite+Drizzle
-// (antes SignalDB con $push/$pull/$elemMatch).
+// Repositorio de playlists sobre SQLite+Drizzle.
 
 type SongRow = typeof playlistSongs.$inferSelect;
+type PlaylistRow = typeof playlists.$inferSelect;
+
+function rowToPlaylist(row: PlaylistRow, songs: Song[]): Playlist {
+  return {
+    id: row.id,
+    title: row.title,
+    favorite: row.favorite,
+    lastPlayedAt: row.lastPlayedAt,
+    songs,
+  };
+}
 
 function rowToSong(row: SongRow): Song {
   return {
@@ -40,7 +50,7 @@ export async function findAll(): Promise<Playlist[]> {
   const all = await db.select().from(playlists);
   const result: Playlist[] = [];
   for (const p of all) {
-    result.push({ id: p.id, title: p.title, songs: await findSongsInPlaylist(p.id) });
+    result.push(rowToPlaylist(p, await findSongsInPlaylist(p.id)));
   }
   return result;
 }
@@ -58,7 +68,7 @@ export async function findPlaylistById(playlistId: string): Promise<Playlist | u
   const rows = await db.select().from(playlists).where(eq(playlists.id, playlistId));
   const p = rows[0];
   if (!p) return undefined;
-  return { id: p.id, title: p.title, songs: await findSongsInPlaylist(p.id) };
+  return rowToPlaylist(p, await findSongsInPlaylist(p.id));
 }
 
 export async function findPlaylistIdsBySongId(songId: string): Promise<string[]> {
@@ -70,7 +80,12 @@ export async function findPlaylistIdsBySongId(songId: string): Promise<string[]>
 }
 
 export async function addPlaylist(playlist: Playlist): Promise<void> {
-  await db.insert(playlists).values({ id: playlist.id, title: playlist.title });
+  await db.insert(playlists).values({
+    id: playlist.id,
+    title: playlist.title,
+    favorite: playlist.favorite ?? false,
+    lastPlayedAt: playlist.lastPlayedAt ?? 0,
+  });
   if (playlist.songs.length > 0) {
     await db.insert(playlistSongs).values(playlist.songs.map((s, i) => songToRow(s, playlist.id, i)));
   }
@@ -100,4 +115,12 @@ export async function removeSongFromPlaylist(playlistId: string, songId: string)
 export async function removePlaylist(playlistId: string): Promise<void> {
   await db.delete(playlistSongs).where(eq(playlistSongs.playlistId, playlistId));
   await db.delete(playlists).where(eq(playlists.id, playlistId));
+}
+
+export async function setFavorite(playlistId: string, favorite: boolean): Promise<void> {
+  await db.update(playlists).set({ favorite }).where(eq(playlists.id, playlistId));
+}
+
+export async function touchPlaylist(playlistId: string, at = Date.now()): Promise<void> {
+  await db.update(playlists).set({ lastPlayedAt: at }).where(eq(playlists.id, playlistId));
 }

@@ -1,8 +1,8 @@
 import { Platform, Share } from "react-native";
 import type { Song } from "~/db/schema";
 
-// Puerto de web ~/hooks/useShare (navigator.share) a Share nativo.
-// La URL apunta a la web para que el receptor abra /share/song.
+// Share nativo. La URL apunta a wetune.app/share/song; hace falta el sitio
+// público de share para receptores sin la app.
 const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? "https://wetune.app";
 
 export function shareUrlFor(song: Pick<Song, "youtubeId">) {

@@ -5,8 +5,7 @@ import * as repo from "~/services/playlist";
 import { removeAudioFromCache } from "~/services/offline-cache";
 import { mmkv } from "./storage";
 
-// Puerto de web ~/context/playlist (PlaylistProvider + createMutable selected
-// + createPersistedSignal) a Zustand. SQLite es la fuente de verdad;
+// Estado de playlists con Zustand. SQLite es la fuente de verdad;
 // actualPlaylistId y selectedIndex persisten en MMKV.
 
 const K_ACTUAL = "actualPlaylistId";
@@ -25,6 +24,7 @@ type PlaylistStore = {
   hydrate: () => Promise<void>;
   addPlaylist: (playlist: Playlist) => Promise<void>;
   removePlaylist: (playlistId: string) => Promise<void>;
+  toggleFavorite: (playlistId: string) => Promise<void>;
   setActualPlaylist: (playlistId: string) => void;
   setSelectedIndex: (index: number) => void;
   setRandom: () => void;
@@ -85,6 +85,13 @@ export const usePlaylistStore = create<PlaylistStore>()((set, get) => ({
     set({ playlists: await repo.findAll() });
   },
 
+  toggleFavorite: async (playlistId) => {
+    const playlist = get().playlists.find((p) => p.id === playlistId);
+    if (!playlist) return;
+    await repo.setFavorite(playlistId, !playlist.favorite);
+    set({ playlists: await repo.findAll() });
+  },
+
   setActualPlaylist: (playlistId) => {
     mmkv.set(K_ACTUAL, playlistId);
     set({ actualPlaylistId: playlistId });
@@ -123,6 +130,7 @@ export const usePlaylistStore = create<PlaylistStore>()((set, get) => ({
     const playlist = await repo.findPlaylistById(playlistId);
     const index = playlist?.songs.findIndex((s) => s.youtubeId === song.youtubeId) ?? -1;
     if (index !== -1) get().setSelectedIndex(index);
+    await repo.touchPlaylist(playlistId);
     set({ playlists: await repo.findAll() });
   },
 

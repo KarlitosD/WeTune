@@ -20,7 +20,11 @@ export const songSchema = Type.Object({
 export const playlistSchema = Type.Object({
     id: Type.String(),
     title: Type.String(),
-    songs: Type.Array(songSchema)
+    songs: Type.Array(songSchema),
+    // Campos locales (SQLite). El backend no los devuelve; son opcionales
+    // para que la validación de /api/playlist siga funcionando.
+    favorite: Type.Optional(Type.Boolean()),
+    lastPlayedAt: Type.Optional(Type.Number()),
 })
 
 export type Song = Static<typeof songSchema>

@@ -7,8 +7,7 @@ import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { theme } from "~/theme";
 
-// Puerto de web ~/pages/share/song.tsx:
-// getSong -> playSong(HISTORY) -> reproducir -> volver al home.
+// Deep link de canción compartida: getSong -> playSong(HISTORY) -> home.
 export default function ShareSong() {
   const { songId } = useLocalSearchParams<{ songId?: string }>();
   const [error, setError] = useState<string | null>(null);

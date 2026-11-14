@@ -50,9 +50,12 @@ function parseSong(value: unknown): Song | null {
 }
 
 // GET /api/search?query= -> { songs, videos }
-export async function searchSongs(query: string): Promise<{ songs: Song[]; videos: Song[] }> {
+export async function searchSongs(
+  query: string,
+  signal?: AbortSignal,
+): Promise<{ songs: Song[]; videos: Song[] }> {
   if (!query) return { songs: [], videos: [] };
-  const res = await fetch(getApiUrl(`search?query=${encodeURIComponent(query)}`));
+  const res = await fetch(getApiUrl(`search?query=${encodeURIComponent(query)}`), { signal });
   if (!res.ok) throw new ApiError(`Search failed: ${res.status}`, { status: res.status });
   const result = (await readJson(res)) as { songs?: unknown; videos?: unknown } | null;
   const songs = Array.isArray(result?.songs)

@@ -6,11 +6,10 @@ import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { playbackService } from "~/services/playback-service";
 import { theme } from "~/theme";
-import MiniPlayer from "~/components/MiniPlayer";
 import PlayerSheet from "~/components/PlayerSheet";
 import Toasts from "~/components/Toasts";
 
-// Equivale a web ~/app.tsx (providers) + ~/layouts/main.tsx (player fijo).
+// Providers globales, stack y player fijo.
 export default function RootLayout() {
   useEffect(() => {
     // Fallback para RNTP 5 alpha: el headless service no siempre recibe los
@@ -29,15 +28,18 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: theme.base100 },
-          headerTintColor: "#fff",
+          headerTintColor: theme.text,
+          headerShadowVisible: false,
           contentStyle: { backgroundColor: theme.base100 },
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="playlist/[playlistId]" options={{ title: "" }} />
+        <Stack.Screen
+          name="playlist/[playlistId]"
+          options={{ headerShown: false, contentStyle: { backgroundColor: theme.base100 } }}
+        />
         <Stack.Screen name="share/song" options={{ title: "" }} />
       </Stack>
-      <MiniPlayer />
       <PlayerSheet />
       <Toasts />
     </View>

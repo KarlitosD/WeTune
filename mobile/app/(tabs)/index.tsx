@@ -1,30 +1,56 @@
 import { useState } from "react";
-import { FlatList, Modal, Pressable, Text, TextInput, View } from "react-native";
-import { Music } from "lucide-react-native";
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useIsFocused } from "expo-router";
+import { CircleArrowDown, Heart, Music, Plus, Search, X } from "lucide-react-native";
 import { getDictionary } from "~/i18n";
 import { getPlaylist } from "~/api/client";
+import { PLAYLISTS } from "~/consts";
+import { listCachedAudioIds } from "~/services/offline-cache";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { toast } from "~/store/useToastStore";
-import { theme } from "~/theme";
+import { radius, spacing, theme, typography } from "~/theme";
 import { createId } from "~/utils/id";
-import PlaylistCard from "~/components/PlaylistCard";
+import { formatCount } from "~/utils/plural";
+import { applyPlaylistView, type PlaylistView } from "~/utils/playlistFilters";
+import PlaylistRow from "~/components/PlaylistRow";
+import SearchBar from "~/components/SearchBar";
 
-// Puerto de web ~/pages/home.tsx (CreatePlaylistModal con <dialog> -> Modal).
+// Home: lista de playlists + creación/importación en modal.
 const YOUTUBE_HOSTS = ["music.youtube.com", "www.youtube.com", "m.youtube.com"];
 
 export default function Home() {
   const t = getDictionary();
+  const insets = useSafeAreaInsets();
+  const isFocused = useIsFocused();
   const playlists = usePlaylistStore((s) => s.playlists);
   const addPlaylist = usePlaylistStore((s) => s.addPlaylist);
   const [modalOpen, setModalOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [view, setView] = useState<PlaylistView>("all");
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setName("");
+    setUrl("");
+  };
 
   const createPlaylist = () => {
     if (!name.trim()) return;
     void addPlaylist({ id: createId(), title: name.trim(), songs: [] });
-    setName("");
-    setModalOpen(false);
+    closeModal();
   };
 
   const importPlaylist = async () => {
@@ -34,65 +60,308 @@ export default function Home() {
       if (!listId || !YOUTUBE_HOSTS.includes(parsed.host)) return;
       const playlist = await getPlaylist(listId);
       await addPlaylist(playlist);
-      setUrl("");
-      setModalOpen(false);
+      closeModal();
     } catch (e) {
       toast.error(String((e as Error)?.message ?? e));
     }
   };
 
+  const term = query.trim().toLowerCase();
+  const cachedIds =
+    view === "downloaded" && isFocused ? new Set(listCachedAudioIds()) : undefined;
+  const viewed = applyPlaylistView(playlists, view, cachedIds);
+  const filtered = term
+    ? viewed.filter((playlist) => {
+        const title = playlist.id === PLAYLISTS.HISTORY ? t.RECENTS : playlist.title;
+        return title.toLowerCase().includes(term);
+      })
+    : viewed;
+
+  const emptyText =
+    playlists.length === 0
+      ? t.NO_PLAYLISTS
+      : term
+        ? t.NO_RESULTS
+        : view === "favorites"
+          ? t.NO_FAVORITES
+          : view === "downloaded"
+            ? t.NO_DOWNLOADED
+            : t.NO_RESULTS;
+  const EmptyIcon =
+    playlists.length === 0
+      ? Music
+      : view === "favorites"
+        ? Heart
+        : view === "downloaded"
+          ? CircleArrowDown
+          : Search;
+  const filters: { id: PlaylistView; label: string }[] = [
+    { id: "all", label: t.ALL },
+    { id: "recent", label: t.RECENTS },
+    { id: "favorites", label: t.FAVORITES },
+    { id: "downloaded", label: t.DOWNLOADED },
+  ];
+  const canCreate = name.trim().length > 0;
+  const canImport = (() => {
+    try {
+      const parsed = new URL(url);
+      return parsed.searchParams.get("list") !== null && YOUTUBE_HOSTS.includes(parsed.host);
+    } catch {
+      return false;
+    }
+  })();
+
   return (
-    <View style={{ flex: 1, backgroundColor: theme.base100, padding: 16 }}>
-      <Text style={{ color: "#fff", fontSize: 24, marginVertical: 12 }}>{t.PLAYLISTS}</Text>
-      <FlatList
-        data={playlists}
-        keyExtractor={(p) => p.id}
-        numColumns={2}
-        columnWrapperStyle={{ gap: 16 }}
-        contentContainerStyle={{ gap: 16 }}
-        ListHeaderComponent={
-          <Pressable onPress={() => setModalOpen(true)} style={{ width: 128 }}>
-            <View style={{ width: 128, height: 128, borderRadius: 4, backgroundColor: "#262626", alignItems: "center", justifyContent: "center" }}>
-              <Music size={48} color="#fff" />
-            </View>
-            <Text style={{ color: "#fff", fontWeight: "500", textAlign: "center", marginTop: 4 }}>{t.NEW_PLAYLIST}</Text>
+    <View style={{ flex: 1, backgroundColor: theme.base100 }}>
+      <View
+        style={{
+          paddingHorizontal: spacing.lg,
+          paddingTop: insets.top + spacing.sm,
+          paddingBottom: spacing.md,
+          gap: spacing.md,
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.md }}>
+          <View style={{ flex: 1 }}>
+            <Text style={typography.screenTitle}>{t.PLAYLISTS}</Text>
+            <Text style={[typography.caption, { marginTop: 2 }]}>
+              {formatCount(playlists.length, t.PLAYLIST_COUNT)}
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => setModalOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={t.NEW_PLAYLIST}
+            style={({ pressed }) => ({
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6,
+              height: 36,
+              paddingHorizontal: 14,
+              borderRadius: radius.full,
+              backgroundColor: theme.primary,
+              opacity: pressed ? 0.8 : 1,
+            })}
+          >
+            <Plus size={16} color={theme.primaryContent} />
+            <Text
+              numberOfLines={1}
+              style={{ color: theme.primaryContent, fontSize: 13, fontWeight: "700" }}
+            >
+              {t.NEW_PLAYLIST}
+            </Text>
           </Pressable>
+        </View>
+
+        <View style={{ gap: spacing.sm }}>
+          <SearchBar
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t.SEARCH_PLAYLISTS}
+          />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.lg }}
+          >
+            {filters.map((filter) => {
+              const selected = view === filter.id;
+              return (
+                <Pressable
+                  key={filter.id}
+                  onPress={() => setView(filter.id)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  style={{
+                    height: 32,
+                    paddingHorizontal: 14,
+                    borderRadius: radius.full,
+                    backgroundColor: selected ? theme.primary : theme.base200,
+                    borderWidth: 1,
+                    borderColor: selected ? theme.primary : theme.outline,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: selected ? theme.primaryContent : theme.muted,
+                      fontSize: 12,
+                      fontWeight: "700",
+                    }}
+                  >
+                    {filter.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      </View>
+
+      <FlatList
+        data={filtered}
+        keyExtractor={(playlist) => playlist.id}
+        renderItem={({ item }) => <PlaylistRow playlist={item} />}
+        contentContainerStyle={{
+          paddingHorizontal: spacing.lg,
+          paddingBottom: spacing.xl,
+          gap: spacing.xs,
+        }}
+        keyboardShouldPersistTaps="handled"
+        ListEmptyComponent={
+          <View style={{ alignItems: "center", gap: spacing.md, paddingTop: 72 }}>
+            <EmptyIcon size={40} color={theme.faint} />
+            <Text style={{ color: theme.muted, fontSize: 14, textAlign: "center" }}>
+              {emptyText}
+            </Text>
+            {playlists.length === 0 ? (
+              <Pressable
+                onPress={() => setModalOpen(true)}
+                accessibilityRole="button"
+                style={{
+                  paddingHorizontal: spacing.lg,
+                  paddingVertical: 10,
+                  borderRadius: radius.full,
+                  backgroundColor: theme.primary,
+                }}
+              >
+                <Text style={{ color: theme.primaryContent, fontWeight: "700" }}>
+                  {t.NEW_PLAYLIST}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
         }
-        renderItem={({ item }) => <PlaylistCard playlist={item} />}
       />
 
-      <Modal visible={modalOpen} transparent animationType="fade" onRequestClose={() => setModalOpen(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", padding: 24 }} onPress={() => setModalOpen(false)}>
-          <View style={{ backgroundColor: theme.base200, borderRadius: 12, padding: 20, gap: 12 }} onStartShouldSetResponder={() => true}>
-            <Text style={{ color: "#fff", fontSize: 20, textAlign: "center" }}>{t.CREATE_PLAYLIST}</Text>
-            <View style={{ flexDirection: "row", gap: 8 }}>
-              <TextInput
-                value={url}
-                onChangeText={setUrl}
-                placeholder="Youtube Playlist URL"
-                placeholderTextColor="#737373"
-                autoCapitalize="none"
-                style={{ flex: 1, backgroundColor: theme.base100, color: "#fff", borderRadius: 8, paddingHorizontal: 12, height: 44 }}
-              />
-              <Pressable onPress={() => void importPlaylist()} style={{ backgroundColor: "#404040", borderRadius: 8, paddingHorizontal: 16, justifyContent: "center" }}>
-                <Text style={{ color: "#fff" }}>{t.IMPORT}</Text>
-              </Pressable>
+      <Modal
+        visible={modalOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={closeModal}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+        >
+          <Pressable
+            style={{
+              flex: 1,
+              backgroundColor: "rgba(2, 6, 23, 0.72)",
+              justifyContent: "center",
+              padding: spacing.xl,
+            }}
+            onPress={closeModal}
+          >
+            <View
+              onStartShouldSetResponder={() => true}
+              style={{
+                backgroundColor: theme.base200,
+                borderRadius: radius.xl,
+                borderWidth: 1,
+                borderColor: theme.outline,
+                padding: spacing.xl,
+                gap: spacing.lg,
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
+                <Text style={[typography.sectionTitle, { flex: 1 }]}>{t.CREATE_PLAYLIST}</Text>
+                <Pressable
+                  onPress={closeModal}
+                  hitSlop={10}
+                  accessibilityRole="button"
+                  accessibilityLabel={t.CLOSE}
+                  style={{ padding: 4 }}
+                >
+                  <X size={20} color={theme.muted} />
+                </Pressable>
+              </View>
+
+              <View style={{ flexDirection: "row", gap: spacing.sm }}>
+                <TextInput
+                  value={url}
+                  onChangeText={setUrl}
+                  placeholder="YouTube playlist URL"
+                  placeholderTextColor={theme.faint}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="url"
+                  style={{
+                    flex: 1,
+                    height: 44,
+                    backgroundColor: theme.base100,
+                    color: theme.text,
+                    borderRadius: radius.md,
+                    borderWidth: 1,
+                    borderColor: theme.outline,
+                    paddingHorizontal: spacing.md,
+                    fontSize: 14,
+                  }}
+                />
+                <Pressable
+                  onPress={() => void importPlaylist()}
+                  disabled={!canImport}
+                  accessibilityRole="button"
+                  style={{
+                    height: 44,
+                    paddingHorizontal: spacing.md,
+                    borderRadius: radius.md,
+                    backgroundColor: theme.base300,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: canImport ? 1 : 0.4,
+                  }}
+                >
+                  <Text style={{ color: theme.text, fontWeight: "600" }}>{t.IMPORT}</Text>
+                </Pressable>
+              </View>
+
+              <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.md }}>
+                <View style={{ flex: 1, height: 1, backgroundColor: theme.outline }} />
+                <Text style={typography.label}>{t.OR}</Text>
+                <View style={{ flex: 1, height: 1, backgroundColor: theme.outline }} />
+              </View>
+
+              <View style={{ flexDirection: "row", gap: spacing.sm }}>
+                <TextInput
+                  value={name}
+                  onChangeText={setName}
+                  onSubmitEditing={createPlaylist}
+                  placeholder={t.NAME_PLAYLIST}
+                  placeholderTextColor={theme.faint}
+                  style={{
+                    flex: 1,
+                    height: 44,
+                    backgroundColor: theme.base100,
+                    color: theme.text,
+                    borderRadius: radius.md,
+                    borderWidth: 1,
+                    borderColor: theme.outline,
+                    paddingHorizontal: spacing.md,
+                    fontSize: 14,
+                  }}
+                />
+                <Pressable
+                  onPress={createPlaylist}
+                  disabled={!canCreate}
+                  accessibilityRole="button"
+                  style={{
+                    height: 44,
+                    paddingHorizontal: spacing.md,
+                    borderRadius: radius.md,
+                    backgroundColor: theme.primary,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: canCreate ? 1 : 0.4,
+                  }}
+                >
+                  <Text style={{ color: theme.primaryContent, fontWeight: "700" }}>{t.ADD}</Text>
+                </Pressable>
+              </View>
             </View>
-            <Text style={{ color: "#737373", textAlign: "center" }}>{t.OR}</Text>
-            <View style={{ flexDirection: "row", gap: 8 }}>
-              <TextInput
-                value={name}
-                onChangeText={setName}
-                placeholder={t.NAME_PLAYLIST}
-                placeholderTextColor="#737373"
-                style={{ flex: 1, backgroundColor: theme.base100, color: "#fff", borderRadius: 8, paddingHorizontal: 12, height: 44 }}
-              />
-              <Pressable onPress={createPlaylist} style={{ backgroundColor: "#404040", borderRadius: 8, paddingHorizontal: 16, justifyContent: "center" }}>
-                <Text style={{ color: "#fff" }}>{t.ADD}</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Pressable>
+          </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

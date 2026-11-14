@@ -1,11 +1,12 @@
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-// Espejo relacional de ~/db/schema (TypeBox). Las canciones viven anidadas
-// en la web (SignalDB); aquí van en tabla propia ordenada por `position`
-// para poder hacer findPlaylistBySongId sin $elemMatch.
+// Espejo relacional de ~/db/schema (TypeBox). Las canciones van en tabla
+// propia ordenada por `position` para poder buscar por youtubeId.
 export const playlists = sqliteTable("playlists", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
+  favorite: integer("favorite", { mode: "boolean" }).notNull().default(false),
+  lastPlayedAt: integer("last_played_at").notNull().default(0),
 });
 
 export const playlistSongs = sqliteTable("playlist_songs", {
