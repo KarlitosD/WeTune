@@ -5,6 +5,7 @@ import { ListMusic, Search } from "lucide-react-native";
 import { getDictionary } from "~/i18n";
 import { theme } from "~/theme";
 import MiniPlayer from "~/components/MiniPlayer";
+import { usePlaylistStore } from "~/store/usePlaylistStore";
 
 export default function TabsLayout() {
   const t = getDictionary();
@@ -26,17 +27,19 @@ export default function TabsLayout() {
 // Barra propia para poder apilar el mini player arriba de las tabs, como en
 // el mockup. Si no hay canción, MiniPlayer no renderiza nada.
 function PlayerTabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {
+  const hasSong = Boolean(usePlaylistStore((s) => s.selectedSong()));
+
   return (
-    <View
-      style={{
-        backgroundColor: theme.base100,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: theme.outline,
-        paddingBottom: insets.bottom,
-      }}
-    >
+    <View style={{ backgroundColor: theme.base100, paddingBottom: insets.bottom }}>
       <MiniPlayer />
-      <View style={{ flexDirection: "row", height: 56 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          height: 56,
+          borderTopWidth: hasSong ? 0 : StyleSheet.hairlineWidth,
+          borderTopColor: theme.outline,
+        }}
+      >
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const label = options.title ?? route.name;

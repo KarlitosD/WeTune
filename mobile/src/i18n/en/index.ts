@@ -33,6 +33,7 @@ const en = {
 	NEXT: "Next",
 	REPEAT: "Repeat",
 	PLAY_ALL: "Play all",
+	NOW_PLAYING: "Now playing",
 	SHUFFLE: "Shuffle",
 	MORE_OPTIONS: "More options",
 	SEARCH_PLAYLISTS: "Search your playlists...",

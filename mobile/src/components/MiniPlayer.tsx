@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from "react-native";
-import { Pause, Play } from "lucide-react-native";
+import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
 import { useProgress } from "react-native-track-player";
 import { getDictionary } from "~/i18n";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
@@ -7,77 +7,113 @@ import { usePlayerStore } from "~/store/usePlayerStore";
 import { radius, spacing, theme } from "~/theme";
 import Thumbnail from "./Thumbnail";
 
-// Mini-player fijo sobre las tabs; se expande al PlayerSheet.
+// Mini-player flotante sobre las tabs. La tarjeta abre el drawer; los
+// controles de transporte quedan fuera del área presionable.
 export default function MiniPlayer() {
   const t = getDictionary();
   const song = usePlaylistStore((s) => s.selectedSong());
   const playing = usePlayerStore((s) => s.playing);
   const togglePlay = usePlayerStore((s) => s.togglePlay);
+  const handleNext = usePlayerStore((s) => s.handleNext);
+  const handlePrevious = usePlayerStore((s) => s.handlePrevious);
   const setExpanded = usePlayerStore((s) => s.setExpanded);
   const { position, duration } = useProgress(500);
 
   if (!song) return null;
-  const progress = duration > 0 ? position / duration : 0;
+  const progress = duration > 0 ? Math.min(1, position / duration) : 0;
 
   return (
-    <Pressable
-      onPress={() => setExpanded(true)}
-      accessibilityRole="button"
-      accessibilityLabel={`${song.title}. ${song.author?.name ?? ""}`}
+    <View
       style={{
+        marginHorizontal: 12,
+        marginTop: 8,
+        marginBottom: 4,
+        borderRadius: radius.lg,
+        borderCurve: "continuous",
         backgroundColor: theme.base200,
-        borderTopWidth: 1,
-        borderTopColor: theme.outline,
+        borderWidth: 1,
+        borderColor: theme.outline,
+        overflow: "hidden",
       }}
     >
-      <View style={{ height: 2, backgroundColor: theme.base300 }}>
-        <View
-          style={{
-            width: `${Math.min(100, progress * 100)}%`,
-            height: 2,
-            backgroundColor: theme.primary,
-          }}
-        />
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          gap: spacing.md,
-          paddingHorizontal: spacing.md,
-          paddingVertical: spacing.sm,
-        }}
-      >
-        <Thumbnail youtubeId={song.youtubeId} title={song.title} size={44} />
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <Text numberOfLines={1} style={{ color: theme.text, fontSize: 14, fontWeight: "600" }}>
-            {song.title}
-          </Text>
-          <Text numberOfLines={1} style={{ color: theme.muted, fontSize: 12, marginTop: 2 }}>
-            {song.author?.name}
-          </Text>
-        </View>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm, padding: 8 }}>
+        <Pressable
+          onPress={() => setExpanded(true)}
+          accessibilityRole="button"
+          accessibilityLabel={`${song.title}. ${song.author?.name ?? ""}`}
+          style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing.sm, minWidth: 0 }}
+        >
+          <Thumbnail youtubeId={song.youtubeId} title={song.title} size={40} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text numberOfLines={1} style={{ color: theme.text, fontSize: 13, fontWeight: "600" }}>
+              {song.title}
+            </Text>
+            <Text numberOfLines={1} style={{ color: theme.muted, fontSize: 11, marginTop: 2 }}>
+              {song.author?.name}
+            </Text>
+          </View>
+        </Pressable>
+
+        <Pressable
+          onPress={() => void handlePrevious()}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t.PREVIOUS}
+          style={{ padding: 4 }}
+        >
+          <SkipBack size={18} color={theme.muted} />
+        </Pressable>
+
         <Pressable
           onPress={() => void togglePlay()}
-          hitSlop={10}
+          hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel={playing ? t.PAUSE : t.PLAY}
           style={{
             width: 36,
             height: 36,
             borderRadius: radius.full,
-            backgroundColor: theme.base300,
+            backgroundColor: theme.primary,
             alignItems: "center",
             justifyContent: "center",
           }}
         >
           {playing ? (
-            <Pause size={18} color={theme.text} />
+            <Pause size={16} color={theme.primaryContent} fill={theme.primaryContent} />
           ) : (
-            <Play size={18} color={theme.text} />
+            <Play size={16} color={theme.primaryContent} fill={theme.primaryContent} />
           )}
         </Pressable>
+
+        <Pressable
+          onPress={() => void handleNext()}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t.NEXT}
+          style={{ padding: 4 }}
+        >
+          <SkipForward size={18} color={theme.muted} />
+        </Pressable>
       </View>
-    </Pressable>
+
+      <View
+        style={{
+          height: 2,
+          marginHorizontal: 10,
+          marginBottom: 8,
+          borderRadius: 1,
+          backgroundColor: "rgba(148, 163, 184, 0.16)",
+        }}
+      >
+        <View
+          style={{
+            width: `${progress * 100}%`,
+            height: 2,
+            borderRadius: 1,
+            backgroundColor: theme.primary,
+          }}
+        />
+      </View>
+    </View>
   );
 }

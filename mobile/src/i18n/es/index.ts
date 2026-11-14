@@ -33,6 +33,7 @@ const es = {
 	NEXT: "Siguiente",
 	REPEAT: "Repetir",
 	PLAY_ALL: "Reproducir todo",
+	NOW_PLAYING: "Reproduciendo",
 	SHUFFLE: "Aleatorio",
 	MORE_OPTIONS: "Más opciones",
 	SEARCH_PLAYLISTS: "Buscar en tus playlists...",

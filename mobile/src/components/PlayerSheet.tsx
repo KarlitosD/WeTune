@@ -1,5 +1,17 @@
-import { useState } from "react";
-import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  Modal,
+  PanResponder,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import Slider from "@react-native-community/slider";
 import {
   CircleArrowDown,
@@ -20,15 +32,16 @@ import { usePlayerStore } from "~/store/usePlayerStore";
 import { useShare } from "~/hooks/useShare";
 import { existsAudioInCache } from "~/services/offline-cache";
 import { getDictionary } from "~/i18n";
-import { theme } from "~/theme";
+import { radius, theme, typography } from "~/theme";
 import { formatSeconds } from "~/utils/seconds";
 import { Resolution, getThumbnailUrl } from "~/utils/thumbnail";
 
-// Player de pantalla completa. Sin slider de volumen (iOS/Android usan
-// botones hardware); el nivel persiste igual en el store.
+// Drawer del player: ocupa una fracción de la pantalla y se cierra
+// deslizando el handle hacia abajo o tocando el overlay.
 export default function PlayerSheet() {
   const t = getDictionary();
   const insets = useSafeAreaInsets();
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const song = usePlaylistStore((s) => s.selectedSong());
   const expanded = usePlayerStore((s) => s.expanded);
   const setExpanded = usePlayerStore((s) => s.setExpanded);
@@ -50,124 +63,293 @@ export default function PlayerSheet() {
   // acepta undefined y no hace nada en ese caso.
   const { handleShare } = useShare(song);
 
+  const sheetHeight = Math.min(windowHeight - 96, Math.max(400, windowHeight * 0.78));
+  const [translateY] = useState(() => new Animated.Value(sheetHeight));
+
+  const closeSheet = () => {
+    Animated.timing(translateY, {
+      toValue: sheetHeight,
+      duration: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => setExpanded(false));
+  };
+
+  const [panResponder] = useState(() =>
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) =>
+        gesture.dy > 4 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
+      onPanResponderMove: (_, gesture) => {
+        if (gesture.dy > 0) translateY.setValue(gesture.dy);
+      },
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dy > 120 || gesture.vy > 0.8) {
+          Animated.timing(translateY, {
+            toValue: sheetHeight,
+            duration: 180,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }).start(() => setExpanded(false));
+        } else {
+          Animated.spring(translateY, {
+            toValue: 0,
+            damping: 20,
+            stiffness: 220,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+      onPanResponderTerminate: () => {
+        Animated.spring(translateY, {
+          toValue: 0,
+          damping: 20,
+          stiffness: 220,
+          useNativeDriver: true,
+        }).start();
+      },
+    }),
+  );
+
+  useEffect(() => {
+    if (!expanded) return;
+    Animated.timing(translateY, {
+      toValue: 0,
+      duration: 240,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [expanded, translateY]);
+
   if (!song) return null;
   const downloaded = existsAudioInCache(song.youtubeId);
   const shown = sliding ?? position;
+  const coverSize = Math.min(240, windowWidth - 96);
 
   return (
-    <Modal visible={expanded} animationType="slide" onRequestClose={() => setExpanded(false)}>
-      <View style={{ flex: 1, backgroundColor: theme.base100, paddingTop: insets.top + 8, paddingHorizontal: 24, paddingBottom: insets.bottom + 24 }}>
+    <Modal
+      visible={expanded}
+      transparent
+      animationType="none"
+      statusBarTranslucent
+      onRequestClose={closeSheet}
+    >
+      <View style={{ flex: 1, justifyContent: "flex-end" }}>
         <Pressable
-          onPress={() => setExpanded(false)}
-          hitSlop={12}
+          onPress={closeSheet}
           accessibilityRole="button"
           accessibilityLabel={t.CLOSE}
-          style={{ alignSelf: "flex-end", padding: 8 }}
+          style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(2, 6, 23, 0.64)" }]}
+        />
+
+        <Animated.View
+          style={{
+            height: sheetHeight,
+            backgroundColor: theme.base200,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            borderTopWidth: 1,
+            borderColor: theme.outline,
+            transform: [{ translateY }],
+          }}
         >
-          <X size={24} color={theme.text} />
-        </Pressable>
-
-        <View style={{ alignItems: "center", marginTop: 12 }}>
-          <Image
-            source={{ uri: getThumbnailUrl(song.youtubeId, { resolution: Resolution.Max, w: "512", h: "512", fit: "cover" }) }}
-            style={{ width: 256, height: 256, borderRadius: 20, backgroundColor: theme.base300 }}
-            contentFit="cover"
-          />
-          <Text numberOfLines={1} style={{ color: theme.text, fontSize: 22, fontWeight: "700", marginTop: 16 }}>
-            {song.title}
-          </Text>
-          <Text numberOfLines={1} style={{ color: theme.muted, marginTop: 4 }}>
-            {song.author?.name}
-          </Text>
-        </View>
-
-        <View style={{ marginTop: 24 }}>
-          <Slider
-            value={shown}
-            minimumValue={0}
-            maximumValue={Math.max(duration, 0)}
-            onSlidingStart={() => setSliding(position)}
-            onValueChange={setSliding}
-            onSlidingComplete={(v) => {
-              setSliding(null);
-              void seek(v);
-            }}
-            minimumTrackTintColor={theme.primary}
-            maximumTrackTintColor={theme.base300}
-            thumbTintColor={theme.primary}
-          />
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ color: theme.muted, fontSize: 12 }}>{formatSeconds(shown)}</Text>
-            <Text style={{ color: theme.muted, fontSize: 12 }}>{formatSeconds(duration)}</Text>
+          <View
+            {...panResponder.panHandlers}
+            style={{ alignItems: "center", paddingTop: 8, paddingBottom: 4 }}
+          >
+            <View
+              style={{
+                width: 40,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: theme.base300,
+              }}
+            />
           </View>
-        </View>
 
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-around", marginTop: 16 }}>
-          <Pressable onPress={() => void handleShare()} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.SHARE}>
-            <Share2 size={20} color={theme.text} />
-          </Pressable>
-          <Pressable
-            onPress={toggleShuffle}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel={t.SHUFFLE}
-          >
-            <Shuffle size={22} color={shuffle ? theme.primary : theme.text} />
-          </Pressable>
-          <Pressable
-            onPress={() => void handlePrevious()}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel={t.PREVIOUS}
-          >
-            <SkipBack size={32} color={theme.text} />
-          </Pressable>
-          <Pressable
-            onPress={() => void togglePlay()}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel={playing ? t.PAUSE : t.PLAY}
+          <View
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: 32,
-              backgroundColor: theme.primary,
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 24,
+              paddingTop: 4,
+              paddingBottom: 8,
+            }}
+          >
+            <Text style={[typography.label, { flex: 1 }]}>{t.NOW_PLAYING}</Text>
+            <Pressable
+              onPress={closeSheet}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel={t.CLOSE}
+              style={{ padding: 4 }}
+            >
+              <X size={20} color={theme.muted} />
+            </Pressable>
+          </View>
+
+          <ScrollView
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            contentContainerStyle={{
+              flexGrow: 1,
               alignItems: "center",
               justifyContent: "center",
+              paddingHorizontal: 24,
+              paddingTop: 8,
+              paddingBottom: insets.bottom + 24,
             }}
           >
-            {playing ? (
-              <Pause size={28} color={theme.primaryContent} />
-            ) : (
-              <Play size={28} color={theme.primaryContent} />
-            )}
-          </Pressable>
-          <Pressable
-            onPress={() => void handleNext()}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel={t.NEXT}
-          >
-            <SkipForward size={32} color={theme.text} />
-          </Pressable>
-          <Pressable
-            onPress={toggleLoop}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel={t.REPEAT}
-            style={{ alignItems: "center" }}
-          >
-            <Repeat size={22} color={loop !== "NONE" ? theme.primary : theme.text} />
-            {loop === "ONE" ? <Text style={{ color: theme.primary, fontSize: 10 }}>1</Text> : null}
-          </Pressable>
-          <Pressable onPress={() => void handleDownload()} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.DOWNLOAD} disabled={downloaded}>
-            {downloading ? (
-              <ActivityIndicator size="small" color={theme.primary} />
-            ) : (
-              <CircleArrowDown size={20} color={downloaded ? theme.primary : theme.text} />
-            )}
-          </Pressable>
-        </View>
+            <Image
+              source={{
+                uri: getThumbnailUrl(song.youtubeId, {
+                  resolution: Resolution.Max,
+                  w: "512",
+                  h: "512",
+                  fit: "cover",
+                }),
+              }}
+              style={{
+                width: coverSize,
+                height: coverSize,
+                borderRadius: radius.lg,
+                backgroundColor: theme.base300,
+              }}
+              contentFit="cover"
+            />
+            <Text
+              numberOfLines={1}
+              style={{
+                color: theme.text,
+                fontSize: 20,
+                fontWeight: "700",
+                marginTop: 16,
+                alignSelf: "stretch",
+                textAlign: "center",
+              }}
+            >
+              {song.title}
+            </Text>
+            <Text
+              numberOfLines={1}
+              style={{ color: theme.muted, marginTop: 4, alignSelf: "stretch", textAlign: "center" }}
+            >
+              {song.author?.name}
+            </Text>
+
+            <View style={{ alignSelf: "stretch", marginTop: 20 }}>
+              <Slider
+                value={shown}
+                minimumValue={0}
+                maximumValue={Math.max(duration, 0)}
+                onSlidingStart={() => setSliding(position)}
+                onValueChange={setSliding}
+                onSlidingComplete={(v) => {
+                  setSliding(null);
+                  void seek(v);
+                }}
+                minimumTrackTintColor={theme.primary}
+                maximumTrackTintColor={theme.base300}
+                thumbTintColor={theme.primary}
+              />
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                <Text style={{ color: theme.muted, fontSize: 12 }}>{formatSeconds(shown)}</Text>
+                <Text style={{ color: theme.muted, fontSize: 12 }}>{formatSeconds(duration)}</Text>
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-around",
+                alignSelf: "stretch",
+                marginTop: 12,
+              }}
+            >
+              <Pressable
+                onPress={() => void handleShare()}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={t.SHARE}
+              >
+                <Share2 size={20} color={theme.muted} />
+              </Pressable>
+              <Pressable
+                onPress={toggleShuffle}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={t.SHUFFLE}
+              >
+                <Shuffle size={22} color={shuffle ? theme.primary : theme.muted} />
+              </Pressable>
+              <Pressable
+                onPress={() => void handlePrevious()}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={t.PREVIOUS}
+              >
+                <SkipBack size={30} color={theme.text} />
+              </Pressable>
+              <Pressable
+                onPress={() => void togglePlay()}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={playing ? t.PAUSE : t.PLAY}
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 32,
+                  backgroundColor: theme.primary,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {playing ? (
+                  <Pause size={26} color={theme.primaryContent} />
+                ) : (
+                  <Play size={26} color={theme.primaryContent} />
+                )}
+              </Pressable>
+              <Pressable
+                onPress={() => void handleNext()}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={t.NEXT}
+              >
+                <SkipForward size={30} color={theme.text} />
+              </Pressable>
+              <Pressable
+                onPress={toggleLoop}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={t.REPEAT}
+                style={{ alignItems: "center" }}
+              >
+                <Repeat size={22} color={loop !== "NONE" ? theme.primary : theme.muted} />
+                {loop === "ONE" ? (
+                  <Text style={{ color: theme.primary, fontSize: 10 }}>1</Text>
+                ) : null}
+              </Pressable>
+              <Pressable
+                onPress={() => void handleDownload()}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={t.DOWNLOAD}
+                disabled={downloaded}
+              >
+                {downloading ? (
+                  <ActivityIndicator size="small" color={theme.primary} />
+                ) : (
+                  <CircleArrowDown
+                    size={20}
+                    color={downloaded ? theme.primary : theme.muted}
+                  />
+                )}
+              </Pressable>
+            </View>
+          </ScrollView>
+        </Animated.View>
       </View>
     </Modal>
   );

@@ -145,6 +145,10 @@ type RootTranslation = {
 	 */
 	PLAY_ALL: string
 	/**
+	 * N​o​w​ ​p​l​a​y​i​n​g
+	 */
+	NOW_PLAYING: string
+	/**
 	 * S​h​u​f​f​l​e
 	 */
 	SHUFFLE: string
@@ -352,6 +356,10 @@ export type TranslationFunctions = {
 	 * Play all
 	 */
 	PLAY_ALL: () => LocalizedString
+	/**
+	 * Now playing
+	 */
+	NOW_PLAYING: () => LocalizedString
 	/**
 	 * Shuffle
 	 */

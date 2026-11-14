@@ -244,7 +244,9 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
         )}
       />
 
-      <MiniPlayer />
+      <View style={{ paddingBottom: insets.bottom }}>
+        <MiniPlayer />
+      </View>
 
       <Pressable
         onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
@@ -460,9 +462,9 @@ function PlaylistHero({
               height: 44,
               paddingHorizontal: 14,
               borderRadius: radius.full,
-              backgroundColor: shuffle ? "rgba(56, 189, 248, 0.16)" : theme.base200,
+              backgroundColor: shuffle ? "rgba(248, 250, 252, 0.12)" : theme.base200,
               borderWidth: 1,
-              borderColor: shuffle ? "rgba(56, 189, 248, 0.4)" : theme.outline,
+              borderColor: shuffle ? "rgba(248, 250, 252, 0.28)" : theme.outline,
               opacity: hasSongs ? 1 : 0.4,
             }}
           >
@@ -488,9 +490,9 @@ function PlaylistHero({
                 width: 44,
                 height: 44,
                 borderRadius: radius.full,
-                backgroundColor: favorite ? "rgba(56, 189, 248, 0.16)" : theme.base200,
+                backgroundColor: favorite ? "rgba(248, 250, 252, 0.12)" : theme.base200,
                 borderWidth: 1,
-                borderColor: favorite ? "rgba(56, 189, 248, 0.4)" : theme.outline,
+                borderColor: favorite ? "rgba(248, 250, 252, 0.28)" : theme.outline,
                 alignItems: "center",
                 justifyContent: "center",
               }}

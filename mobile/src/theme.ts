@@ -1,19 +1,19 @@
 import type { TextStyle } from "react-native";
 
-// Paleta base de WeTune: azul noche + cian.
+// Paleta base de WeTune: neutral casi negro + blanco/slate.
 // Fuente única para que toda la app comparta superficies y jerarquía.
 export const theme = {
-  primary: "#38bdf8",
-  primaryContent: "#082f49",
-  base100: "#0f172a",
-  base200: "#1a2338",
-  base300: "#24304a",
-  text: "#e7ecf7",
-  muted: "#a3b0c7",
-  faint: "#78859c",
-  outline: "rgba(148, 163, 184, 0.16)",
-  danger: "#f87171",
-  white: "#ffffff",
+  primary: "#F8FAFC",
+  primaryContent: "#0F172A",
+  base100: "#0F172A",
+  base200: "#1A2338",
+  base300: "#24304A",
+  text: "#E7ECF7",
+  muted: "#A3B0C7",
+  faint: "#78859C",
+  outline: "rgba(148, 163, 184, 0.18)",
+  danger: "#F87171",
+  white: "#FFFFFF",
 } as const;
 
 export const spacing = {
@@ -26,18 +26,18 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
+  sm: 6,
+  md: 10,
+  lg: 12,
+  xl: 16,
   full: 9999,
 } as const;
 
 export const typography = {
   screenTitle: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "700",
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
     color: theme.text,
   },
   sectionTitle: {
@@ -61,9 +61,9 @@ export const typography = {
     color: theme.muted,
   },
   label: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "700",
-    letterSpacing: 0.8,
+    letterSpacing: 1.1,
     textTransform: "uppercase",
     color: theme.muted,
   },

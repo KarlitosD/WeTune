@@ -22,7 +22,7 @@
     "android": {
       "package": "com.wetune.dev",
       "adaptiveIcon": {
-        "backgroundColor": "#0f172a",
+        "backgroundColor": "#0F172A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
@@ -55,7 +55,7 @@
         {
           "image": "./assets/splash.png",
           "imageWidth": 200,
-          "backgroundColor": "#0f172a"
+          "backgroundColor": "#0F172A"
         }
       ],
       "expo-sqlite"
