@@ -35,9 +35,9 @@ ANDROID_SHA256="AA:BB:...:FF" APPLE_TEAM_ID="XXXXXXXXXX" \
   node scripts/generate-app-links.mjs
 ```
 
-- `public/.well-known/assetlinks.json` está generado con el fingerprint del
-  debug keystore actual para poder probar en desarrollo; antes de publicar hay
-  que añadir el SHA-256 del keystore de **release**.
+- No hay `assetlinks.json`/AASA versionados: el generador exige el SHA-256 del
+  keystore de **release** y el `APPLE_TEAM_ID`. El fingerprint de debug solo
+  sirve para pruebas locales y no debe ser el único.
 - `public/.well-known/apple-app-site-association` no existe todavía: falta el
   `APPLE_TEAM_ID`.
 - `wetune.app` hoy responde con un lander HTML (114 bytes), no con el build web;
