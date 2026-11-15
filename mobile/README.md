@@ -21,8 +21,11 @@ Copiar `.env.example` a `.env`:
 
 - `npm start` — Metro.
 - `npm run android/ios` — dev build local (requiere Android SDK / Xcode).
-- `npm run typecheck` — `tsc --noEmit` (strict + noUnusedLocals/Parameters).
-- `npm run lint` — ESLint (config Expo).
+- `npm run typecheck` — TypeScript 7 (nativo) con `--noEmit`, strict +
+  noUnusedLocals/Parameters. Se invoca por ruta porque `typescript` sigue en 6.0.x
+  para que `typescript-eslint` funcione; no cambies el script a `tsc` a secas.
+- `npm run lint` — ESLint (config Expo, ESLint 9: la 10 aún rompe
+  `eslint-plugin-react`).
 - `npm run test` — Vitest (lógica pura: utils, api client, schema, audio contract).
 - `npm run i18n` — regenera `src/i18n/i18n-types.ts` tras cambiar las traducciones en `en/` o `es/`.
 
