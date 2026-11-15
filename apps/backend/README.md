@@ -27,10 +27,14 @@ Bun carga `.env` automáticamente. Con Node plano hay que pasarlo explícito:
 | Variable | Uso |
 | --- | --- |
 | `PORT` | Puerto del servidor |
-| `YOUTUBE_COOKIE` | Cookie de sesión de YouTube. Sin ella se usa acceso anónimo y algunas rutas fallan |
-| `PO_TOKEN` | `po_token` para `/api/song/data` |
-| `VISITOR_DATA` | `visitor_data` para `/api/song/data` |
+| `YOUTUBE_COOKIE` | **Recomendada.** Cookie de sesión que usa el Innertube principal (`/api/search`, `/api/playlist`, `/api/song`). Sin ella se usa acceso anónimo y YouTube puede rechazar canciones o devolver metadata parcial, sobre todo desde IPs de Vercel |
+| `PO_TOKEN` | **Opcional.** Solo para `/api/song/data`, ruta que la app móvil no usa |
+| `VISITOR_DATA` | **Opcional.** Solo para `/api/song/data`. Es el `visitorData` de InnerTube: `ytcfg.get('VISITOR_DATA')` en youtube.com o `POST /youtubei/v1/visitor_id` |
 | `ALLOW_ORIGINS` | Orígenes CORS (`*` por defecto) |
+
+Si `/api/song` responde `song_unavailable` en Vercel, lo primero es cargar una
+`YOUTUBE_COOKIE` válida y redeployar. La ruta loguea `[song] unavailable` en los
+logs de la función.
 
 `.env` no se versiona. Si una credencial estuvo en git, hay que rotarla: el
 historial la conserva.
@@ -64,8 +68,9 @@ repositorio (rama `feat/nitro-v3` o `main` una vez mergeado), no al repo viejo.
 3. Activá **Include files outside of the Root Directory in the Build Step**
    (necesario para el workspace pnpm).
 4. **Framework Preset**: Other. Node.js 22.x (≥ 22.22).
-5. Variables de entorno: `YOUTUBE_COOKIE`, `PO_TOKEN`, `VISITOR_DATA` y,
-   opcionalmente, `ALLOW_ORIGINS`.
+5. Variables de entorno: `YOUTUBE_COOKIE` (recomendada) y, opcionalmente,
+   `ALLOW_ORIGINS`. `PO_TOKEN` y `VISITOR_DATA` solo hacen falta para
+   `/api/song/data`, que la app móvil no usa.
 6. Deploy. `apps/backend/vercel.json` ya define install/build con
    `NITRO_PRESET=vercel`; el output queda en `apps/backend/.vercel/output`
    (Build Output API, no configurar Output Directory).
