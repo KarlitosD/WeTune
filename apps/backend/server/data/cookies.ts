@@ -15,7 +15,7 @@ export function specificParseCookiesYT(cookieString: string): Array<{ name: stri
     const value = parts.slice(1).join('=') || '';
     return {
       name: name.trim(),
-      value: value,
+      value: value.trim(),
       domain: '.youtube.com',
       path: '/',
     };

@@ -35,6 +35,7 @@ export function parseSongFromYTNodeLike(item: YTNodes.MusicResponsiveListItem): 
             }
         }
     }
+    return null
 }
 
 export function parseFromVideoInfo(content: YT.VideoInfo): Song {

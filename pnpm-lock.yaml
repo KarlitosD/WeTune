@@ -42,6 +42,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      vitest:
+        specifier: ^5.0.1
+        version: 5.1.0(@types/node@25.9.9)(jsdom@25.0.1(supports-color@10.2.2))(vite@8.3.8(@types/node@25.9.9)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))
 
   apps/mobile:
     dependencies:
