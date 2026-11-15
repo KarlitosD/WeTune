@@ -515,9 +515,9 @@ function PlaylistHero({
               width: 44,
               height: 44,
               borderRadius: radius.full,
-              backgroundColor: theme.base200,
+              backgroundColor: allCached ? "rgba(248, 250, 252, 0.12)" : theme.base200,
               borderWidth: 1,
-              borderColor: theme.outline,
+              borderColor: allCached ? "rgba(248, 250, 252, 0.28)" : theme.outline,
               alignItems: "center",
               justifyContent: "center",
               opacity: hasSongs ? 1 : 0.4,
@@ -526,7 +526,7 @@ function PlaylistHero({
             {downloadingAll ? (
               <ActivityIndicator size="small" color={theme.primary} />
             ) : (
-              <CircleArrowDown size={20} color={allCached ? theme.primary : theme.text} />
+              <CircleArrowDown size={20} color={allCached ? theme.primary : theme.muted} />
             )}
           </Pressable>
 
