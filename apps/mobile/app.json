@@ -7,18 +7,6 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "scheme": "wetune",
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.wetune.dev",
-      "associatedDomains": [
-        "applinks:wetune.app"
-      ],
-      "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ]
-      }
-    },
     "android": {
       "package": "com.wetune.dev",
       "adaptiveIcon": {

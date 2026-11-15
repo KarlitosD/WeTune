@@ -24,7 +24,7 @@ without an explicit product decision.
 | --- | --- |
 | `apps/mobile/` | React Native + Expo SDK 58, Expo Router, TypeScript |
 | `apps/backend/` | Nitro API (YouTube search/playlist/audio), Bun-friendly |
-| `packages/` | Shared workspace packages (currently empty) |
+| `packages/contracts/` | Zod schemas shared by mobile and backend |
 | `app-links/` | App Links generator + deployment notes for `wetune.app` |
 | `brand/` | Logo/icon source assets |
 | `.github/workflows/ci.yml` | Typecheck, lint, tests, Android JS export, backend build |
@@ -50,7 +50,7 @@ Run from the repo root: pnpm workspaces + Turborepo.
 | `pnpm dev` | Start Metro and nitro dev together |
 | `pnpm typecheck` / `pnpm lint` / `pnpm test` | Run across all packages |
 | `pnpm --filter wetune-mobile start` | Start Metro |
-| `pnpm --filter wetune-mobile android` / `ios` | Build/run locally; requires Android SDK / Xcode |
+| `pnpm --filter wetune-mobile android` | Build/run locally; requires Android SDK |
 | `pnpm --filter wetune-mobile test -- src/utils/seconds.test.ts` | Run a targeted test file |
 | `pnpm --filter wetune-mobile i18n` | Regenerate `src/i18n/i18n-types.ts` after changing `en/` or `es/` |
 | `pnpm --filter @wetune/backend dev` | API dev server |
@@ -98,8 +98,10 @@ the schema:
 2. Bump `DB_VERSION`.
 3. Add an idempotent step in `migrateIfNeeded()` (check `PRAGMA table_info` or
    equivalent) that preserves existing rows.
-4. Update the Zod shape in `src/db/schema.ts` only for fields that cross a
-   boundary; local-only fields stay optional or outside API validation.
+4. Update the Zod shape in `packages/contracts/src/index.ts` only for fields that
+   cross a boundary; local-only fields stay optional or outside API validation.
+   `apps/mobile/src/db/schema.ts` and `apps/backend/server/schema/index.ts` only
+   re-export it.
 5. Test migration from the previous version on a real DB, not only a fresh one.
 
 Raising `DB_VERSION` alone is not a migration. Never drop/recreate tables with
@@ -113,7 +115,7 @@ migration backfills both columns with defaults.
 - `app-links/scripts/generate-app-links.mjs` writes release association files to
   `app-links/.well-known/`. They are deployed to `wetune.app`, not bundled in the
   app.
-- Never commit `assetlinks.json`/AASA generated with a debug-only fingerprint.
+- Never commit `assetlinks.json` generated with a debug-only fingerprint.
   Include the release signing identity; debug fingerprints may be added, never
   alone.
 - The app handles `wetune://share/song?songId=...` and `/share/song`.
@@ -151,7 +153,7 @@ Not release-ready yet:
   `com.wetune.dev` is still a development identifier.
 - App Links are not deployed; `wetune.app/.well-known/*` is a lander.
 - No public share landing.
-- iOS build/test is pending (EAS; no local macOS).
+- iOS is not a target: no `ios/` directory, no iOS build profile.
 - Device QA for lockscreen/Bluetooth, offline downloads, and share is pending.
 
 The old Tauri signing keystore was removed from the tree but remains in git

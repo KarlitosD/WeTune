@@ -9,7 +9,7 @@ guardarlas offline. Monorepo con la app móvil (Expo) y la API (Nitro).
 | --- | --- |
 | `apps/mobile/` | App React Native + Expo Router, SQLite/Drizzle, MMKV, TrackPlayer |
 | `apps/backend/` | API Nitro: búsqueda, playlists, metadatos y audio de YouTube |
-| `packages/` | Paquetes compartidos del workspace (vacío por ahora) |
+| `packages/contracts/` | Esquemas Zod compartidos entre app y API |
 | `app-links/` | Generador y README de `.well-known` + plan del share web |
 | `brand/` | Fuente del logo/icono |
 
@@ -36,7 +36,7 @@ pnpm --filter @wetune/backend dev
 En otra terminal, con un emulador/dispositivo:
 
 ```bash
-pnpm --filter wetune-mobile android   # o ios en macOS
+pnpm --filter wetune-mobile android
 ```
 
 Checks:

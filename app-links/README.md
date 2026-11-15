@@ -8,18 +8,15 @@ abrir links `https://wetune.app/share/...`.
 
 ```bash
 ANDROID_SHA256="AA:BB:...:FF" \
-APPLE_TEAM_ID="XXXXXXXXXX" \
-node app-links/scripts/generate-app-links.mjs
+  node app-links/scripts/generate-app-links.mjs
 ```
 
 - `ANDROID_SHA256`: SHA-256 del keystore de **release** (EAS o local). Para
   probar un build debug se puede añadir también el fingerprint del debug
   keystore, separado por coma, pero **nunca debe ser el único**.
-- `APPLE_TEAM_ID`: Team ID de Apple. Sin él, el script omite la AASA y iOS no
-  abre links `https`.
 
-El generador escribe `app-links/.well-known/assetlinks.json` y, si hay team ID,
-`app-links/.well-known/apple-app-site-association`.
+El generador escribe `app-links/.well-known/assetlinks.json`. iOS no es un
+target del proyecto, así que no se genera AASA.
 
 > No versionar esos archivos generados solo con el fingerprint de debug. La
 > identidad de release es obligatoria; el generador debe ejecutarse con ella
@@ -31,9 +28,7 @@ El generador escribe `app-links/.well-known/assetlinks.json` y, si hay team ID,
    `app-links/.well-known/` en el dominio que usa `apps/mobile/app.json`
    (`wetune.app`).
 2. `assetlinks.json` debe responder `200` con `application/json`.
-3. `apple-app-site-association` debe responder `200` con
-   `application/json` **sin extensión**.
-4. Verificar Android:
+3. Verificar Android:
 
    ```bash
    adb shell pm get-app-links com.wetune.dev
@@ -63,6 +58,6 @@ página pública útil.
   dominio (114 bytes), no el archivo.
 - No hay SHA-256 del keystore de release de Expo (el `release.jks` de Tauri usaba
   una contraseña no disponible y queda fuera del repo; hay que rotarlo).
-- No hay `APPLE_TEAM_ID` ni sesión de EAS (`eas whoami` → not logged in).
+- No hay sesión de EAS (`eas whoami` → not logged in).
 - El sitio de share no existe; el dominio no está sirviendo el build web (ya no
   hay build web en esta rama).

@@ -1,4 +1,3 @@
-import { Value } from "@sinclair/typebox/value"
 import { songSchema, type Song } from "../schema"
 
 import { Innertube } from "youtubei.js"
@@ -11,7 +10,7 @@ const innertube = await Innertube.create({ cookie: cookie })
 function parseAndValidateSong(content: Parameters<typeof parseFromVideoInfo>[0]): Song | null {
     try {
         const song = parseFromVideoInfo(content)
-        return Value.Check(songSchema, song) ? song : null
+        return songSchema.safeParse(song).success ? song : null
     } catch {
         return null
     }

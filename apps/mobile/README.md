@@ -8,7 +8,7 @@ no hay migración de datos porque no hubo usuarios previos.
 
 - **No funciona en Expo Go.** Usa módulos nativos (`react-native-track-player`,
   `react-native-mmkv`, `expo-sqlite`, `expo-file-system`) → development build:
-  `pnpm --filter wetune-mobile android` / `ios` o EAS
+  `pnpm --filter wetune-mobile android` o EAS
   (`eas build --profile development`).
 
 ## Env

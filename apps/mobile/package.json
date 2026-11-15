@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@react-native-community/slider": "5.2.1",
+    "@wetune/contracts": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "expo": "^58.0.25",
     "expo-constants": "~58.0.16",
@@ -37,7 +38,6 @@
     "react-native-svg": "15.16.0",
     "react-native-track-player": "5.0.0-alpha0",
     "typesafe-i18n": "^5.27.1",
-    "zod": "^4.6.7",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -52,7 +52,6 @@
     "start": "expo start",
     "dev": "expo start",
     "android": "expo run:android",
-    "ios": "expo run:ios",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",

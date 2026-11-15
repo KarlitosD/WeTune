@@ -1,8 +1,9 @@
 # Monorepo pnpm + Turborepo
 
-> **Estado (2026-11-14):** fases 1–4 y 6–7 ejecutadas en la rama `feat/monorepo`
-> (layout `apps/`, pnpm, Turborepo, CI, docs). Falta la fase 5
-> (`packages/contracts`) y la verificación en device/EAS (G6–G7).
+> **Estado (2026-11-14):** fases 1–7 ejecutadas en `feat/monorepo`: layout
+> `apps/`, pnpm, Turborepo, CI, docs y `packages/contracts` (Zod compartido,
+> backend migrado desde TypeBox). iOS queda descartado como target. Falta la QA
+> en dispositivo y el build de EAS.
 
 ## Objetivo
 
