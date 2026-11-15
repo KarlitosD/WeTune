@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shareUrlFor, songFromShareParams } from "./share-url";
+import { shareUrlFor, songFromShareParams, songFromVideoInfo } from "./share-url";
 
 const song = {
   youtubeId: "dQw4w9WgXcQ",
@@ -25,6 +25,40 @@ describe("shareUrlFor", () => {
 
     expect(url).toContain("title=Rock%20%26%20Roll%20%2F%20100%25");
     expect(url).toContain("author=AC%2FDC");
+  });
+});
+
+describe("songFromVideoInfo", () => {
+  it("mapea la metadata de VISIONOS y limpia el sufijo Topic", () => {
+    expect(
+      songFromVideoInfo({
+        videoId: "d7woYjGWs6k",
+        title: "Da Funk",
+        author: "Daft Punk - Topic",
+        channelId: "UCRr1xG_2WIDs18a6cIiCxeA",
+        duration: 329,
+      }),
+    ).toEqual({
+      youtubeId: "d7woYjGWs6k",
+      title: "Da Funk",
+      thumbnailUrl: "https://i.ytimg.com/vi/d7woYjGWs6k/mqdefault.jpg",
+      duration: 329,
+      type: "song",
+      author: { name: "Daft Punk", id: "UCRr1xG_2WIDs18a6cIiCxeA" },
+    });
+  });
+
+  it("deja los videos con su autor original", () => {
+    const song = songFromVideoInfo({
+      videoId: "dQw4w9WgXcQ",
+      title: "Never Gonna Give You Up",
+      author: "Rick Astley",
+      channelId: "UCuAXFkgsw1L7xaCfnd5JJOw",
+      duration: 213,
+    });
+
+    expect(song.type).toBe("video");
+    expect(song.author.name).toBe("Rick Astley");
   });
 });
 

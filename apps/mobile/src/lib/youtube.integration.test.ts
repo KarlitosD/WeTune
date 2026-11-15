@@ -21,6 +21,18 @@ suite("youtube integration", () => {
   );
 
   it(
+    "devuelve metadata del video desde el player VISIONOS",
+    async () => {
+      const info = await createYoutubeClient().getVideoInfo("dQw4w9WgXcQ");
+      expect(info.videoId).toBe("dQw4w9WgXcQ");
+      expect(info.title.length).toBeGreaterThan(0);
+      expect(info.author.length).toBeGreaterThan(0);
+      expect(info.duration).toBeGreaterThan(0);
+    },
+    60_000,
+  );
+
+  it(
     "descarga completa con chunks validados",
     async () => {
       const client = createYoutubeClient();

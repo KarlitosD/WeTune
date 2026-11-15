@@ -1,4 +1,5 @@
 import type { Song } from "~/db/schema";
+import type { VideoInfo } from "~/lib/audio-source";
 
 // Deep link propio de la app. No depende de wetune.app ni de App Links.
 const SHARE_URL = "wetune://share/song";
@@ -32,6 +33,22 @@ export function shareUrlFor(
 
 function param(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+// Metadata resuelta en el dispositivo (mismo player VISIONOS que el audio).
+export function songFromVideoInfo(info: VideoInfo): Song {
+  const isTopic = info.author.endsWith(" - Topic");
+  return {
+    youtubeId: info.videoId,
+    title: info.title,
+    thumbnailUrl: `https://i.ytimg.com/vi/${info.videoId}/mqdefault.jpg`,
+    duration: info.duration,
+    type: isTopic ? "song" : "video",
+    author: {
+      name: isTopic ? info.author.replace(/ - Topic$/, "") : info.author,
+      id: info.channelId,
+    },
+  };
 }
 
 export function songFromShareParams(params: ShareLinkParams): Song | null {

@@ -3,11 +3,12 @@ import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { PLAYLISTS } from "~/consts";
 import { getSong } from "~/api/client";
+import { resolveVideoInfo } from "~/lib/audio-source";
 import { getDictionary } from "~/i18n";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { radius, spacing, theme } from "~/theme";
-import { songFromShareParams } from "~/utils/share-url";
+import { songFromShareParams, songFromVideoInfo } from "~/utils/share-url";
 
 // Deep link de canción compartida: link con metadata -> playSong(HISTORY).
 // Los links viejos (solo songId) caen a /api/song.
@@ -42,7 +43,16 @@ export default function ShareSong() {
     let cancelled = false;
     (async () => {
       try {
-        const song = sharedSong ?? (await getSong(songId));
+        // Link viejo sin metadata: resolver en el dispositivo (VISIONOS) y
+        // recién si falla usar el backend.
+        let song = sharedSong;
+        if (!song) {
+          try {
+            song = songFromVideoInfo(await resolveVideoInfo(songId));
+          } catch {
+            song = await getSong(songId);
+          }
+        }
         if (cancelled) return;
         await usePlaylistStore.getState().playSong(song, PLAYLISTS.HISTORY);
         if (cancelled) return;

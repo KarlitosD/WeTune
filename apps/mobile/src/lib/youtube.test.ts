@@ -192,6 +192,50 @@ describe("createYoutubeClient", () => {
     await expect(createYoutubeClient({ fetchFn }).resolve("corto")).rejects.toThrow("Invalid videoId");
     expect(called).toBe(false);
   });
+
+  it("devuelve la metadata del player para links viejos de share", async () => {
+    const fetchFn = (async (input: string | URL | Request) => {
+      const url = String(input);
+      if (url.includes("/visitor_id")) {
+        return jsonResponse({ responseContext: { visitorData: "VISITOR%3D123" } });
+      }
+      if (url.includes("/player")) {
+        return jsonResponse({
+          videoDetails: {
+            videoId: "dQw4w9WgXcQ",
+            title: "Da Funk",
+            author: "Daft Punk - Topic",
+            channelId: "UCRr1xG_2WIDs18a6cIiCxeA",
+            lengthSeconds: "329",
+          },
+          streamingData: {},
+        });
+      }
+      throw new Error(`unexpected url ${url}`);
+    }) as typeof fetch;
+
+    await expect(createYoutubeClient({ fetchFn }).getVideoInfo("dQw4w9WgXcQ")).resolves.toEqual({
+      videoId: "dQw4w9WgXcQ",
+      title: "Da Funk",
+      author: "Daft Punk - Topic",
+      channelId: "UCRr1xG_2WIDs18a6cIiCxeA",
+      duration: 329,
+    });
+  });
+
+  it("rechaza un player sin título ni id", async () => {
+    const fetchFn = (async (input: string | URL | Request) => {
+      const url = String(input);
+      if (url.includes("/visitor_id")) {
+        return jsonResponse({ responseContext: { visitorData: "VISITOR%3D123" } });
+      }
+      return jsonResponse({ streamingData: {} });
+    }) as typeof fetch;
+
+    await expect(createYoutubeClient({ fetchFn }).getVideoInfo("dQw4w9WgXcQ")).rejects.toThrow(
+      "metadata",
+    );
+  });
 });
 
 describe("downloadAudio", () => {

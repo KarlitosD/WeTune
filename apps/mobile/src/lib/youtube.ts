@@ -17,6 +17,14 @@ export type AudioSource = {
   client: "visionos";
 };
 
+export type VideoInfo = {
+  videoId: string;
+  title: string;
+  author: string;
+  channelId: string;
+  duration: number;
+};
+
 export type YoutubeErrorKind =
   | "input"
   | "visitor"
@@ -225,7 +233,14 @@ type PlayerFormat = {
 };
 
 type PlayerResponse = {
-  videoDetails?: { videoId?: string };
+  videoDetails?: {
+    videoId?: string;
+    title?: string;
+    author?: string;
+    channelId?: string;
+    lengthSeconds?: string;
+    isLiveContent?: boolean;
+  };
   playabilityStatus?: {
     status?: string;
     reason?: string;
@@ -503,7 +518,7 @@ export function createYoutubeClient(options: YoutubeClientOptions = {}) {
     }
   }
 
-  async function resolve(videoId: string, quality: Quality = "highest", signal?: AbortSignal) {
+  async function loadPlayer(videoId: string, signal?: AbortSignal) {
     if (!VIDEO_ID_RE.test(videoId)) throw new YoutubeError("Invalid videoId", { kind: "input", fatal: true });
     const visitor = await getVisitor(signal);
     const player = await fetchPlayer(videoId, visitor, signal);
@@ -514,9 +529,32 @@ export function createYoutubeClient(options: YoutubeClientOptions = {}) {
         fatal: classification.fatal,
       });
     }
+    return player;
+  }
+
+  async function resolve(videoId: string, quality: Quality = "highest", signal?: AbortSignal) {
+    const player = await loadPlayer(videoId, signal);
     const source = pickAudio(player, videoId, quality);
     if (!source) throw new YoutubeError("No hay formato de audio directo", { kind: "noFormats" });
     return source;
+  }
+
+  // Metadata del mismo player que usa resolve; evita depender de /api/song
+  // para los links de share viejos.
+  async function getVideoInfo(videoId: string, signal?: AbortSignal): Promise<VideoInfo> {
+    const player = await loadPlayer(videoId, signal);
+    const details = player.videoDetails;
+    if (!details?.videoId || !details.title) {
+      throw new YoutubeError("YouTube no devolvió la metadata del video", { kind: "unavailable" });
+    }
+    const duration = Number(details.lengthSeconds);
+    return {
+      videoId: details.videoId,
+      title: details.title,
+      author: details.author ?? "",
+      channelId: details.channelId ?? "",
+      duration: Number.isFinite(duration) && duration > 0 ? duration : 0,
+    };
   }
 
   function invalidateVisitor() {
@@ -524,7 +562,7 @@ export function createYoutubeClient(options: YoutubeClientOptions = {}) {
     options.visitorStore?.clear();
   }
 
-  return { getVisitor, resolve, invalidateVisitor };
+  return { getVisitor, resolve, getVideoInfo, invalidateVisitor };
 }
 
 export type ProbeResult = { total: number; ranged: boolean };
