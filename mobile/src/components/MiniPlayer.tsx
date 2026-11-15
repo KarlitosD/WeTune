@@ -1,5 +1,8 @@
 import { Pressable, Text, View } from "react-native";
-import { Pause, Play, SkipBack, SkipForward } from "lucide-react-native";
+import Pause from "lucide-react-native/icons/pause";
+import Play from "lucide-react-native/icons/play";
+import SkipBack from "lucide-react-native/icons/skip-back";
+import SkipForward from "lucide-react-native/icons/skip-forward";
 import { useProgress } from "react-native-track-player";
 import { getDictionary } from "~/i18n";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
@@ -17,10 +20,8 @@ export default function MiniPlayer() {
   const handleNext = usePlayerStore((s) => s.handleNext);
   const handlePrevious = usePlayerStore((s) => s.handlePrevious);
   const setExpanded = usePlayerStore((s) => s.setExpanded);
-  const { position, duration } = useProgress(500);
 
   if (!song) return null;
-  const progress = duration > 0 ? Math.min(1, position / duration) : 0;
 
   return (
     <View
@@ -96,24 +97,38 @@ export default function MiniPlayer() {
         </Pressable>
       </View>
 
+      <MiniProgressBar />
+    </View>
+  );
+}
+
+// Hoja separada: el polling de progreso re-renderiza solo esta barra, no la
+// tarjeta completa (thumbnail, textos y controles).
+function MiniProgressBar() {
+  const { position, duration } = useProgress(1000);
+  const progress = duration > 0 ? Math.min(1, position / duration) : 0;
+
+  return (
+    <View
+      style={{
+        height: 2,
+        marginHorizontal: 10,
+        marginBottom: 8,
+        borderRadius: 1,
+        backgroundColor: "rgba(148, 163, 184, 0.16)",
+        overflow: "hidden",
+      }}
+    >
       <View
         style={{
+          width: "100%",
           height: 2,
-          marginHorizontal: 10,
-          marginBottom: 8,
           borderRadius: 1,
-          backgroundColor: "rgba(148, 163, 184, 0.16)",
+          backgroundColor: theme.primary,
+          transform: [{ scaleX: progress }],
+          transformOrigin: "left",
         }}
-      >
-        <View
-          style={{
-            width: `${progress * 100}%`,
-            height: 2,
-            borderRadius: 1,
-            backgroundColor: theme.primary,
-          }}
-        />
-      </View>
+      />
     </View>
   );
 }

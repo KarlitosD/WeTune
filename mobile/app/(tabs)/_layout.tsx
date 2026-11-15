@@ -1,7 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Tabs } from "expo-router";
 import type { BottomTabBarProps } from "expo-router/tabs";
-import { ListMusic, Search } from "lucide-react-native";
+import ListMusic from "lucide-react-native/icons/list-music";
+import Search from "lucide-react-native/icons/search";
 import { getDictionary } from "~/i18n";
 import { theme } from "~/theme";
 import MiniPlayer from "~/components/MiniPlayer";

@@ -1,6 +1,11 @@
-import { useState, type ReactNode } from "react";
+import { memo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { CircleArrowDown, Download, EllipsisVertical, Plus, Share2 } from "lucide-react-native";
+import CircleArrowDown from "lucide-react-native/icons/circle-arrow-down";
+import Download from "lucide-react-native/icons/download";
+import EllipsisVertical from "lucide-react-native/icons/ellipsis-vertical";
+import Plus from "lucide-react-native/icons/plus";
+import Share2 from "lucide-react-native/icons/share-2";
+import Trash2 from "lucide-react-native/icons/trash";
 import type { Song } from "~/db/schema";
 import { getDictionary } from "~/i18n";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
@@ -13,33 +18,36 @@ import Thumbnail from "./Thumbnail";
 import { ActionMenu, ActionMenuItem } from "./ActionMenu";
 
 // Fila de canción: selección, descarga, share y menú de playlist.
-export function SongItem({
+// memo + props estables evitan re-renderizar toda la lista al cambiar el store.
+export const SongItem = memo(function SongItem({
   song,
   onSelect,
-  trailing,
+  onRemove,
+  cachedIds,
 }: {
   song: Song;
-  onSelect: () => void;
-  // Como render-prop recibe close() para cerrar el menú tras la acción.
-  trailing?: ReactNode | ((close: () => void) => ReactNode);
+  onSelect: (song: Song) => void;
+  onRemove?: (song: Song) => void;
+  cachedIds?: ReadonlySet<string>;
 }) {
   const t = getDictionary();
-  const playlists = usePlaylistStore((s) => s.playlists);
-  const addSong = usePlaylistStore((s) => s.addSong);
-  const selectedSong = usePlaylistStore((s) => s.selectedSong());
+  const isActive = usePlaylistStore((s) => s.selectedSong()?.youtubeId === song.youtubeId);
   const { handleShare } = useShare(song);
   const [menuOpen, setMenuOpen] = useState(false);
   const [playlistPickerOpen, setPlaylistPickerOpen] = useState(false);
-  const [cached, setCached] = useState(() => existsAudioInCache(song.youtubeId));
+  const [downloaded, setDownloaded] = useState(
+    () => cachedIds?.has(song.youtubeId) ?? existsAudioInCache(song.youtubeId),
+  );
 
-  const active = selectedSong?.youtubeId === song.youtubeId;
+  const active = isActive;
+  const cached = downloaded || (cachedIds?.has(song.youtubeId) ?? false);
   const subtitle = [song.author?.name, song.album?.name].filter(Boolean).join(" • ");
 
   const handleDownload = async () => {
     setMenuOpen(false);
     try {
       await addAudioToCache(song.youtubeId, "highest");
-      setCached(true);
+      setDownloaded(true);
       toast.success(t.DOWNLOAD_STARTED.replace("{song}", song.title));
     } catch (e) {
       toast.error(String((e as Error)?.message ?? e));
@@ -68,7 +76,7 @@ export function SongItem({
       />
 
       <Pressable
-        onPress={onSelect}
+        onPress={() => onSelect(song)}
         accessibilityRole="button"
         accessibilityState={{ selected: active }}
         accessibilityLabel={`${song.title}. ${subtitle}. ${formatSeconds(song.duration)}`}
@@ -107,7 +115,10 @@ export function SongItem({
 
       <Pressable
         onPress={() => {
-          setCached(existsAudioInCache(song.youtubeId));
+          // Si la pantalla no provee el índice, se refresca al abrir el menú.
+          if (!cachedIds) {
+            setDownloaded((prev) => prev || existsAudioInCache(song.youtubeId));
+          }
           setMenuOpen(true);
         }}
         hitSlop={10}
@@ -119,51 +130,83 @@ export function SongItem({
       </Pressable>
 
       <ActionMenu visible={menuOpen} onClose={() => setMenuOpen(false)}>
-        <ActionMenuItem
-          onPress={() => {
-            setMenuOpen(false);
-            setPlaylistPickerOpen(true);
-          }}
-        >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <Plus size={16} color={theme.text} />
-            <Text style={{ color: theme.text }}>{t.ADD_PLAYLIST}</Text>
-          </View>
-        </ActionMenuItem>
-        <ActionMenuItem onPress={handleDownload}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <Download size={16} color={theme.text} />
-            <Text style={{ color: theme.text }}>{t.DOWNLOAD_MP3}</Text>
-          </View>
-        </ActionMenuItem>
-        <ActionMenuItem
-          onPress={() => {
-            setMenuOpen(false);
-            void handleShare();
-          }}
-        >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <Share2 size={16} color={theme.text} />
-            <Text style={{ color: theme.text }}>{t.SHARE}</Text>
-          </View>
-        </ActionMenuItem>
-        {typeof trailing === "function" ? trailing(() => setMenuOpen(false)) : trailing}
+        {menuOpen ? (
+          <>
+            <ActionMenuItem
+              onPress={() => {
+                setMenuOpen(false);
+                setPlaylistPickerOpen(true);
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                <Plus size={16} color={theme.text} />
+                <Text style={{ color: theme.text }}>{t.ADD_PLAYLIST}</Text>
+              </View>
+            </ActionMenuItem>
+            <ActionMenuItem onPress={handleDownload}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                <Download size={16} color={theme.text} />
+                <Text style={{ color: theme.text }}>{t.DOWNLOAD_MP3}</Text>
+              </View>
+            </ActionMenuItem>
+            <ActionMenuItem
+              onPress={() => {
+                setMenuOpen(false);
+                void handleShare();
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                <Share2 size={16} color={theme.text} />
+                <Text style={{ color: theme.text }}>{t.SHARE}</Text>
+              </View>
+            </ActionMenuItem>
+            {onRemove ? (
+              <ActionMenuItem
+                onPress={() => {
+                  setMenuOpen(false);
+                  onRemove(song);
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                  <Trash2 size={16} color={theme.danger} />
+                  <Text style={{ color: theme.danger }}>{t.DELETE}</Text>
+                </View>
+              </ActionMenuItem>
+            ) : null}
+          </>
+        ) : null}
       </ActionMenu>
 
       <ActionMenu visible={playlistPickerOpen} onClose={() => setPlaylistPickerOpen(false)}>
-        {playlists.map((p) => (
-          <ActionMenuItem
-            key={p.id}
-            onPress={() => {
-              void addSong(song, p.id);
-              setPlaylistPickerOpen(false);
-            }}
-          >
-            <Text style={{ color: theme.text }}>{p.title}</Text>
-          </ActionMenuItem>
-        ))}
+        {playlistPickerOpen ? (
+          <PlaylistPickerContent
+            song={song}
+            onClose={() => setPlaylistPickerOpen(false)}
+          />
+        ) : null}
       </ActionMenu>
     </View>
+  );
+});
+
+function PlaylistPickerContent({ song, onClose }: { song: Song; onClose: () => void }) {
+  const playlists = usePlaylistStore((s) => s.playlists);
+  const addSong = usePlaylistStore((s) => s.addSong);
+
+  return (
+    <>
+      {playlists.map((playlist) => (
+        <ActionMenuItem
+          key={playlist.id}
+          onPress={() => {
+            void addSong(song, playlist.id);
+            onClose();
+          }}
+        >
+          <Text style={{ color: theme.text }}>{playlist.title}</Text>
+        </ActionMenuItem>
+      ))}
+    </>
   );
 }
 

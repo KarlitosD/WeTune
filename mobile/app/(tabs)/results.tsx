@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Search } from "lucide-react-native";
+import Search from "lucide-react-native/icons/search";
 import type { Song } from "~/db/schema";
 import { searchSongs } from "~/api/client";
 import { getDictionary } from "~/i18n";
@@ -11,6 +11,8 @@ import { usePlayerStore } from "~/store/usePlayerStore";
 import { radius, spacing, theme, typography } from "~/theme";
 import { SongItem, SongItemSkeleton } from "~/components/SongItem";
 import SearchBar from "~/components/SearchBar";
+
+const keyExtractor = (song: Song) => song.youtubeId;
 
 // Búsqueda global: estado local + API.
 export default function Results() {
@@ -48,9 +50,17 @@ export default function Results() {
 
   const list = activeTab === "songs" ? songs : videos;
 
-  const handleSelect = (song: Song) => {
-    void playSong(song).then(() => usePlayerStore.getState().playSelected());
-  };
+  const handleSelect = useCallback(
+    (song: Song) => {
+      void playSong(song).then(() => usePlayerStore.getState().playSelected());
+    },
+    [playSong],
+  );
+
+  const renderSong = useCallback(
+    ({ item }: { item: Song }) => <SongItem song={item} onSelect={handleSelect} />,
+    [handleSelect],
+  );
 
   const handleQueryChange = (value: string) => {
     setQuery(value);
@@ -181,7 +191,7 @@ export default function Results() {
       ) : (
         <FlatList
           data={list}
-          keyExtractor={(song) => song.youtubeId}
+          keyExtractor={keyExtractor}
           contentContainerStyle={{
             paddingHorizontal: spacing.lg,
             paddingBottom: spacing.xl,
@@ -189,7 +199,7 @@ export default function Results() {
           }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          renderItem={({ item }) => <SongItem song={item} onSelect={() => handleSelect(item)} />}
+          renderItem={renderSong}
         />
       )}
     </View>

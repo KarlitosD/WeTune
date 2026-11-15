@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Modal, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Check, Plus, Search, X } from "lucide-react-native";
+import Check from "lucide-react-native/icons/check";
+import Plus from "lucide-react-native/icons/plus";
+import Search from "lucide-react-native/icons/search";
+import X from "lucide-react-native/icons/x";
 import { searchSongs } from "~/api/client";
 import type { Song } from "~/db/schema";
 import { getDictionary } from "~/i18n";

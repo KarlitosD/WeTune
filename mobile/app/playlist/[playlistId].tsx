@@ -1,27 +1,25 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  ArrowLeft,
-  CircleArrowDown,
-  EllipsisVertical,
-  Heart,
-  Music,
-  Pause,
-  Play,
-  Plus,
-  Shuffle,
-  Trash2,
-} from "lucide-react-native";
+import ArrowLeft from "lucide-react-native/icons/arrow-left";
+import CircleArrowDown from "lucide-react-native/icons/circle-arrow-down";
+import EllipsisVertical from "lucide-react-native/icons/ellipsis-vertical";
+import Heart from "lucide-react-native/icons/heart";
+import Music from "lucide-react-native/icons/music";
+import Pause from "lucide-react-native/icons/pause";
+import Play from "lucide-react-native/icons/play";
+import Plus from "lucide-react-native/icons/plus";
+import Shuffle from "lucide-react-native/icons/shuffle";
+import Trash2 from "lucide-react-native/icons/trash";
 import { PLAYLISTS } from "~/consts";
 import type { Song } from "~/db/schema";
 import { getDictionary } from "~/i18n";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { toast } from "~/store/useToastStore";
-import { addAudioToCache, existsAudioInCache } from "~/services/offline-cache";
+import { addAudioToCache, listCachedAudioIds } from "~/services/offline-cache";
 import { radius, spacing, theme, typography } from "~/theme";
 import { formatCount } from "~/utils/plural";
 import { getPlaylistTotalDuration } from "~/utils/playlist";
@@ -89,7 +87,37 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [downloadingAll, setDownloadingAll] = useState(false);
-  const [, setCacheBump] = useState(0);
+  const [cachedIds, setCachedIds] = useState(() => new Set(listCachedAudioIds()));
+
+  // Handlers estables: permiten que SongItem memoice y que FlatList no
+  // recree las filas al cambiar otros estados de la pantalla.
+  const handleSelect = useCallback(
+    (song: Song) => {
+      void playSong(song, playlistId).then(() => usePlayerStore.getState().playSelected());
+    },
+    [playSong, playlistId],
+  );
+
+  const handleRemoveSong = useCallback(
+    (song: Song) => {
+      void removeSong(song, playlistId);
+    },
+    [removeSong, playlistId],
+  );
+
+  const renderSong = useCallback(
+    ({ item }: { item: Song }) => (
+      <View style={{ paddingHorizontal: spacing.lg }}>
+        <SongItem
+          song={item}
+          onSelect={handleSelect}
+          onRemove={handleRemoveSong}
+          cachedIds={cachedIds}
+        />
+      </View>
+    ),
+    [cachedIds, handleRemoveSong, handleSelect],
+  );
 
   if (!playlist) return null;
 
@@ -105,9 +133,9 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
     .filter(Boolean)
     .join(" • ");
 
-  // setCacheBump fuerza relectura de existsAudioInCache tras descargar todo.
-  const allCached =
-    hasSongs && playlist.songs.every((s) => existsAudioInCache(s.youtubeId));
+  // cachedIds se relee una vez por pantalla y tras descargar todo; las filas
+  // reciben el Set y evitan consultar el filesystem por canción.
+  const allCached = hasSongs && playlist.songs.every((s) => cachedIds.has(s.youtubeId));
 
   const handlePlayAll = () => {
     if (!first) return;
@@ -125,7 +153,7 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
       for (const song of playlist.songs) {
         await addAudioToCache(song.youtubeId, "highest");
       }
-      setCacheBump((n) => n + 1);
+      setCachedIds(new Set(listCachedAudioIds()));
       toast.success(t.DOWNLOAD);
     } catch (e) {
       toast.error(String((e as Error)?.message ?? e));
@@ -219,29 +247,7 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
             </Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <View style={{ paddingHorizontal: spacing.lg }}>
-            <SongItem
-              song={item}
-              onSelect={() =>
-                void playSong(item, playlist.id).then(() => usePlayerStore.getState().playSelected())
-              }
-              trailing={(close) => (
-                <ActionMenuItem
-                  onPress={() => {
-                    void removeSong(item, playlist.id);
-                    close();
-                  }}
-                >
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                    <Trash2 size={16} color={theme.danger} />
-                    <Text style={{ color: theme.danger }}>{t.DELETE}</Text>
-                  </View>
-                </ActionMenuItem>
-              )}
-            />
-          </View>
-        )}
+        renderItem={renderSong}
       />
 
       <View style={{ paddingBottom: insets.bottom }}>

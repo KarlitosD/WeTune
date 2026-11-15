@@ -1,5 +1,6 @@
 import { Pressable, TextInput, View } from "react-native";
-import { Search, X } from "lucide-react-native";
+import Search from "lucide-react-native/icons/search";
+import X from "lucide-react-native/icons/x";
 import { getDictionary } from "~/i18n";
 import { radius, spacing, theme } from "~/theme";
 

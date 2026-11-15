@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -12,7 +12,13 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useIsFocused } from "expo-router";
-import { CircleArrowDown, Heart, Music, Plus, Search, X } from "lucide-react-native";
+import CircleArrowDown from "lucide-react-native/icons/circle-arrow-down";
+import Heart from "lucide-react-native/icons/heart";
+import Music from "lucide-react-native/icons/music";
+import Plus from "lucide-react-native/icons/plus";
+import Search from "lucide-react-native/icons/search";
+import X from "lucide-react-native/icons/x";
+import type { Playlist } from "~/db/schema";
 import { getDictionary } from "~/i18n";
 import { getPlaylist } from "~/api/client";
 import { PLAYLISTS } from "~/consts";
@@ -28,6 +34,8 @@ import SearchBar from "~/components/SearchBar";
 
 // Home: lista de playlists + creación/importación en modal.
 const YOUTUBE_HOSTS = ["music.youtube.com", "www.youtube.com", "m.youtube.com"];
+
+const keyExtractor = (playlist: Playlist) => playlist.id;
 
 export default function Home() {
   const t = getDictionary();
@@ -67,15 +75,25 @@ export default function Home() {
   };
 
   const term = query.trim().toLowerCase();
-  const cachedIds =
-    view === "downloaded" && isFocused ? new Set(listCachedAudioIds()) : undefined;
-  const viewed = applyPlaylistView(playlists, view, cachedIds);
-  const filtered = term
-    ? viewed.filter((playlist) => {
-        const title = playlist.id === PLAYLISTS.HISTORY ? t.RECENTS : playlist.title;
-        return title.toLowerCase().includes(term);
-      })
-    : viewed;
+  // Se relee al enfocar la pantalla; las descargas ocurren fuera de Home.
+  const cachedIds = useMemo(
+    () => (view === "downloaded" && isFocused ? new Set(listCachedAudioIds()) : undefined),
+    [view, isFocused],
+  );
+  const viewed = useMemo(
+    () => applyPlaylistView(playlists, view, cachedIds),
+    [playlists, view, cachedIds],
+  );
+  const filtered = useMemo(
+    () =>
+      term
+        ? viewed.filter((playlist) => {
+            const title = playlist.id === PLAYLISTS.HISTORY ? t.RECENTS : playlist.title;
+            return title.toLowerCase().includes(term);
+          })
+        : viewed,
+    [viewed, term, t.RECENTS],
+  );
 
   const emptyText =
     playlists.length === 0
@@ -95,21 +113,28 @@ export default function Home() {
         : view === "downloaded"
           ? CircleArrowDown
           : Search;
-  const filters: { id: PlaylistView; label: string }[] = [
-    { id: "all", label: t.ALL },
-    { id: "recent", label: t.RECENTS },
-    { id: "favorites", label: t.FAVORITES },
-    { id: "downloaded", label: t.DOWNLOADED },
-  ];
+  const filters = useMemo<{ id: PlaylistView; label: string }[]>(
+    () => [
+      { id: "all", label: t.ALL },
+      { id: "recent", label: t.RECENTS },
+      { id: "favorites", label: t.FAVORITES },
+      { id: "downloaded", label: t.DOWNLOADED },
+    ],
+    [t],
+  );
   const canCreate = name.trim().length > 0;
-  const canImport = (() => {
+  const canImport = useMemo(() => {
     try {
       const parsed = new URL(url);
       return parsed.searchParams.get("list") !== null && YOUTUBE_HOSTS.includes(parsed.host);
     } catch {
       return false;
     }
-  })();
+  }, [url]);
+  const renderPlaylist = useCallback(
+    ({ item }: { item: Playlist }) => <PlaylistRow playlist={item} />,
+    [],
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.base100 }}>
@@ -201,8 +226,8 @@ export default function Home() {
 
       <FlatList
         data={filtered}
-        keyExtractor={(playlist) => playlist.id}
-        renderItem={({ item }) => <PlaylistRow playlist={item} />}
+        keyExtractor={keyExtractor}
+        renderItem={renderPlaylist}
         contentContainerStyle={{
           paddingHorizontal: spacing.lg,
           paddingBottom: spacing.xl,

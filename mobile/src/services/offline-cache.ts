@@ -8,16 +8,30 @@ import { downloadAudio, resolveAudioSource, type Quality } from "~/lib/audio-sou
 
 const CACHE_KEY = "audioCached";
 
-function readIndex(): string[] {
+// El índice se lee en cada render de filas y pantallas. Se cachea el Set
+// parseado y solo se reconstruye si cambió el string crudo de MMKV; así el
+// runtime headless sigue viendo escrituras del runtime principal.
+let parsedRaw: string | null = null;
+let parsedIds = new Set<string>();
+
+function readIndex(): Set<string> {
+  const raw = mmkv.getString(CACHE_KEY) ?? "[]";
+  if (raw === parsedRaw) return parsedIds;
   try {
-    return JSON.parse(mmkv.getString(CACHE_KEY) ?? "[]") as string[];
+    parsedIds = new Set(JSON.parse(raw) as string[]);
   } catch {
-    return [];
+    parsedIds = new Set();
   }
+  parsedRaw = raw;
+  return parsedIds;
 }
 
 function writeIndex(ids: string[]) {
-  mmkv.set(CACHE_KEY, JSON.stringify([...new Set(ids)]));
+  const unique = [...new Set(ids)];
+  const raw = JSON.stringify(unique);
+  mmkv.set(CACHE_KEY, raw);
+  parsedRaw = raw;
+  parsedIds = new Set(unique);
 }
 
 function audioDir(): Directory {
@@ -31,11 +45,11 @@ function audioFile(id: string): File {
 }
 
 export function existsAudioInCache(id: string): boolean {
-  return readIndex().includes(id) && audioFile(id).exists;
+  return readIndex().has(id) && audioFile(id).exists;
 }
 
 export function listCachedAudioIds(): string[] {
-  return readIndex().filter((id) => audioFile(id).exists);
+  return [...readIndex()].filter((id) => audioFile(id).exists);
 }
 
 /** file:// local si está descargado, si no resuelve streaming. */
@@ -77,5 +91,5 @@ export async function addAudioToCache(id: string, quality: Quality = "highest"):
 export async function removeAudioFromCache(id: string): Promise<void> {
   const file = audioFile(id);
   if (file.exists) file.delete();
-  writeIndex(readIndex().filter((cached) => cached !== id));
+  writeIndex([...readIndex()].filter((cached) => cached !== id));
 }

@@ -13,17 +13,15 @@ import {
   useWindowDimensions,
 } from "react-native";
 import Slider from "@react-native-community/slider";
-import {
-  CircleArrowDown,
-  Pause,
-  Play,
-  Repeat,
-  Share2,
-  Shuffle,
-  SkipBack,
-  SkipForward,
-  X,
-} from "lucide-react-native";
+import CircleArrowDown from "lucide-react-native/icons/circle-arrow-down";
+import Pause from "lucide-react-native/icons/pause";
+import Play from "lucide-react-native/icons/play";
+import Repeat from "lucide-react-native/icons/repeat";
+import Share2 from "lucide-react-native/icons/share-2";
+import Shuffle from "lucide-react-native/icons/shuffle";
+import SkipBack from "lucide-react-native/icons/skip-back";
+import SkipForward from "lucide-react-native/icons/skip-forward";
+import X from "lucide-react-native/icons/x";
 import { useProgress } from "react-native-track-player";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
@@ -49,11 +47,8 @@ export default function PlayerSheet() {
   const loop = usePlayerStore((s) => s.loop);
   const shuffle = usePlayerStore((s) => s.shuffle);
   const downloading = usePlayerStore((s) => s.downloading);
-  const { position, duration } = useProgress(500);
-  const [sliding, setSliding] = useState<number | null>(null);
 
   const togglePlay = usePlayerStore((s) => s.togglePlay);
-  const seek = usePlayerStore((s) => s.seek);
   const handleNext = usePlayerStore((s) => s.handleNext);
   const handlePrevious = usePlayerStore((s) => s.handlePrevious);
   const toggleLoop = usePlayerStore((s) => s.toggleLoop);
@@ -62,6 +57,9 @@ export default function PlayerSheet() {
   // Después de todos los hooks: useShare debe correr siempre (rules-of-hooks),
   // acepta undefined y no hace nada en ese caso.
   const { handleShare } = useShare(song);
+  // El padre ya no se re-renderiza con el progreso; leer el índice acá es
+  // barato y se refresca solo cuando cambia algún estado del drawer.
+  const downloaded = song?.youtubeId ? existsAudioInCache(song.youtubeId) : false;
 
   const sheetHeight = Math.min(windowHeight - 96, Math.max(400, windowHeight * 0.78));
   const [translateY] = useState(() => new Animated.Value(sheetHeight));
@@ -121,8 +119,6 @@ export default function PlayerSheet() {
   }, [expanded, translateY]);
 
   if (!song) return null;
-  const downloaded = existsAudioInCache(song.youtubeId);
-  const shown = sliding ?? position;
   const coverSize = Math.min(240, windowWidth - 96);
 
   return (
@@ -237,26 +233,7 @@ export default function PlayerSheet() {
               {song.author?.name}
             </Text>
 
-            <View style={{ alignSelf: "stretch", marginTop: 20 }}>
-              <Slider
-                value={shown}
-                minimumValue={0}
-                maximumValue={Math.max(duration, 0)}
-                onSlidingStart={() => setSliding(position)}
-                onValueChange={setSliding}
-                onSlidingComplete={(v) => {
-                  setSliding(null);
-                  void seek(v);
-                }}
-                minimumTrackTintColor={theme.primary}
-                maximumTrackTintColor={theme.base300}
-                thumbTintColor={theme.primary}
-              />
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                <Text style={{ color: theme.muted, fontSize: 12 }}>{formatSeconds(shown)}</Text>
-                <Text style={{ color: theme.muted, fontSize: 12 }}>{formatSeconds(duration)}</Text>
-              </View>
-            </View>
+            <PlayerProgress />
 
             <View
               style={{
@@ -352,5 +329,37 @@ export default function PlayerSheet() {
         </Animated.View>
       </View>
     </Modal>
+  );
+}
+
+// El slider y los tiempos son la única parte que depende del progreso.
+// Al vivir en una hoja, el resto del drawer no se re-renderiza cada 500 ms.
+function PlayerProgress() {
+  const seek = usePlayerStore((s) => s.seek);
+  const { position, duration } = useProgress(500);
+  const [sliding, setSliding] = useState<number | null>(null);
+  const shown = sliding ?? position;
+
+  return (
+    <View style={{ alignSelf: "stretch", marginTop: 20 }}>
+      <Slider
+        value={shown}
+        minimumValue={0}
+        maximumValue={Math.max(duration, 0)}
+        onSlidingStart={() => setSliding(position)}
+        onValueChange={setSliding}
+        onSlidingComplete={(v) => {
+          setSliding(null);
+          void seek(v);
+        }}
+        minimumTrackTintColor={theme.primary}
+        maximumTrackTintColor={theme.base300}
+        thumbTintColor={theme.primary}
+      />
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <Text style={{ color: theme.muted, fontSize: 12 }}>{formatSeconds(shown)}</Text>
+        <Text style={{ color: theme.muted, fontSize: 12 }}>{formatSeconds(duration)}</Text>
+      </View>
+    </View>
   );
 }

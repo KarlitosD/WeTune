@@ -1,5 +1,8 @@
 import { Pressable, Text, View } from "react-native";
-import { AlertTriangle, Check, Info, X } from "lucide-react-native";
+import AlertTriangle from "lucide-react-native/icons/triangle-alert";
+import Check from "lucide-react-native/icons/check";
+import Info from "lucide-react-native/icons/info";
+import X from "lucide-react-native/icons/x";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useToastStore, type ToastType } from "~/store/useToastStore";
 import { theme } from "~/theme";

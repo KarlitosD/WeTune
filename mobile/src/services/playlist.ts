@@ -48,11 +48,22 @@ function songToRow(song: Song, playlistId: string, position: number) {
 
 export async function findAll(): Promise<Playlist[]> {
   const all = await db.select().from(playlists);
-  const result: Playlist[] = [];
-  for (const p of all) {
-    result.push(rowToPlaylist(p, await findSongsInPlaylist(p.id)));
+  const songRows = await db
+    .select()
+    .from(playlistSongs)
+    .orderBy(asc(playlistSongs.playlistId), asc(playlistSongs.position));
+
+  const songsByPlaylist = new Map<string, Song[]>();
+  for (const row of songRows) {
+    const song = rowToSong(row);
+    const songs = songsByPlaylist.get(row.playlistId);
+    if (songs) songs.push(song);
+    else songsByPlaylist.set(row.playlistId, [song]);
   }
-  return result;
+
+  return all.map((playlist) =>
+    rowToPlaylist(playlist, songsByPlaylist.get(playlist.id) ?? []),
+  );
 }
 
 export async function findSongsInPlaylist(playlistId: string): Promise<Song[]> {

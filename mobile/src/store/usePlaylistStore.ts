@@ -67,29 +67,47 @@ export const usePlaylistStore = create<PlaylistStore>()((set, get) => ({
 
   addPlaylist: async (playlist) => {
     await repo.addPlaylist(playlist);
-    set({ playlists: await repo.findAll() });
+    set({
+      playlists: [
+        ...get().playlists,
+        {
+          ...playlist,
+          favorite: playlist.favorite ?? false,
+          lastPlayedAt: playlist.lastPlayedAt ?? 0,
+        },
+      ],
+    });
   },
 
   removePlaylist: async (playlistId) => {
     if (playlistId === PLAYLISTS.HISTORY) return;
     const playlist = get().playlists.find((p) => p.id === playlistId);
-    if (playlist) {
-      for (const song of playlist.songs) {
-        await get().removeSong(song, playlistId);
-      }
-    }
+    const songs = playlist?.songs ?? [];
+
+    // Una sola operación borra playlist + canciones; después se libera el
+    // audio solo si ninguna otra playlist lo sigue usando.
     await repo.removePlaylist(playlistId);
+    for (const song of songs) {
+      const stillUsed = await repo.findPlaylistIdsBySongId(song.youtubeId);
+      if (stillUsed.length === 0) await removeAudioFromCache(song.youtubeId);
+    }
+
     if (get().actualPlaylistId === playlistId) {
       get().setActualPlaylist(PLAYLISTS.HISTORY);
     }
-    set({ playlists: await repo.findAll() });
+    set({ playlists: get().playlists.filter((p) => p.id !== playlistId) });
   },
 
   toggleFavorite: async (playlistId) => {
     const playlist = get().playlists.find((p) => p.id === playlistId);
     if (!playlist) return;
-    await repo.setFavorite(playlistId, !playlist.favorite);
-    set({ playlists: await repo.findAll() });
+    const favorite = !playlist.favorite;
+    await repo.setFavorite(playlistId, favorite);
+    set({
+      playlists: get().playlists.map((p) =>
+        p.id === playlistId ? { ...p, favorite } : p,
+      ),
+    });
   },
 
   setActualPlaylist: (playlistId) => {
@@ -117,28 +135,54 @@ export const usePlaylistStore = create<PlaylistStore>()((set, get) => ({
     const playlist = get().playlists.find((p) => p.id === playlistId);
     if (playlist?.songs.some((s) => s.youtubeId === song.youtubeId)) return;
     await repo.addSongToPlaylist(playlistId, song);
-    set({ playlists: await repo.findAll() });
+    set({
+      playlists: get().playlists.map((p) =>
+        p.id === playlistId ? { ...p, songs: [...p.songs, song] } : p,
+      ),
+    });
   },
 
   playSong: async (song, playlistId = PLAYLISTS.HISTORY) => {
     await get().addSong(song, PLAYLISTS.HISTORY);
-    const history = (await repo.findPlaylistById(PLAYLISTS.HISTORY))?.songs ?? [];
+    const history = get().playlists.find((p) => p.id === PLAYLISTS.HISTORY)?.songs ?? [];
     const deduped = history.filter((s) => s.youtubeId !== song.youtubeId);
     await repo.setSongsInPlaylist(PLAYLISTS.HISTORY, [song, ...deduped]);
 
+    const playedAt = Date.now();
     get().setActualPlaylist(playlistId);
     const playlist = await repo.findPlaylistById(playlistId);
     const index = playlist?.songs.findIndex((s) => s.youtubeId === song.youtubeId) ?? -1;
     if (index !== -1) get().setSelectedIndex(index);
-    await repo.touchPlaylist(playlistId);
-    set({ playlists: await repo.findAll() });
+    await repo.touchPlaylist(playlistId, playedAt);
+
+    // Se actualiza solo lo que cambió: historial y lastPlayedAt. Las demás
+    // playlists conservan su referencia, así las filas memoiceadas no
+    // se re-renderizan.
+    set({
+      playlists: get().playlists.map((p) => {
+        const isHistory = p.id === PLAYLISTS.HISTORY;
+        const isPlayed = p.id === playlistId;
+        if (!isHistory && !isPlayed) return p;
+        return {
+          ...p,
+          ...(isHistory ? { songs: [song, ...deduped] } : {}),
+          ...(isPlayed ? { lastPlayedAt: playedAt } : {}),
+        };
+      }),
+    });
   },
 
   removeSong: async (song, playlistId) => {
     await repo.removeSongFromPlaylist(playlistId, song.youtubeId);
     const stillUsed = await repo.findPlaylistIdsBySongId(song.youtubeId);
     if (stillUsed.length === 0) await removeAudioFromCache(song.youtubeId);
-    set({ playlists: await repo.findAll() });
+    set({
+      playlists: get().playlists.map((p) =>
+        p.id === playlistId
+          ? { ...p, songs: p.songs.filter((s) => s.youtubeId !== song.youtubeId) }
+          : p,
+      ),
+    });
   },
 
   actualPlaylist: () => get().playlists.find((p) => p.id === get().actualPlaylistId),

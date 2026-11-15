@@ -1,7 +1,10 @@
+import { memo } from "react";
 import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { Image } from "expo-image";
-import { ChevronRight, Heart, Music } from "lucide-react-native";
+import ChevronRight from "lucide-react-native/icons/chevron-right";
+import Heart from "lucide-react-native/icons/heart";
+import Music from "lucide-react-native/icons/music";
 import { PLAYLISTS } from "~/consts";
 import type { Playlist } from "~/db/schema";
 import { getDictionary } from "~/i18n";
@@ -11,7 +14,7 @@ import { getPlaylistTotalDuration } from "~/utils/playlist";
 import { formatTotalDuration } from "~/utils/seconds";
 import { getThumbnailUrl, Resolution } from "~/utils/thumbnail";
 
-export default function PlaylistRow({ playlist }: { playlist: Playlist }) {
+export default memo(function PlaylistRow({ playlist }: { playlist: Playlist }) {
   const t = getDictionary();
   const first = playlist.songs[0];
   const title = playlist.id === PLAYLISTS.HISTORY ? t.RECENTS : playlist.title;
@@ -85,4 +88,4 @@ export default function PlaylistRow({ playlist }: { playlist: Playlist }) {
       </View>
     </Pressable>
   );
-}
+});
