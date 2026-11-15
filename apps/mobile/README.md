@@ -1,6 +1,6 @@
 # WeTune Mobile (React Native + Expo, SDK 58)
 
-Cliente único de WeTune. El backend Nitro es externo y se reutiliza
+Cliente único de WeTune. La API vive en `apps/backend` y se reutiliza
 (`EXPO_PUBLIC_API_URL`). La web/Tauri y el target Android de Tauri se retiraron;
 no hay migración de datos porque no hubo usuarios previos.
 
@@ -8,7 +8,8 @@ no hay migración de datos porque no hubo usuarios previos.
 
 - **No funciona en Expo Go.** Usa módulos nativos (`react-native-track-player`,
   `react-native-mmkv`, `expo-sqlite`, `expo-file-system`) → development build:
-  `npx expo run:android` / `npx expo run:ios` o EAS (`eas build --profile development`).
+  `pnpm --filter wetune-mobile android` / `ios` o EAS
+  (`eas build --profile development`).
 
 ## Env
 
@@ -19,14 +20,16 @@ Copiar `.env.example` a `.env`:
 
 ## Scripts
 
-- `npm start` — Metro.
-- `npm run android/ios` — dev build local (requiere Android SDK / Xcode).
-- `npm run typecheck` — `tsc --noEmit` (strict + noUnusedLocals/Parameters).
+Desde la raíz del monorepo: `pnpm --filter wetune-mobile <script>`.
+
+- `start` — Metro.
+- `android` / `ios` — dev build local (requiere Android SDK / Xcode).
+- `typecheck` — `tsc --noEmit` (strict + noUnusedLocals/Parameters).
   TypeScript queda en 6.0.x: es la última que soporta `typescript-eslint`.
-- `npm run lint` — ESLint (config Expo, ESLint 9: la 10 aún rompe
+- `lint` — ESLint (config Expo, ESLint 9: la 10 aún rompe
   `eslint-plugin-react`).
-- `npm run test` — Vitest (lógica pura: utils, api client, schema, audio contract).
-- `npm run i18n` — regenera `src/i18n/i18n-types.ts` tras cambiar las traducciones en `en/` o `es/`.
+- `test` — Vitest (lógica pura: utils, api client, schema, audio contract).
+- `i18n` — regenera `src/i18n/i18n-types.ts` tras cambiar las traducciones en `en/` o `es/`.
 
 ## Deep links https
 

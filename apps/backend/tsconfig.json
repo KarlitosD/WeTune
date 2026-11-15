@@ -1,0 +1,9 @@
+// https://nitro.unjs.io/guide/typescript
+{
+  "extends": "./.nitro/types/tsconfig.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+  }
+}

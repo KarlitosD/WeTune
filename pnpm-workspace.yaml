@@ -1,0 +1,9 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# pnpm 11 no ejecuta lifecycle scripts de dependencias sin aprobación.
+# esbuild lo necesita (nitro build); bun no, se usa el del sistema.
+allowBuilds:
+  esbuild: true
+  bun: false

@@ -1,5 +1,6 @@
 {
   "name": "wetune-mobile",
+  "private": true,
   "description": "WeTune mobile client - React Native + Expo",
   "license": "MIT",
   "version": "0.1.0",
@@ -49,6 +50,7 @@
   },
   "scripts": {
     "start": "expo start",
+    "dev": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit",

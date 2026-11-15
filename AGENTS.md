@@ -22,42 +22,48 @@ without an explicit product decision.
 
 | Path | Stack and responsibilities |
 | --- | --- |
-| `mobile/` | React Native + Expo SDK 58, Expo Router, TypeScript |
+| `apps/mobile/` | React Native + Expo SDK 58, Expo Router, TypeScript |
+| `apps/backend/` | Nitro API (YouTube search/playlist/audio), Bun-friendly |
+| `packages/` | Shared workspace packages (currently empty) |
 | `app-links/` | App Links generator + deployment notes for `wetune.app` |
 | `brand/` | Logo/icon source assets |
-| `.github/workflows/mobile.yml` | Typecheck, lint, tests, Android JS export |
+| `.github/workflows/ci.yml` | Typecheck, lint, tests, Android JS export, backend build |
+| `docs/monorepo.md` | pnpm + Turborepo layout and migration plan |
+| `docs/nitro-v3.md` | Nitro v3 analysis (not applied yet) |
 | `docs/expo-migration.md` | Why web/Tauri was retired and what was/wasn't ported |
 
-The API backend is external to this repository. The mobile app uses
-`EXPO_PUBLIC_API_URL` (public, bundled; never put secrets there).
+The workspace is a pnpm + Turborepo monorepo. `apps/mobile` uses
+`EXPO_PUBLIC_API_URL` (public, bundled; never put secrets there). Secrets for the
+API live in `apps/backend/.env`, which is never versioned.
 
-Read `mobile/README.md` before mobile audio, native-build, App Links, or release
-work. Use `mobile/package.json` and `mobile/app.json` as the source of truth for
-commands and versions.
+Read `apps/mobile/README.md` before mobile audio, native-build, App Links, or
+release work. Use `apps/mobile/package.json` and `apps/mobile/app.json` as the
+source of truth for commands and versions.
 
-## Commands and verification — `cd mobile`
+## Commands and verification
+
+Run from the repo root: pnpm workspaces + Turborepo.
 
 | Command | Purpose |
 | --- | --- |
-| `npm ci` | Install locked dependencies |
-| `npm start` | Start Metro |
-| `npm run android` / `npm run ios` | Build/run locally; requires Android SDK / Xcode |
-| `npm run typecheck` | Strict TypeScript check, including unused locals/parameters |
-| `npm run lint` | ESLint with Expo configuration |
-| `npm test` | Vitest (`src/**/*.test.ts`, Node environment) |
-| `npm test -- src/utils/seconds.test.ts` | Run a targeted test file |
-| `npm run i18n` | Regenerate `src/i18n/i18n-types.ts` after changing `en/` or `es/` |
+| `pnpm install` | Install every workspace |
+| `pnpm dev` | Start Metro and nitro dev together |
+| `pnpm typecheck` / `pnpm lint` / `pnpm test` | Run across all packages |
+| `pnpm --filter wetune-mobile start` | Start Metro |
+| `pnpm --filter wetune-mobile android` / `ios` | Build/run locally; requires Android SDK / Xcode |
+| `pnpm --filter wetune-mobile test -- src/utils/seconds.test.ts` | Run a targeted test file |
+| `pnpm --filter wetune-mobile i18n` | Regenerate `src/i18n/i18n-types.ts` after changing `en/` or `es/` |
+| `pnpm --filter @wetune/backend dev` | API dev server |
+| `pnpm --filter @wetune/backend build` | Nitro production build |
 
-Mobile CI runs typecheck, lint, tests, then `npx expo export --platform android`.
-Export verifies bundling, not native compilation or device behavior.
+CI runs typecheck, lint, tests, then `expo export --platform android`, plus the
+backend typecheck and build. Export verifies bundling, not native compilation or
+device behavior.
 
 Live integration tests are opt-in:
 
-- API: `API_INTEGRATION=1 EXPO_PUBLIC_API_URL=<backend-url> npx vitest run src/api/client.integration.test.ts`
-- YouTube: `YOUTUBE_INTEGRATION=1 npx vitest run src/lib/youtube.integration.test.ts`
-
-There is no root package, test, lint, or typecheck script. Run commands from
-`mobile/`.
+- API: `API_INTEGRATION=1 EXPO_PUBLIC_API_URL=<backend-url> pnpm --filter wetune-mobile exec vitest run src/api/client.integration.test.ts`
+- YouTube: `YOUTUBE_INTEGRATION=1 pnpm --filter wetune-mobile exec vitest run src/lib/youtube.integration.test.ts`
 
 Expo Go is **not supported**: the app needs a native development build because of
 `react-native-track-player`, `react-native-mmkv`, `expo-sqlite`, and
@@ -66,7 +72,8 @@ exercise those on a device before a playback release.
 
 ## App architecture
 
-- Expo Router screens live in `mobile/app/`; reusable code in `mobile/src/`.
+- Expo Router screens live in `apps/mobile/app/`; reusable code in
+  `apps/mobile/src/`.
 - Use React hooks, Zustand stores (`src/store/`), React Native components, and
   tokens from `src/theme.ts`. Solid primitives and DaisyUI do not apply.
 - API calls and Zod response validation belong in `src/api/client.ts`.
@@ -112,13 +119,14 @@ migration backfills both columns with defaults.
 - The app handles `wetune://share/song?songId=...` and `/share/song`.
 - The public share landing at `wetune.app/share/song` is still pending. The
   domain currently returns a lander; this is a release blocker, not an app bug.
-- Keep `mobile/app.json` identifiers, signing fingerprints, and the generated
+- Keep `apps/mobile/app.json` identifiers, signing fingerprints, and the generated
   association files consistent.
 
 ## Coding conventions
 
-- Use `~/...` for imports from `mobile/src/`; group external imports, internal
-  alias imports, then relative imports. Use `import type` for type-only imports.
+- Use `~/...` for imports from `apps/mobile/src/`; group external imports,
+  internal alias imports, then relative imports. Use `import type` for type-only
+  imports.
 - Descriptive camelCase functions; PascalCase components/prop types. Preserve
   each file's existing formatting; no drive-by cleanup.
 - Avoid `any`, type-error suppressions, and empty catches. Validate external

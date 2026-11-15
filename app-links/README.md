@@ -28,7 +28,7 @@ El generador escribe `app-links/.well-known/assetlinks.json` y, si hay team ID,
 ## Publicar
 
 1. Generar los archivos con la identidad de release y desplegar el contenido de
-   `app-links/.well-known/` en el dominio que usa `mobile/app.json`
+   `app-links/.well-known/` en el dominio que usa `apps/mobile/app.json`
    (`wetune.app`).
 2. `assetlinks.json` debe responder `200` con `application/json`.
 3. `apple-app-site-association` debe responder `200` con
