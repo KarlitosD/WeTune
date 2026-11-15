@@ -54,15 +54,26 @@ export function ActionMenu({
   );
 }
 
-export function ActionMenuItem({ onPress, children }: { onPress: () => void; children: ReactNode }) {
+export function ActionMenuItem({
+  onPress,
+  children,
+  disabled = false,
+}: {
+  onPress: () => void;
+  children: ReactNode;
+  disabled?: boolean;
+}) {
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
+      accessibilityState={disabled ? { disabled: true } : undefined}
       style={({ pressed }) => [
         {
           padding: 14,
           borderRadius: radius.md,
-          backgroundColor: pressed ? theme.base300 : "transparent",
+          backgroundColor: pressed && !disabled ? theme.base300 : "transparent",
+          opacity: disabled ? 0.6 : 1,
         },
       ]}
     >

@@ -24,7 +24,7 @@ const en = {
 	RECENTS: "Recents",
 	DOWNLOAD: "Download",
 	DOWNLOAD_ALL: "Download all",
-	DOWNLOAD_MP3: "Download MP3",
+	DOWNLOADED_SONG: "Downloaded",
 	SHARE: "Share",
 	DELETE: "Delete",
 	PLAY: "Play",
@@ -48,6 +48,8 @@ const en = {
 	EMPTY_PLAYLIST: "This playlist has no songs",
 	PLAYLIST_NOT_FOUND: "Playlist not found",
 	HOME: "Home",
+	NOT_FOUND_TITLE: "This screen doesn't exist",
+	NOT_FOUND_DESCRIPTION: "The link may be broken or the screen may have moved.",
 
 	RESULTS_ERROR: "An error occurred while searching",
 	NO_INTERNET: "No internet connection",

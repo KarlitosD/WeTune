@@ -1,5 +1,5 @@
 import { memo, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import CircleArrowDown from "lucide-react-native/icons/circle-arrow-down";
 import Download from "lucide-react-native/icons/download";
 import EllipsisVertical from "lucide-react-native/icons/ellipsis-vertical";
@@ -35,6 +35,7 @@ export const SongItem = memo(function SongItem({
   const { handleShare } = useShare(song);
   const [menuOpen, setMenuOpen] = useState(false);
   const [playlistPickerOpen, setPlaylistPickerOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [downloaded, setDownloaded] = useState(
     () => cachedIds?.has(song.youtubeId) ?? existsAudioInCache(song.youtubeId),
   );
@@ -45,12 +46,16 @@ export const SongItem = memo(function SongItem({
 
   const handleDownload = async () => {
     setMenuOpen(false);
+    if (cached || downloading) return;
+    setDownloading(true);
     try {
       await addAudioToCache(song.youtubeId, "highest");
       setDownloaded(true);
       toast.success(t.DOWNLOAD_STARTED.replace("{song}", song.title));
     } catch (e) {
       toast.error(String((e as Error)?.message ?? e));
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -100,7 +105,11 @@ export const SongItem = memo(function SongItem({
         </View>
       </Pressable>
 
-      {cached ? <CircleArrowDown size={14} color={theme.primary} /> : null}
+      {downloading ? (
+        <ActivityIndicator size="small" color={theme.primary} />
+      ) : cached ? (
+        <CircleArrowDown size={14} color={theme.primary} />
+      ) : null}
 
       <Text
         style={{
@@ -143,10 +152,16 @@ export const SongItem = memo(function SongItem({
                 <Text style={{ color: theme.text }}>{t.ADD_PLAYLIST}</Text>
               </View>
             </ActionMenuItem>
-            <ActionMenuItem onPress={handleDownload}>
+            <ActionMenuItem onPress={() => void handleDownload()} disabled={cached || downloading}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                <Download size={16} color={theme.text} />
-                <Text style={{ color: theme.text }}>{t.DOWNLOAD_MP3}</Text>
+                {downloading ? (
+                  <ActivityIndicator size="small" color={theme.primary} />
+                ) : (
+                  <Download size={16} color={cached ? theme.primary : theme.text} />
+                )}
+                <Text style={{ color: cached ? theme.primary : theme.text }}>
+                  {cached ? t.DOWNLOADED_SONG : t.DOWNLOAD}
+                </Text>
               </View>
             </ActionMenuItem>
             <ActionMenuItem

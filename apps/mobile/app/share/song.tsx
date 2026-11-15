@@ -1,16 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import { Link, router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { PLAYLISTS } from "~/consts";
 import { getSong } from "~/api/client";
+import { getDictionary } from "~/i18n";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
-import { theme } from "~/theme";
+import { radius, spacing, theme } from "~/theme";
+import { songFromShareParams } from "~/utils/share-url";
 
-// Deep link de canción compartida: getSong -> playSong(HISTORY) -> home.
+// Deep link de canción compartida: link con metadata -> playSong(HISTORY).
+// Los links viejos (solo songId) caen a /api/song.
 export default function ShareSong() {
-  const { songId } = useLocalSearchParams<{ songId?: string }>();
+  const t = getDictionary();
+  const params = useLocalSearchParams<{
+    songId?: string;
+    title?: string;
+    author?: string;
+    duration?: string;
+    type?: string;
+  }>();
   const [error, setError] = useState<string | null>(null);
+  const songId = params.songId;
+  const sharedSong = useMemo(
+    () =>
+      songFromShareParams({
+        songId: params.songId,
+        title: params.title,
+        author: params.author,
+        duration: params.duration,
+        type: params.type,
+      }),
+    [params.songId, params.title, params.author, params.duration, params.type],
+  );
 
   useEffect(() => {
     if (!songId) {
@@ -20,7 +42,7 @@ export default function ShareSong() {
     let cancelled = false;
     (async () => {
       try {
-        const song = await getSong(songId);
+        const song = sharedSong ?? (await getSong(songId));
         if (cancelled) return;
         await usePlaylistStore.getState().playSong(song, PLAYLISTS.HISTORY);
         if (cancelled) return;
@@ -33,18 +55,34 @@ export default function ShareSong() {
     return () => {
       cancelled = true;
     };
-  }, [songId]);
+  }, [sharedSong, songId]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.base100, alignItems: "center", justifyContent: "center", gap: 16 }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: theme.base100,
+        alignItems: "center",
+        justifyContent: "center",
+        gap: spacing.lg,
+        padding: spacing.xl,
+      }}
+    >
       {error ? (
         <>
-          <Text style={{ color: "#fff", fontSize: 16 }}>{error}</Text>
-          <Link href="/(tabs)" asChild>
-            <Pressable style={{ backgroundColor: "#404040", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 10 }}>
-              <Text style={{ color: "#fff" }}>Home</Text>
-            </Pressable>
-          </Link>
+          <Text style={{ color: theme.text, fontSize: 16, textAlign: "center" }}>{error}</Text>
+          <Pressable
+            onPress={() => router.replace("/(tabs)")}
+            accessibilityRole="button"
+            style={{
+              backgroundColor: theme.primary,
+              borderRadius: radius.full,
+              paddingHorizontal: spacing.xl,
+              paddingVertical: 10,
+            }}
+          >
+            <Text style={{ color: theme.primaryContent, fontWeight: "700" }}>{t.HOME}</Text>
+          </Pressable>
         </>
       ) : (
         <ActivityIndicator size="large" color={theme.primary} />

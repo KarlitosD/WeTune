@@ -8,6 +8,10 @@ import { downloadAudio, resolveAudioSource, type Quality } from "~/lib/audio-sou
 
 const CACHE_KEY = "audioCached";
 
+// Una sola descarga por canción. Dos escritores sobre el mismo archivo (p. ej.
+// tocar "Descargar" en dos pantallas a la vez) producen un archivo truncado.
+const inFlight = new Map<string, Promise<string>>();
+
 // El índice se lee en cada render de filas y pantallas. Se cachea el Set
 // parseado y solo se reconstruye si cambió el string crudo de MMKV; así el
 // runtime headless sigue viendo escrituras del runtime principal.
@@ -91,30 +95,66 @@ export async function fetchAudioUri(id: string, quality: Quality = "lowest"): Pr
   return source.url;
 }
 
-export async function addAudioToCache(id: string, quality: Quality = "highest"): Promise<string> {
-  if (existsAudioInCache(id)) return audioFile(id).uri;
+export function addAudioToCache(id: string, quality: Quality = "highest"): Promise<string> {
+  if (existsAudioInCache(id)) return Promise.resolve(audioFile(id).uri);
+
+  const current = inFlight.get(id);
+  if (current) return current;
+
+  const task = downloadToCache(id, quality).finally(() => {
+    inFlight.delete(id);
+  });
+  inFlight.set(id, task);
+  return task;
+}
+
+// Descarga a un archivo .part y solo lo publica (move) después de validar el
+// tamaño. Así el índice y `audios/<id>.m4a` nunca apuntan a una descarga
+// incompleta, y un fallo no deja un archivo a medio escribir con el nombre
+// definitivo.
+async function downloadToCache(id: string, quality: Quality): Promise<string> {
   const source = await resolveAudioSource(id, quality);
-  const file = audioFile(id);
-  if (file.exists) file.delete();
-  file.create();
-  const handle = file.open(FileMode.WriteOnly);
+  const part = new File(audioDir(), `${id}.m4a.part`);
+  if (part.exists) part.delete();
+  part.create();
+
+  const handle = part.open(FileMode.WriteOnly);
+  let total: number;
   try {
-    const total = await downloadAudio(source, {
+    // writeBytes es async y el handle no garantiza el orden de operaciones
+    // concurrentes: downloadAudio espera a que cada chunk se escriba entero
+    // antes de pedir el siguiente.
+    total = await downloadAudio(source, {
       onChunk: (bytes) => handle.writeBytes(bytes),
     });
-    if (file.size !== total) {
-      throw new Error(`[audio] archivo incompleto: ${file.size}/${total} bytes`);
-    }
   } catch (error) {
     try {
-      file.delete();
+      handle.close();
+    } catch {
+      // El handle pudo quedar inválido a mitad de la escritura.
+    }
+    try {
+      part.delete();
     } catch {
       // El archivo parcial puede no existir.
     }
     throw error;
-  } finally {
-    handle.close();
   }
+  handle.close();
+
+  const written = part.size;
+  if (written !== total) {
+    try {
+      part.delete();
+    } catch {
+      // El archivo parcial puede no existir.
+    }
+    throw new Error(`[audio] archivo incompleto: ${written}/${total} bytes`);
+  }
+
+  const file = audioFile(id);
+  if (file.exists) file.delete();
+  await part.move(file, { overwrite: true });
   writeIndex([...readIndex(), id]);
   return file.uri;
 }

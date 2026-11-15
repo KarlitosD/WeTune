@@ -109,9 +109,9 @@ type RootTranslation = {
 	 */
 	DOWNLOAD_ALL: string
 	/**
-	 * D​o​w​n​l​o​a​d​ ​M​P​3
+	 * D​o​w​n​l​o​a​d​e​d
 	 */
-	DOWNLOAD_MP3: string
+	DOWNLOADED_SONG: string
 	/**
 	 * S​h​a​r​e
 	 */
@@ -204,6 +204,14 @@ type RootTranslation = {
 	 * H​o​m​e
 	 */
 	HOME: string
+	/**
+	 * T​h​i​s​ ​s​c​r​e​e​n​ ​d​o​e​s​n​'​t​ ​e​x​i​s​t
+	 */
+	NOT_FOUND_TITLE: string
+	/**
+	 * T​h​e​ ​l​i​n​k​ ​m​a​y​ ​b​e​ ​b​r​o​k​e​n​ ​o​r​ ​t​h​e​ ​s​c​r​e​e​n​ ​m​a​y​ ​h​a​v​e​ ​m​o​v​e​d​.
+	 */
+	NOT_FOUND_DESCRIPTION: string
 	/**
 	 * A​n​ ​e​r​r​o​r​ ​o​c​c​u​r​r​e​d​ ​w​h​i​l​e​ ​s​e​a​r​c​h​i​n​g
 	 */
@@ -321,9 +329,9 @@ export type TranslationFunctions = {
 	 */
 	DOWNLOAD_ALL: () => LocalizedString
 	/**
-	 * Download MP3
+	 * Downloaded
 	 */
-	DOWNLOAD_MP3: () => LocalizedString
+	DOWNLOADED_SONG: () => LocalizedString
 	/**
 	 * Share
 	 */
@@ -416,6 +424,14 @@ export type TranslationFunctions = {
 	 * Home
 	 */
 	HOME: () => LocalizedString
+	/**
+	 * This screen doesn't exist
+	 */
+	NOT_FOUND_TITLE: () => LocalizedString
+	/**
+	 * The link may be broken or the screen may have moved.
+	 */
+	NOT_FOUND_DESCRIPTION: () => LocalizedString
 	/**
 	 * An error occurred while searching
 	 */

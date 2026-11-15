@@ -39,6 +39,7 @@ export default function RootLayout() {
           options={{ headerShown: false, contentStyle: { backgroundColor: theme.base100 } }}
         />
         <Stack.Screen name="share/song" options={{ title: "" }} />
+        <Stack.Screen name="+not-found" options={{ headerShown: false }} />
       </Stack>
       <PlayerSheet />
       <Toasts />

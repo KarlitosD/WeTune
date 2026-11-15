@@ -217,9 +217,57 @@ describe("downloadAudio", () => {
     const chunks: string[] = [];
     const total = await downloadAudio(source, {
       fetchFn,
-      onChunk: (bytes) => chunks.push(new TextDecoder().decode(bytes)),
+      onChunk: (bytes) => {
+        chunks.push(new TextDecoder().decode(bytes));
+      },
     });
     expect(total).toBe(5);
     expect(chunks.join("")).toBe("hello");
+  });
+
+  it("espera la escritura de cada chunk antes de pedir el siguiente", async () => {
+    const source: AudioSource = {
+      videoId: "dQw4w9WgXcQ",
+      url: "https://media.example/song.m4a",
+      mimeType: "audio/mp4",
+      bitrate: 128000,
+      client: "visionos",
+    };
+    const chunkSize = 2 * 1024 * 1024;
+    const total = chunkSize + 5;
+    let writing = false;
+    let concurrentWrite = false;
+
+    const fetchFn = (async (_input: string | URL | Request, init?: RequestInit) => {
+      const range = new Headers(init?.headers).get("range");
+      if (range === "bytes=0-0") {
+        return new Response(null, {
+          status: 206,
+          headers: { "content-range": `bytes 0-0/${total}` },
+        });
+      }
+      if (writing) concurrentWrite = true;
+      const [start, end] = /^bytes=(\d+)-(\d+)$/.exec(range ?? "")?.slice(1).map(Number) ?? [];
+      return new Response(new Uint8Array(end - start + 1), {
+        status: 206,
+        headers: { "content-range": `bytes ${start}-${end}/${total}` },
+      });
+    }) as typeof fetch;
+
+    const written: number[] = [];
+    const downloaded = await downloadAudio(source, {
+      fetchFn,
+      onChunk: async (bytes) => {
+        writing = true;
+        // Simula la escritura real del archivo (expo-file-system es async).
+        await Promise.resolve();
+        written.push(bytes.length);
+        writing = false;
+      },
+    });
+
+    expect(concurrentWrite).toBe(false);
+    expect(downloaded).toBe(total);
+    expect(written).toEqual([chunkSize, 5]);
   });
 });

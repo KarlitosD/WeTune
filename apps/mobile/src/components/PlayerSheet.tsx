@@ -63,47 +63,41 @@ export default function PlayerSheet() {
   const sheetHeight = Math.min(windowHeight - 96, Math.max(400, windowHeight * 0.78));
   const [translateY] = useState(() => new Animated.Value(sheetHeight));
 
+  const settleOpen = () => {
+    Animated.spring(translateY, {
+      toValue: 0,
+      damping: 20,
+      stiffness: 220,
+      useNativeDriver: false,
+    }).start();
+  };
+
   const closeSheet = () => {
     Animated.timing(translateY, {
       toValue: sheetHeight,
       duration: 180,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start(() => setExpanded(false));
   };
 
   const [panResponder] = useState(() =>
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gesture) =>
-        gesture.dy > 4 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
+      // El gesto se reclama en el touch start: registrando solo "on move", RN
+      // no entrega los movimientos y la hoja no sigue al dedo. Los handlers
+      // viven en el handle, el header y la carátula, así que el ScrollView y
+      // los controles siguen funcionando; el botón cerrar gana por ser un
+      // Pressable hijo más profundo.
+      onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (_, gesture) => {
-        if (gesture.dy > 0) translateY.setValue(gesture.dy);
+        translateY.setValue(Math.max(0, gesture.dy));
       },
       onPanResponderRelease: (_, gesture) => {
-        if (gesture.dy > 120 || gesture.vy > 0.8) {
-          Animated.timing(translateY, {
-            toValue: sheetHeight,
-            duration: 180,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }).start(() => setExpanded(false));
-        } else {
-          Animated.spring(translateY, {
-            toValue: 0,
-            damping: 20,
-            stiffness: 220,
-            useNativeDriver: true,
-          }).start();
-        }
+        if (gesture.dy > sheetHeight * 0.25 || gesture.vy > 0.8) closeSheet();
+        else settleOpen();
       },
-      onPanResponderTerminate: () => {
-        Animated.spring(translateY, {
-          toValue: 0,
-          damping: 20,
-          stiffness: 220,
-          useNativeDriver: true,
-        }).start();
-      },
+      onPanResponderTerminate: settleOpen,
+      onPanResponderTerminationRequest: () => false,
     }),
   );
 
@@ -113,7 +107,7 @@ export default function PlayerSheet() {
       toValue: 0,
       duration: 240,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   }, [expanded, translateY]);
 
@@ -147,39 +141,38 @@ export default function PlayerSheet() {
             transform: [{ translateY }],
           }}
         >
-          <View
-            {...panResponder.panHandlers}
-            style={{ alignItems: "center", paddingTop: 8, paddingBottom: 4 }}
-          >
+          <View {...panResponder.panHandlers}>
+            <View style={{ alignItems: "center", paddingTop: 8, paddingBottom: 4 }}>
+              <View
+                style={{
+                  width: 40,
+                  height: 4,
+                  borderRadius: 2,
+                  backgroundColor: theme.base300,
+                }}
+              />
+            </View>
+
             <View
               style={{
-                width: 40,
-                height: 4,
-                borderRadius: 2,
-                backgroundColor: theme.base300,
+                flexDirection: "row",
+                alignItems: "center",
+                paddingHorizontal: 24,
+                paddingTop: 4,
+                paddingBottom: 8,
               }}
-            />
-          </View>
-
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              paddingHorizontal: 24,
-              paddingTop: 4,
-              paddingBottom: 8,
-            }}
-          >
-            <Text style={[typography.label, { flex: 1 }]}>{t.NOW_PLAYING}</Text>
-            <Pressable
-              onPress={closeSheet}
-              hitSlop={12}
-              accessibilityRole="button"
-              accessibilityLabel={t.CLOSE}
-              style={{ padding: 4 }}
             >
-              <X size={20} color={theme.muted} />
-            </Pressable>
+              <Text style={[typography.label, { flex: 1 }]}>{t.NOW_PLAYING}</Text>
+              <Pressable
+                onPress={closeSheet}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel={t.CLOSE}
+                style={{ padding: 4 }}
+              >
+                <X size={20} color={theme.muted} />
+              </Pressable>
+            </View>
           </View>
 
           <ScrollView
@@ -195,23 +188,28 @@ export default function PlayerSheet() {
               paddingBottom: insets.bottom + 24,
             }}
           >
-            <Image
-              source={{
-                uri: getThumbnailUrl(song.youtubeId, {
-                  resolution: Resolution.Max,
-                  w: "512",
-                  h: "512",
-                  fit: "cover",
-                }),
-              }}
+            <View
+              {...panResponder.panHandlers}
               style={{
                 width: coverSize,
                 height: coverSize,
                 borderRadius: radius.lg,
                 backgroundColor: theme.base300,
               }}
-              contentFit="cover"
-            />
+            >
+              <Image
+                source={{
+                  uri: getThumbnailUrl(song.youtubeId, {
+                    resolution: Resolution.Max,
+                    w: "512",
+                    h: "512",
+                    fit: "cover",
+                  }),
+                }}
+                style={{ width: "100%", height: "100%", borderRadius: radius.lg }}
+                contentFit="cover"
+              />
+            </View>
             <Text
               numberOfLines={1}
               style={{

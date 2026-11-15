@@ -606,7 +606,9 @@ async function fetchRange(
 export type DownloadOptions = {
   fetchFn?: FetchFn;
   signal?: AbortSignal;
-  onChunk?: (bytes: Uint8Array) => void;
+  // Puede devolver una promesa: el escritor de archivos debe completarse antes
+  // del siguiente chunk para no perder bytes ni desordenar la escritura.
+  onChunk?: (bytes: Uint8Array) => void | Promise<void>;
   onProgress?: (downloaded: number, total: number) => void;
 };
 
@@ -640,7 +642,7 @@ export async function downloadAudio(source: AudioSource, options: DownloadOption
           kind: "integrity",
         });
       }
-      options.onChunk?.(bytes);
+      await options.onChunk?.(bytes);
       options.onProgress?.(bytes.length, bytes.length);
       return bytes.length;
     } finally {
@@ -653,7 +655,7 @@ export async function downloadAudio(source: AudioSource, options: DownloadOption
     throwIfAborted(options.signal);
     const end = Math.min(start + CHUNK_SIZE, probe.total) - 1;
     const bytes = await fetchRange(fetchFn, source, start, end, probe.total, options.signal);
-    options.onChunk?.(bytes);
+    await options.onChunk?.(bytes);
     downloaded += bytes.length;
     options.onProgress?.(downloaded, probe.total);
   }
