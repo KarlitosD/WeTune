@@ -8,3 +8,4 @@ dist
 
 # Salida de Vercel (Build Output API)
 .vercel
+.env*
