@@ -22,7 +22,7 @@ without an explicit product decision.
 
 | Path | Stack and responsibilities |
 | --- | --- |
-| `mobile/` | React Native + Expo SDK 57, Expo Router, TypeScript |
+| `mobile/` | React Native + Expo SDK 58, Expo Router, TypeScript |
 | `app-links/` | App Links generator + deployment notes for `wetune.app` |
 | `brand/` | Logo/icon source assets |
 | `.github/workflows/mobile.yml` | Typecheck, lint, tests, Android JS export |

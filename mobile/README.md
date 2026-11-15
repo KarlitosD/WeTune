@@ -1,4 +1,4 @@
-# WeTune Mobile (React Native + Expo, SDK 57)
+# WeTune Mobile (React Native + Expo, SDK 58)
 
 Cliente único de WeTune. El backend Nitro es externo y se reutiliza
 (`EXPO_PUBLIC_API_URL`). La web/Tauri y el target Android de Tauri se retiraron;

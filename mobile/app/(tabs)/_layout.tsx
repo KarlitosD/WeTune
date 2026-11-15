@@ -27,7 +27,7 @@ export default function TabsLayout() {
 
 // Barra propia para poder apilar el mini player arriba de las tabs, como en
 // el mockup. Si no hay canción, MiniPlayer no renderiza nada.
-function PlayerTabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {
+function PlayerTabBar({ state, descriptors, emitter, navigateToTab, insets }: BottomTabBarProps) {
   const hasSong = Boolean(usePlaylistStore((s) => s.selectedSong()));
 
   return (
@@ -49,13 +49,13 @@ function PlayerTabBar({ state, descriptors, navigation, insets }: BottomTabBarPr
           const Icon = route.name === "results" ? Search : ListMusic;
 
           const onPress = () => {
-            const event = navigation.emit({
+            const event = emitter.emit({
               type: "tabPress",
               target: route.key,
               canPreventDefault: true,
             });
             if (!focused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
+              navigateToTab(route.key);
             }
           };
 
@@ -64,7 +64,7 @@ function PlayerTabBar({ state, descriptors, navigation, insets }: BottomTabBarPr
               key={route.key}
               onPress={onPress}
               onLongPress={() =>
-                navigation.emit({ type: "tabLongPress", target: route.key })
+                emitter.emit({ type: "tabLongPress", target: route.key })
               }
               accessibilityRole="tab"
               accessibilityState={{ selected: focused }}

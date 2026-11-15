@@ -58,7 +58,10 @@
           "backgroundColor": "#0F172A"
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-image",
+      "expo-localization",
+      "expo-status-bar"
     ]
   }
 }
