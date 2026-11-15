@@ -1,6 +1,6 @@
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-// Espejo relacional de ~/db/schema (TypeBox). Las canciones van en tabla
+// Espejo relacional de ~/db/schema (Zod). Las canciones van en tabla
 // propia ordenada por `position` para poder buscar por youtubeId.
 export const playlists = sqliteTable("playlists", {
   id: text("id").primaryKey(),

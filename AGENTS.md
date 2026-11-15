@@ -69,7 +69,7 @@ exercise those on a device before a playback release.
 - Expo Router screens live in `mobile/app/`; reusable code in `mobile/src/`.
 - Use React hooks, Zustand stores (`src/store/`), React Native components, and
   tokens from `src/theme.ts`. Solid primitives and DaisyUI do not apply.
-- API calls and TypeBox response validation belong in `src/api/client.ts`.
+- API calls and Zod response validation belong in `src/api/client.ts`.
   `EXPO_PUBLIC_WEB_URL` is only for public share links.
 - Playlists persist in SQLite + Drizzle; settings/indexes in MMKV.
 - Playback uses `react-native-track-player`. Preserve `package.json`'s
@@ -91,7 +91,7 @@ the schema:
 2. Bump `DB_VERSION`.
 3. Add an idempotent step in `migrateIfNeeded()` (check `PRAGMA table_info` or
    equivalent) that preserves existing rows.
-4. Update the TypeBox shape in `src/db/schema.ts` only for fields that cross a
+4. Update the Zod shape in `src/db/schema.ts` only for fields that cross a
    boundary; local-only fields stay optional or outside API validation.
 5. Test migration from the previous version on a real DB, not only a fresh one.
 
@@ -122,7 +122,7 @@ migration backfills both columns with defaults.
 - Descriptive camelCase functions; PascalCase components/prop types. Preserve
   each file's existing formatting; no drive-by cleanup.
 - Avoid `any`, type-error suppressions, and empty catches. Validate external
-  data at boundaries with the existing TypeBox schemas and expose useful errors.
+  data at boundaries with the existing Zod schemas and expose useful errors.
 - Separate logical stages with blank lines. Prefer guard clauses to deep
   nesting. Extract helpers to name a cohesive responsibility, not just to shorten
   a function.

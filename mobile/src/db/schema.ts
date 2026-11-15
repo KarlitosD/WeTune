@@ -1,31 +1,30 @@
-import { Type } from "@sinclair/typebox"
-import type { Static } from "@sinclair/typebox"
+import { z } from "zod"
 
-export const songSchema = Type.Object({
-    title: Type.String(),
-    youtubeId: Type.String(),
-    album: Type.Optional(Type.Object({
-        name: Type.String(),
-        id: Type.String()
-    })),
-    thumbnailUrl: Type.String(),
-    type: Type.String(),
-    author: Type.Object({
-        name: Type.String(),
-        id: Type.String()
+export const songSchema = z.object({
+    title: z.string(),
+    youtubeId: z.string(),
+    album: z.object({
+        name: z.string(),
+        id: z.string()
+    }).optional(),
+    thumbnailUrl: z.string(),
+    type: z.string(),
+    author: z.object({
+        name: z.string(),
+        id: z.string()
     }),
-    duration: Type.Number()
+    duration: z.number()
 })
 
-export const playlistSchema = Type.Object({
-    id: Type.String(),
-    title: Type.String(),
-    songs: Type.Array(songSchema),
+export const playlistSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    songs: z.array(songSchema),
     // Campos locales (SQLite). El backend no los devuelve; son opcionales
     // para que la validación de /api/playlist siga funcionando.
-    favorite: Type.Optional(Type.Boolean()),
-    lastPlayedAt: Type.Optional(Type.Number()),
+    favorite: z.boolean().optional(),
+    lastPlayedAt: z.number().optional(),
 })
 
-export type Song = Static<typeof songSchema>
-export type Playlist = Static<typeof playlistSchema>
+export type Song = z.infer<typeof songSchema>
+export type Playlist = z.infer<typeof playlistSchema>

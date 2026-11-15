@@ -1,9 +1,8 @@
-import { Value } from "@sinclair/typebox/value";
 import { getApiUrl } from "~/config";
 import { playlistSchema, songSchema, type Playlist, type Song } from "~/db/schema";
 
 // Reutiliza el backend Nitro tal cual (no se migra).
-// Las respuestas se validan con TypeBox: el backend puede devolver objetos
+// Las respuestas se validan con Zod: el backend puede devolver objetos
 // parciales (p. ej. /api/song para algunos IDs) y no queremos que eso llegue
 // a SQLite como un NOT NULL constraint.
 
@@ -46,7 +45,8 @@ async function httpError(response: Response, fallback: string) {
 }
 
 function parseSong(value: unknown): Song | null {
-  return Value.Check(songSchema, value) ? (value as Song) : null;
+  const parsed = songSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
 }
 
 // GET /api/search?query= -> { songs, videos }
@@ -72,7 +72,8 @@ export async function getPlaylist(listId: string): Promise<Playlist> {
   const res = await fetch(getApiUrl(`playlist?list=${encodeURIComponent(listId)}`));
   if (!res.ok) throw await httpError(res, "Playlist not found");
   const payload = await readJson(res);
-  if (Value.Check(playlistSchema, payload)) return payload as Playlist;
+  const parsed = playlistSchema.safeParse(payload);
+  if (parsed.success) return parsed.data;
 
   // Tolerante: conserva la playlist y descarta solo las canciones inválidas.
   const record = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : null;

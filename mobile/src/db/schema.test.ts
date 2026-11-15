@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { TypeCompiler } from "@sinclair/typebox/compiler";
 import { playlistSchema, songSchema } from "./schema";
 
 // Guarda contra drift con el backend: la forma que devuelve Nitro debe validar.
@@ -14,12 +13,12 @@ const song = {
 
 describe("schema", () => {
   it("acepta Song y Playlist válidos", () => {
-    expect(TypeCompiler.Compile(songSchema).Check(song)).toBe(true);
-    expect(TypeCompiler.Compile(playlistSchema).Check({ id: "p1", title: "T", songs: [song] })).toBe(true);
+    expect(songSchema.safeParse(song).success).toBe(true);
+    expect(playlistSchema.safeParse({ id: "p1", title: "T", songs: [song] }).success).toBe(true);
   });
 
   it("rechaza Song sin youtubeId", () => {
     const { youtubeId: _dropped, ...rest } = song;
-    expect(TypeCompiler.Compile(songSchema).Check(rest)).toBe(false);
+    expect(songSchema.safeParse(rest).success).toBe(false);
   });
 });

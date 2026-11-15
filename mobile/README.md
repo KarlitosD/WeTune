@@ -78,7 +78,7 @@ no es una API estable; este perfil no resuelve firmas ni PO Tokens.
 - DB local v2: `playlists.favorite` y `playlists.last_played_at`.
   `migrateIfNeeded()` en `src/db/client.ts` agrega las columnas a una DB v1 sin
   perder datos.
-- Las respuestas del backend se validan con TypeBox en `src/api/client.ts`;
+- Las respuestas del backend se validan con Zod en `src/api/client.ts`;
   `/api/song` inválido produce un error amigable en lugar de un
   `NOT NULL constraint failed` en SQLite.
 - Playback: `react-native-track-player@5.0.0-alpha0` + headless service
