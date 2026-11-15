@@ -8,6 +8,7 @@ import { searchSongs } from "~/api/client";
 import { getDictionary } from "~/i18n";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
+import { useCachedAudioIds } from "~/hooks/useCachedAudioIds";
 import { radius, spacing, theme, typography } from "~/theme";
 import { SongItem, SongItemSkeleton } from "~/components/SongItem";
 import SearchBar from "~/components/SearchBar";
@@ -28,6 +29,7 @@ export default function Results() {
   const [failed, setFailed] = useState(false);
   const [lastQuery, setLastQuery] = useState("");
   const playSong = usePlaylistStore((s) => s.playSong);
+  const cachedIds = useCachedAudioIds();
 
   const runSearch = async (term: string) => {
     if (!term) return;
@@ -58,8 +60,10 @@ export default function Results() {
   );
 
   const renderSong = useCallback(
-    ({ item }: { item: Song }) => <SongItem song={item} onSelect={handleSelect} />,
-    [handleSelect],
+    ({ item }: { item: Song }) => (
+      <SongItem song={item} onSelect={handleSelect} cachedIds={cachedIds} />
+    ),
+    [cachedIds, handleSelect],
   );
 
   const handleQueryChange = (value: string) => {

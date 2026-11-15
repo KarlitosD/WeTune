@@ -19,7 +19,8 @@ import { getDictionary } from "~/i18n";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { toast } from "~/store/useToastStore";
-import { addAudioToCache, listCachedAudioIds } from "~/services/offline-cache";
+import { addAudioToCache } from "~/services/offline-cache";
+import { useCachedAudioIds } from "~/hooks/useCachedAudioIds";
 import { radius, spacing, theme, typography } from "~/theme";
 import { formatCount } from "~/utils/plural";
 import { getPlaylistTotalDuration } from "~/utils/playlist";
@@ -87,7 +88,7 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [downloadingAll, setDownloadingAll] = useState(false);
-  const [cachedIds, setCachedIds] = useState(() => new Set(listCachedAudioIds()));
+  const cachedIds = useCachedAudioIds();
 
   // Handlers estables: permiten que SongItem memoice y que FlatList no
   // recree las filas al cambiar otros estados de la pantalla.
@@ -133,8 +134,8 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
     .filter(Boolean)
     .join(" • ");
 
-  // cachedIds se relee una vez por pantalla y tras descargar todo; las filas
-  // reciben el Set y evitan consultar el filesystem por canción.
+  // cachedIds es reactivo; las filas reciben el Set y evitan consultar
+  // el filesystem por canción.
   const allCached = hasSongs && playlist.songs.every((s) => cachedIds.has(s.youtubeId));
 
   const handlePlayAll = () => {
@@ -153,7 +154,6 @@ function PlaylistDetail({ playlistId }: { playlistId: string }) {
       for (const song of playlist.songs) {
         await addAudioToCache(song.youtubeId, "highest");
       }
-      setCachedIds(new Set(listCachedAudioIds()));
       toast.success(t.DOWNLOAD);
     } catch (e) {
       toast.error(String((e as Error)?.message ?? e));

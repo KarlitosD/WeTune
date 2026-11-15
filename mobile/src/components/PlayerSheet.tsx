@@ -28,7 +28,7 @@ import { Image } from "expo-image";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { usePlayerStore } from "~/store/usePlayerStore";
 import { useShare } from "~/hooks/useShare";
-import { existsAudioInCache } from "~/services/offline-cache";
+import { useCachedAudioIds } from "~/hooks/useCachedAudioIds";
 import { getDictionary } from "~/i18n";
 import { radius, theme, typography } from "~/theme";
 import { formatSeconds } from "~/utils/seconds";
@@ -57,9 +57,8 @@ export default function PlayerSheet() {
   // Después de todos los hooks: useShare debe correr siempre (rules-of-hooks),
   // acepta undefined y no hace nada en ese caso.
   const { handleShare } = useShare(song);
-  // El padre ya no se re-renderiza con el progreso; leer el índice acá es
-  // barato y se refresca solo cuando cambia algún estado del drawer.
-  const downloaded = song?.youtubeId ? existsAudioInCache(song.youtubeId) : false;
+  const cachedIds = useCachedAudioIds();
+  const downloaded = song ? cachedIds.has(song.youtubeId) : false;
 
   const sheetHeight = Math.min(windowHeight - 96, Math.max(400, windowHeight * 0.78));
   const [translateY] = useState(() => new Animated.Value(sheetHeight));

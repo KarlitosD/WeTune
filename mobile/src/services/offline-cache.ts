@@ -26,12 +26,43 @@ function readIndex(): Set<string> {
   return parsedIds;
 }
 
+type AudioCacheListener = () => void;
+
+const listeners = new Set<AudioCacheListener>();
+let cacheVersion = 0;
+let cachedSnapshot: ReadonlySet<string> | null = null;
+let snapshotVersion = -1;
+
+function notifyAudioCacheChanged() {
+  cacheVersion += 1;
+  cachedSnapshot = null;
+  listeners.forEach((listener) => listener());
+}
+
+export function subscribeToAudioCache(listener: AudioCacheListener): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function getCachedAudioIdsSnapshot(): ReadonlySet<string> {
+  if (cachedSnapshot === null || snapshotVersion !== cacheVersion) {
+    // El índice solo se escribe después de validar la descarga; leerlo
+    // alcanza y evita un stat de filesystem por cada canción descargada.
+    cachedSnapshot = new Set(readIndex());
+    snapshotVersion = cacheVersion;
+  }
+  return cachedSnapshot;
+}
+
 function writeIndex(ids: string[]) {
   const unique = [...new Set(ids)];
   const raw = JSON.stringify(unique);
   mmkv.set(CACHE_KEY, raw);
   parsedRaw = raw;
   parsedIds = new Set(unique);
+  notifyAudioCacheChanged();
 }
 
 function audioDir(): Directory {

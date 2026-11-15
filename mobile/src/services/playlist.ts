@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
 import { db } from "~/db/client";
 import { playlistSongs, playlists } from "~/db/drizzle-schema";
 import type { Playlist, Song } from "~/db/schema";
@@ -103,24 +103,90 @@ export async function addPlaylist(playlist: Playlist): Promise<void> {
 }
 
 export async function addSongToPlaylist(playlistId: string, song: Song): Promise<void> {
-  const existing = await findSongsInPlaylist(playlistId);
-  await db.insert(playlistSongs).values([songToRow(song, playlistId, existing.length)]);
+  const last = await db
+    .select({ position: playlistSongs.position })
+    .from(playlistSongs)
+    .where(eq(playlistSongs.playlistId, playlistId))
+    .orderBy(desc(playlistSongs.position))
+    .limit(1);
+  const nextPosition = (last[0]?.position ?? -1) + 1;
+  await db.insert(playlistSongs).values([songToRow(song, playlistId, nextPosition)]);
 }
 
-export async function setSongsInPlaylist(playlistId: string, songs: Song[]): Promise<void> {
-  await db.delete(playlistSongs).where(eq(playlistSongs.playlistId, playlistId));
-  if (songs.length > 0) {
-    await db.insert(playlistSongs).values(songs.map((s, i) => songToRow(s, playlistId, i)));
-  }
+// Mueve la canción al inicio sin reescribir toda la playlist: desplaza una
+// sola vez las posiciones que quedan debajo de la fila existente.
+export async function prependSongToPlaylist(playlistId: string, song: Song): Promise<void> {
+  db.transaction((tx) => {
+    const existing = tx
+      .select({ position: playlistSongs.position })
+      .from(playlistSongs)
+      .where(and(eq(playlistSongs.playlistId, playlistId), eq(playlistSongs.youtubeId, song.youtubeId)))
+      .all();
+    const position = existing[0]?.position;
+
+    if (position === undefined) {
+      tx.update(playlistSongs)
+        .set({ position: sql`${playlistSongs.position} + 1` })
+        .where(eq(playlistSongs.playlistId, playlistId))
+        .run();
+    } else {
+      tx.update(playlistSongs)
+        .set({ position: sql`${playlistSongs.position} + 1` })
+        .where(
+          and(
+            eq(playlistSongs.playlistId, playlistId),
+            lt(playlistSongs.position, position),
+          ),
+        )
+        .run();
+      tx.delete(playlistSongs)
+        .where(
+          and(
+            eq(playlistSongs.playlistId, playlistId),
+            eq(playlistSongs.youtubeId, song.youtubeId),
+          ),
+        )
+        .run();
+    }
+
+    tx.insert(playlistSongs).values([songToRow(song, playlistId, 0)]).run();
+  });
 }
 
 export async function removeSongFromPlaylist(playlistId: string, songId: string): Promise<void> {
-  await db
-    .delete(playlistSongs)
+  db.transaction((tx) => {
+    const existing = tx
+      .select({ position: playlistSongs.position })
+      .from(playlistSongs)
+      .where(and(eq(playlistSongs.playlistId, playlistId), eq(playlistSongs.youtubeId, songId)))
+      .all();
+    const position = existing[0]?.position;
+    if (position === undefined) return;
+
+    tx.delete(playlistSongs)
+      .where(and(eq(playlistSongs.playlistId, playlistId), eq(playlistSongs.youtubeId, songId)))
+      .run();
+    tx.update(playlistSongs)
+      .set({ position: sql`${playlistSongs.position} - 1` })
+      .where(
+        and(
+          eq(playlistSongs.playlistId, playlistId),
+          gt(playlistSongs.position, position),
+        ),
+      )
+      .run();
+  });
+}
+
+export async function findSongPosition(
+  playlistId: string,
+  songId: string,
+): Promise<number | undefined> {
+  const rows = await db
+    .select({ position: playlistSongs.position })
+    .from(playlistSongs)
     .where(and(eq(playlistSongs.playlistId, playlistId), eq(playlistSongs.youtubeId, songId)));
-  // Recompactar posiciones
-  const remaining = await findSongsInPlaylist(playlistId);
-  await setSongsInPlaylist(playlistId, remaining);
+  return rows[0]?.position;
 }
 
 export async function removePlaylist(playlistId: string): Promise<void> {

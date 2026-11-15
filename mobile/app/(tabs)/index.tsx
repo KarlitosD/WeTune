@@ -11,7 +11,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useIsFocused } from "expo-router";
 import CircleArrowDown from "lucide-react-native/icons/circle-arrow-down";
 import Heart from "lucide-react-native/icons/heart";
 import Music from "lucide-react-native/icons/music";
@@ -22,7 +21,7 @@ import type { Playlist } from "~/db/schema";
 import { getDictionary } from "~/i18n";
 import { getPlaylist } from "~/api/client";
 import { PLAYLISTS } from "~/consts";
-import { listCachedAudioIds } from "~/services/offline-cache";
+import { useCachedAudioIds } from "~/hooks/useCachedAudioIds";
 import { usePlaylistStore } from "~/store/usePlaylistStore";
 import { toast } from "~/store/useToastStore";
 import { radius, spacing, theme, typography } from "~/theme";
@@ -40,8 +39,8 @@ const keyExtractor = (playlist: Playlist) => playlist.id;
 export default function Home() {
   const t = getDictionary();
   const insets = useSafeAreaInsets();
-  const isFocused = useIsFocused();
   const playlists = usePlaylistStore((s) => s.playlists);
+  const cachedIds = useCachedAudioIds();
   const addPlaylist = usePlaylistStore((s) => s.addPlaylist);
   const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -75,11 +74,7 @@ export default function Home() {
   };
 
   const term = query.trim().toLowerCase();
-  // Se relee al enfocar la pantalla; las descargas ocurren fuera de Home.
-  const cachedIds = useMemo(
-    () => (view === "downloaded" && isFocused ? new Set(listCachedAudioIds()) : undefined),
-    [view, isFocused],
-  );
+  // cachedIds es reactivo: se actualiza al terminar una descarga.
   const viewed = useMemo(
     () => applyPlaylistView(playlists, view, cachedIds),
     [playlists, view, cachedIds],

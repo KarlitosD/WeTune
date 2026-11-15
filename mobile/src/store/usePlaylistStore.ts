@@ -146,13 +146,12 @@ export const usePlaylistStore = create<PlaylistStore>()((set, get) => ({
     await get().addSong(song, PLAYLISTS.HISTORY);
     const history = get().playlists.find((p) => p.id === PLAYLISTS.HISTORY)?.songs ?? [];
     const deduped = history.filter((s) => s.youtubeId !== song.youtubeId);
-    await repo.setSongsInPlaylist(PLAYLISTS.HISTORY, [song, ...deduped]);
+    await repo.prependSongToPlaylist(PLAYLISTS.HISTORY, song);
 
     const playedAt = Date.now();
     get().setActualPlaylist(playlistId);
-    const playlist = await repo.findPlaylistById(playlistId);
-    const index = playlist?.songs.findIndex((s) => s.youtubeId === song.youtubeId) ?? -1;
-    if (index !== -1) get().setSelectedIndex(index);
+    const index = await repo.findSongPosition(playlistId, song.youtubeId);
+    if (index !== undefined) get().setSelectedIndex(index);
     await repo.touchPlaylist(playlistId, playedAt);
 
     // Se actualiza solo lo que cambió: historial y lastPlayedAt. Las demás
