@@ -1,14 +1,9 @@
 import { Platform, Share } from "react-native";
 import type { Song } from "~/db/schema";
+import { shareUrlFor } from "~/utils/share-url";
 
-// Share nativo. La URL apunta a wetune.app/share/song; hace falta el sitio
-// público de share para receptores sin la app.
-const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? "https://wetune.app";
-
-export function shareUrlFor(song: Pick<Song, "youtubeId">) {
-  return `${WEB_URL}/share/song?songId=${song.youtubeId}`;
-}
-
+// Share nativo con el deep link propio. Para receptores sin la app no hay
+// landing https todavía; el scheme funciona sin infraestructura.
 export function useShare(song: Song | undefined) {
   const handleShare = async () => {
     if (!song) return;

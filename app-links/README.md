@@ -47,9 +47,8 @@ mínima en `wetune.app/share/song` que:
 3. muestre portada, título y artista;
 4. ofrezca “Abrir en WeTune” (App Link) y un fallback a la tienda.
 
-No se implementó todavía. Mientras tanto, `EXPO_PUBLIC_WEB_URL` apunta a un
-dominio que hoy devuelve un lander, así que compartir canciones no tiene una
-página pública útil.
+El share de la app ahora usa `wetune://share/song?songId=...`; no depende de este
+landing. Para receptores sin la app instalada, el sitio https sigue pendiente.
 
 ## Bloqueos actuales (2026-11-14)
 

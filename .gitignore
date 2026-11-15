@@ -5,8 +5,13 @@ dist
 .env
 .env.*
 !.env.example
+*.env
 
 .expo
+
+# Build artifacts
+*.apk
+*.aab
 
 # Signing material nunca se versiona.
 *.jks

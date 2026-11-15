@@ -16,7 +16,8 @@ no hay migración de datos porque no hubo usuarios previos.
 Copiar `.env.example` a `.env`:
 
 - `EXPO_PUBLIC_API_URL` — backend Nitro.
-- `EXPO_PUBLIC_WEB_URL` — base pública de los links de share.
+- `EXPO_PUBLIC_WEB_URL` — reservada para un futuro landing web; el share
+  actual usa `wetune://share/song?songId=...`.
 
 ## Scripts
 
@@ -102,29 +103,58 @@ no es una API estable; este perfil no resuelve firmas ni PO Tokens.
   `FOREGROUND_SERVICE*` del player los fusiona Gradle desde el AAR
   (no aparecen en el manifest de prebuild, es lo esperado).
 
+## APK release local (sin EAS)
+
+El keystore y sus passwords viven fuera del repo:
+
+- `~/.config/wetune/wetune-release.keystore`
+- `~/.config/wetune/android-signing.env` (600)
+
+El script hace `expo prebuild --clean`, inyecta la firma release y compila:
+
+```bash
+cd apps/mobile
+./scripts/build-release-android.sh
+```
+
+Por defecto compila `arm64-v8a,x86_64`; se puede limitar con
+`WETUNE_ARCHS=arm64-v8a`. El APK sale en
+`apps/mobile/android/app/build/outputs/apk/release/app-release.apk`.
+
+Verificar la firma:
+
+```bash
+$ANDROID_HOME/build-tools/*/apksigner verify --print-certs \
+  apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+```
+
+Instalar/actualizar con el mismo `applicationId` y keystore:
+
+```bash
+adb install -r apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+```
+
 ## EAS y release
 
 `eas.json` tiene los perfiles `development`, `preview` y `production`, pero
-falta `eas login` + `eas init` para crear `extra.eas.projectId`. Sin esa sesión
-no se pueden lanzar builds/submits cloud; por ahora el build local es
-`npx expo run:android`.
+EAS es opcional: para uso personal alcanza el build local de arriba. Si se usa
+EAS, falta `eas login` + `eas init` para crear `extra.eas.projectId`.
 
 Pendientes antes de publicar:
 
 - Keystore de release nuevo y applicationId final (hoy `com.wetune.dev`).
 - App Links desplegados en `wetune.app`.
 - Sitio mínimo de share.
-- Build/test iOS.
 - QA de dispositivo: lockscreen/Bluetooth, descargas, share.
 
 ## Riesgo conocido
 
 - `react-native-track-player@5.0.0-alpha0` es un TurboModule y compila/arranca
-  en RN 0.86. Los eventos remotos se registran también en el runtime principal
+  en RN 0.88. Los eventos remotos se registran también en el runtime principal
   como fallback del headless service (ver `app/_layout.tsx`); validar lockscreen
   y Bluetooth en un dispositivo físico antes de release.
 - `expo-doctor` marca RNTP como "Unsupported on New Architecture" por metadata
   desactualizado de React Native Directory; el build real usa codegen TurboModule.
-- `expo-sqlite@57.0.5` publica un AAR con `libexpo-sqlite.so` solo para
-  `arm64-v8a`. `mobile/package.json` fuerza `expo.autolinking.buildFromSource`
+- `expo-sqlite@58.0.17` publica un AAR con `libexpo-sqlite.so` solo para
+  `arm64-v8a`. `apps/mobile/package.json` fuerza `expo.autolinking.buildFromSource`
   para compilarlo desde fuente y que funcione en emuladores x86_64.

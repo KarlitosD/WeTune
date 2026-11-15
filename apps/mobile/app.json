@@ -50,6 +50,17 @@
       "expo-image",
       "expo-localization",
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "72d8808b-2ce0-4d21-baf0-fb163b1e25b0"
+      }
+    },
+    "owner": "karlitosd"
   }
 }
