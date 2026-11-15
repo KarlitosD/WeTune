@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 import type { YT, YTNodes } from "youtubei.js"
-import { parseFromPlaylistVideo, parseFromVideoInfo, parseSongFromYTNodeLike } from "./youtube"
+import {
+  parseAndValidateSong,
+  parseFromPlaylistVideo,
+  parseFromVideoInfo,
+  parseSongFromYTNodeLike,
+} from "./youtube"
 
 // Los objetos de youtubei.js son clases con decenas de campos; en los tests
 // basta con la forma que consume cada parser.
@@ -90,6 +95,33 @@ describe("parseFromVideoInfo", () => {
     expect(song.youtubeId).toBe("")
     expect(song.title).toBe("")
     expect(song.duration).toBe(0)
+  })
+})
+
+describe("parseAndValidateSong", () => {
+  it("rechaza basic_info incompleto para forzar el fallback de cliente", () => {
+    expect(parseAndValidateSong(asVideoInfo({}))).toBeNull()
+    expect(
+      parseAndValidateSong(
+        asVideoInfo({ basic_info: { id: "abc12345678", title: "", duration: 0 } }),
+      ),
+    ).toBeNull()
+  })
+
+  it("acepta un video con id y título", () => {
+    expect(
+      parseAndValidateSong(
+        asVideoInfo({
+          basic_info: {
+            id: "abc12345678",
+            title: "Canción",
+            duration: 180,
+            category: "Music",
+            channel: { name: "Artista - Topic", id: "UCxxx" },
+          },
+        }),
+      ),
+    ).toMatchObject({ youtubeId: "abc12345678", title: "Canción" })
   })
 })
 

@@ -43,11 +43,44 @@ historial la conserva.
 | `GET /api/playlist?list=` | Playlist con canciones |
 | `GET /api/song?songId=` | Metadatos de una canción |
 | `GET /api/song/data?songId=` | Streaming data vía `youtubei.js` |
-| `GET /api/song/blob?songId=&quality=` | Audio (`highest` / `lowest`, con caché en disco) |
-| `POST /api/song/blob?songId=&quality=` | Sube un audio (`audioBlob` en multipart) |
+| `GET /api/song/blob?songId=&quality=` | **Legacy**: audio (`highest` / `lowest`, con caché) |
+| `POST /api/song/blob?songId=&quality=` | **Legacy**: sube un audio (`audioBlob` en multipart) |
 
-El audio se guarda en `.data/songs_tmp` (driver `fsLite` de `unstorage`, montado
-como `kv.songs` en `nitro.config.ts`).
+Las rutas `/api/song/blob` son legacy: la app móvil resuelve el audio en el
+dispositivo (`apps/mobile/src/lib/youtube.ts`) y no las usa. Se conservan para
+clientes viejos. Responden con `X-WeTune-Deprecated: song-blob`.
+
+El caché `kv.songs` depende del entorno (`nitro.config.ts`): `fsLite` en
+`.data/songs_tmp` en local o en un host con disco, y `memory` en Vercel porque
+el filesystem serverless no es persistente.
+
+## Deploy en Vercel
+
+El backend vive en el monorepo, así que el proyecto de Vercel apunta a este
+repositorio (rama `feat/nitro-v3` o `main` una vez mergeado), no al repo viejo.
+
+1. **Add New → Project → Import** el repositorio.
+2. **Root Directory**: `apps/backend`.
+3. Activá **Include files outside of the Root Directory in the Build Step**
+   (necesario para el workspace pnpm).
+4. **Framework Preset**: Other. Node.js 22.x (≥ 22.22).
+5. Variables de entorno: `YOUTUBE_COOKIE`, `PO_TOKEN`, `VISITOR_DATA` y,
+   opcionalmente, `ALLOW_ORIGINS`.
+6. Deploy. `apps/backend/vercel.json` ya define install/build con
+   `NITRO_PRESET=vercel`; el output queda en `apps/backend/.vercel/output`
+   (Build Output API, no configurar Output Directory).
+
+Validación rápida:
+
+```bash
+curl "https://<deploy>/api/song?songId=d7woYjGWs6k"
+curl "https://<deploy>/api/search?query=daft%20punk"
+```
+
+Después actualizá `EXPO_PUBLIC_API_URL` en `apps/mobile/.env` (y en el entorno
+de EAS si es una build de release). En Vercel el KV de `/api/song/blob` es en
+memoria; si en el futuro esa ruta necesita persistencia, cambiar el driver de
+`kv.songs` a un storage externo.
 
 ## Arquitectura
 

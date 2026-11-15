@@ -1,5 +1,5 @@
 import type { YT, YTNodes } from "youtubei.js";
-import type { Song } from "../schema";
+import { songSchema, type Song } from "../schema";
 
 export function parseSongFromYTNodeLike(item: YTNodes.MusicResponsiveListItem): Song | null {
     if(!item.id) return null
@@ -73,6 +73,18 @@ export function parseFromVideoInfo(content: YT.VideoInfo): Song {
             id: content?.secondary_info?.owner?.author?.id ?? ""
         },
     } as Song
+}
+
+export function parseAndValidateSong(content: YT.VideoInfo): Song | null {
+    try {
+        const song = parseFromVideoInfo(content)
+        // songSchema acepta strings vacíos; un basic_info incompleto generaría
+        // un Song sin id/título (200 parcial) en vez de caer al siguiente cliente.
+        if (!song.youtubeId || !song.title) return null
+        return songSchema.safeParse(song).success ? song : null
+    } catch {
+        return null
+    }
 }
 
 export function parseFromPlaylistVideo(content: YTNodes.PlaylistVideo): Song {

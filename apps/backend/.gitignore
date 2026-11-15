@@ -5,3 +5,6 @@ dist
 .cache
 .output
 .env
+
+# Salida de Vercel (Build Output API)
+.vercel

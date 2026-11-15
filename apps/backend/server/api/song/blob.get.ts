@@ -4,7 +4,9 @@ import { setHeaders } from "nitro/h3"
 import { blobToUint8Array, uint8ArrayToBlob } from "undio"
 import { downloadYoutubeAudio, type Quality } from "../../services/player"
 
-
+// LEGACY: la app móvil resuelve el audio en el dispositivo
+// (apps/mobile/src/lib/youtube.ts). Esta ruta se conserva para clientes viejos;
+// en Vercel el KV es en memoria y no persiste entre invocaciones.
 const getIdItem = (songId: string, quality: Quality) => `song_${songId}_${quality}`
 
 export default defineHandler(async (event) => {
@@ -45,6 +47,7 @@ export default defineHandler(async (event) => {
             "Content-Length": String(audioBlob.size),
             "Content-Range": `bytes 0-${audioBlob.size - 1}/${audioBlob.size}`,
             "cache-control": "public, max-age=3000000, s-maxage=100000, immutable",
+            "X-WeTune-Deprecated": "song-blob",
         })
 
         return audioBlob

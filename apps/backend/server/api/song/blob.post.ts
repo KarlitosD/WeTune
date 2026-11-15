@@ -1,12 +1,17 @@
 import { defineHandler } from "nitro"
 import { useKV } from "nitro/kv"
+import { setHeaders } from "nitro/h3"
 import { blobToUint8Array } from "undio"
 import type { Quality } from "../../services/player"
 
+// LEGACY: la app móvil resuelve el audio en el dispositivo
+// (apps/mobile/src/lib/youtube.ts). Esta ruta se conserva para clientes viejos;
+// en Vercel el KV es en memoria y no persiste entre invocaciones.
 const getIdItem = (songId: string, quality: Quality) => `song_${songId}_${quality}`
 
 export default defineHandler(async (event) => {
     const req = event.req
+    setHeaders(event, { "X-WeTune-Deprecated": "song-blob" })
     try {
         const storage = useKV("songs")
 

@@ -1,20 +1,15 @@
-import { songSchema, type Song } from "../schema"
+import type { Song } from "../schema"
 
 import { Innertube } from "youtubei.js"
 import type { YTNodes } from "youtubei.js"
 import { cookie } from "../data/cookies"
-import { parseFromPlaylistVideo, parseFromVideoInfo, parseSongFromYTNodeLike } from "../parsers/youtube"
+import {
+    parseAndValidateSong,
+    parseFromPlaylistVideo,
+    parseSongFromYTNodeLike,
+} from "../parsers/youtube"
 
 const innertube = await Innertube.create({ cookie: cookie })
-
-function parseAndValidateSong(content: Parameters<typeof parseFromVideoInfo>[0]): Song | null {
-    try {
-        const song = parseFromVideoInfo(content)
-        return songSchema.safeParse(song).success ? song : null
-    } catch {
-        return null
-    }
-}
 
 export async function getPlaylist(listId: string){
     if(!listId) throw new Error("List not found")
