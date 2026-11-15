@@ -129,7 +129,8 @@ migration backfills both columns with defaults.
 - Comments explain rationale, invariants, or recovery decisions—not headers
   everywhere.
 - Use `theme.ts` tokens (colors, spacing, radius, typography) rather than new
-  hardcoded values. Keep the dark navy + cyan identity.
+  hardcoded values. Keep the dark navy surfaces with white as the primary action
+  color and slate for secondary text.
 - Keep string keys in both `en/` and `es/`; run `npm run i18n`.
 - Do not add dependencies casually. Prefer existing Expo/RN modules and the
   current design system.
