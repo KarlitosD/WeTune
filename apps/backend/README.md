@@ -1,18 +1,23 @@
 # WeTune backend
 
-API de YouTube para el cliente móvil WeTune. Nitro + Bun.
+API de YouTube para el cliente móvil WeTune. Nitro v3 (RC) sobre Node.
 
 ## Requisitos
 
-- Node.js 22 o superior (o Bun 1.3+ como runner).
+- **Node.js ≥ 22.22** (mínimo de Nitro v3).
 - Variables de entorno: ver `.env.example`.
 
 ## Comandos
 
-- `bun install` — instala dependencias.
-- `bun run dev` — servidor de desarrollo.
-- `bun run build` — build de producción en `.output/`.
-- `bun run start` — sirve el build (`node .output/server/index.mjs`).
+Desde la raíz del monorepo:
+
+- `pnpm --filter @wetune/backend dev` — servidor de desarrollo.
+- `pnpm --filter @wetune/backend build` — build de producción en `.output/`.
+- `pnpm --filter @wetune/backend start` — sirve el build.
+- `pnpm --filter @wetune/backend test` — Vitest.
+- `pnpm --filter @wetune/backend typecheck` — `tsc --noEmit` (estricto).
+
+También existe `nitro serve`: corre desde las fuentes sin build.
 
 Bun carga `.env` automáticamente. Con Node plano hay que pasarlo explícito:
 `node --env-file=.env .output/server/index.mjs`.
@@ -41,4 +46,12 @@ historial la conserva.
 | `GET /api/song/blob?songId=&quality=` | Audio (`highest` / `lowest`, con caché en disco) |
 | `POST /api/song/blob?songId=&quality=` | Sube un audio (`audioBlob` en multipart) |
 
-El audio se guarda en `.data/songs_tmp` (driver `fsLite` de Nitro storage).
+El audio se guarda en `.data/songs_tmp` (driver `fsLite` de `unstorage`, montado
+como `kv.songs` en `nitro.config.ts`).
+
+## Arquitectura
+
+- `server/api/` y `server/routes/` son rutas escaneadas por Nitro.
+- `server/services/` se importa explícitamente (v3 no tiene auto-imports).
+- El contrato de la API vive en `@wetune/contracts`; `server/schema/index.ts`
+  solo lo re-exporta.

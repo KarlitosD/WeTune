@@ -1,13 +1,16 @@
-import { blobToUint8Array, uint8ArrayToBlob } from "undio";
-import { downloadYoutubeAudio, type Quality } from "~/services/player";
+import { defineHandler } from "nitro"
+import { useKV } from "nitro/kv"
+import { setHeaders } from "nitro/h3"
+import { blobToUint8Array, uint8ArrayToBlob } from "undio"
+import { downloadYoutubeAudio, type Quality } from "../../services/player"
 
 
 const getIdItem = (songId: string, quality: Quality) => `song_${songId}_${quality}`
 
-export default defineEventHandler(async (event) => {
-    const req = await toWebRequest(event);
+export default defineHandler(async (event) => {
+    const req = event.req
     try {
-        const storage = useStorage<Uint8Array>("songs")
+        const storage = useKV("songs")
 
         const { searchParams } = new URL(req.url)
 
@@ -21,7 +24,7 @@ export default defineEventHandler(async (event) => {
         let audioBlob: Blob;
         if (quality === "lowest" && await storage.hasItem(songIdItem)) {
             console.log("song: cache hit")
-            const audioBuffer = await storage.getItemRaw(songIdItem)
+            const audioBuffer = (await storage.getItemRaw(songIdItem)) as Uint8Array
             audioBlob = uint8ArrayToBlob(audioBuffer, { type: "audio/webm" })
         } else {
             console.log("song: cache miss")
@@ -46,7 +49,8 @@ export default defineEventHandler(async (event) => {
 
         return audioBlob
     } catch (e) {
-        console.log(e.message)
-        return new Response(e.message, { status: 500, statusText: "Internal Server Error" })
+        const message = e instanceof Error ? e.message : String(e)
+        console.log(message)
+        return new Response(message, { status: 500, statusText: "Internal Server Error" })
     }
 })

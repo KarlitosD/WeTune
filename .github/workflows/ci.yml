@@ -32,5 +32,5 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @wetune/backend run typecheck
+      - run: pnpm turbo run typecheck test --filter=@wetune/backend
       - run: pnpm --filter @wetune/backend run build

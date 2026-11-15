@@ -23,7 +23,7 @@ without an explicit product decision.
 | Path | Stack and responsibilities |
 | --- | --- |
 | `apps/mobile/` | React Native + Expo SDK 58, Expo Router, TypeScript |
-| `apps/backend/` | Nitro API (YouTube search/playlist/audio), Bun-friendly |
+| `apps/backend/` | Nitro v3 (RC) API, Zod contracts, Node ≥ 22.22 |
 | `packages/contracts/` | Zod schemas shared by mobile and backend |
 | `app-links/` | App Links generator + deployment notes for `wetune.app` |
 | `brand/` | Logo/icon source assets |
@@ -54,6 +54,7 @@ Run from the repo root: pnpm workspaces + Turborepo.
 | `pnpm --filter wetune-mobile test -- src/utils/seconds.test.ts` | Run a targeted test file |
 | `pnpm --filter wetune-mobile i18n` | Regenerate `src/i18n/i18n-types.ts` after changing `en/` or `es/` |
 | `pnpm --filter @wetune/backend dev` | API dev server |
+| `pnpm --filter @wetune/backend test` | Backend Vitest (`server/**/*.test.ts`) |
 | `pnpm --filter @wetune/backend build` | Nitro production build |
 
 CI runs typecheck, lint, tests, then `expo export --platform android`, plus the

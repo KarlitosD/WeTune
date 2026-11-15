@@ -25,7 +25,9 @@ export async function getPlaylist(listId: string){
     const playlist = {
         id: listId,
         title: playlistRawData.info.title,
-        songs: items.map(parseFromPlaylistVideo).filter(Boolean)
+        songs: items
+            .filter((item): item is YTNodes.PlaylistVideo => item.type === "PlaylistVideo")
+            .map(parseFromPlaylistVideo)
     }
 
     return playlist
@@ -70,8 +72,13 @@ export async function searchSongs(query: string){
 }
 
 function formatSongsSearched(content: Awaited<ReturnType<typeof innertube.music.search>>["contents"]): Song[]{ 
-    const indexContent = content.findIndex(item => item.type !== "ItemSection") 
-    const items = (content[indexContent]?.contents ?? []) as YTNodes.MusicResponsiveListItem[]
+    const items = content ?? []
+    const indexContent = items.findIndex(item => item.type !== "ItemSection") 
+    const sectionItems = (items[indexContent]?.contents ?? []) as YTNodes.MusicResponsiveListItem[]
 
-    return items.filter(item => item?.id).slice(0, 10).map(item => parseSongFromYTNodeLike(item))
+    return sectionItems
+        .filter(item => item?.id)
+        .slice(0, 10)
+        .map(item => parseSongFromYTNodeLike(item))
+        .filter((song): song is Song => song !== null)
 }

@@ -1,12 +1,14 @@
-import { blobToUint8Array } from "undio";
-import { Quality } from "~/services/player";
+import { defineHandler } from "nitro"
+import { useKV } from "nitro/kv"
+import { blobToUint8Array } from "undio"
+import type { Quality } from "../../services/player"
 
 const getIdItem = (songId: string, quality: Quality) => `song_${songId}_${quality}`
 
-export default defineEventHandler(async (event) => {
-    const req = await toWebRequest(event);
+export default defineHandler(async (event) => {
+    const req = event.req
     try {
-        const storage = useStorage<Uint8Array>("songs")
+        const storage = useKV("songs")
 
         const { searchParams } = new URL(req.url)
 
@@ -14,15 +16,15 @@ export default defineEventHandler(async (event) => {
         const songId = searchParams.get("songId")
 
         if (!songId) return new Response("Song not provided", { status: 400, statusText: "Song not provided" })
-            
-            
+
+
         const songIdItem = getIdItem(songId, quality)
         const hasSong = await storage.hasItem(songIdItem)
-        
+
         if(hasSong){
             return new Response("Song already exists", { status: 409, statusText: "Song already exists" })
         }
-            
+
         const formData = await req.formData()
         if(!formData || !formData.get("audioBlob")) {
             return new Response("Audio blob not provided", { status: 400, statusText: "Audio blob not provided" })
@@ -35,7 +37,8 @@ export default defineEventHandler(async (event) => {
 
         return new Response("Song uploaded successfully", { status: 201, statusText: "Song uploaded successfully" })
     } catch (e) {
-        console.log(e.message)
-        return new Response(e.message, { status: 500, statusText: "Internal Server Error" })
+        const message = e instanceof Error ? e.message : String(e)
+        console.log(message)
+        return new Response(message, { status: 500, statusText: "Internal Server Error" })
     }
 })

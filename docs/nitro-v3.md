@@ -1,8 +1,11 @@
 # Migración a Nitro v3
 
-Análisis verificado el 2026-11-14 sobre el backend real. La migración **no se ha
-aplicado**: este documento es la guía para hacerla después del movimiento al
-monorepo.
+> **Estado (2026-11-14):** **aplicada** en la rama `feat/nitro-v3` con
+> `nitro@3.0.261103-rc`. Build de 1.44 MB (279 kB gzip) frente a 2.76 MB de v2,
+> 14 tests y smoke completo de rutas, CORS y `fsLite`. Lo que sigue es el
+> historial de cómo se verificó y qué falta para considerarla estable.
+
+> La migración **no se había aplicado** al escribir el análisis original.
 
 Rutas actuales: `wetune-backend/server/...`. Después del monorepo:
 `apps/backend/server/...`. Los cambios son los mismos.
@@ -124,19 +127,29 @@ Puntos clave:
 | Churn de RCs fechadas | pin exacto + renovar manualmente |
 | Runtime del VPS < 22.22 | verificar nixpacks/host antes de desplegar |
 | `tsc --noEmit` no lo cubre `nitro build` | gate explícito en CI |
-| `fsLite` no se probó de punta a punta | subir y leer un blob en staging |
+| `fsLite` no se probó de punta a punta | ✅ probado: sube y lee un blob idéntico |
 | `nitro dev` sin builder no se probó | probarlo en la rama de migración |
 
-## Plan de ejecución
+## Ejecución (2026-11-14)
 
-1. Rama propia (`feat/nitro-v3`), sin mezclar con el monorepo ni con Zod.
-2. Aplicar los nueve cambios de la tabla.
-3. `bunx nitro build` y `bunx tsc --noEmit`.
-4. Runtime: `/`, `/api/song?songId=bad` y preflight CORS.
-5. Subir y leer un blob de `.data/songs_tmp` para validar `fsLite`.
-6. Desplegar en staging con Node ≥ 22.22 antes de producción.
-7. Si algo falla: revertir la rama. `nitropack` v2 no se toca hasta que v3
-   esté estable y desplegado.
+Hecho en `feat/nitro-v3`:
+
+1. `nitro@3.0.261103-rc` + `rolldown@1.3.2` + `unstorage@2.0.0-beta.0` fijados.
+2. Los nueve cambios aplicados; `prepare` eliminado (ya no existe en v3).
+3. `tsconfig` pasa a extender `nitro/tsconfig` y se corrigieron los 10 errores
+   que destapó el modo estricto.
+4. Tests: Vitest con 14 casos (parsers, cookies, validación de audio).
+5. Verificado: `tsc --noEmit`, `vitest`, `nitro build` (1.44 MB), `/`, 400 de
+   song inválido, preflight CORS y subida/lectura real de un blob en `fsLite`.
+6. CI ejecuta `turbo run typecheck test --filter=@wetune/backend` y el build.
+
+Pendiente:
+
+- Desplegar en staging con Node ≥ 22.22 antes de producción.
+- Probar `nitro dev` y `nitro serve` en el flujo diario.
+- Renovar manualmente la RC: está fijada a propósito.
+- Si algo falla en producción, revertir la rama: `nitropack` v2 sigue siendo la
+  línea estable.
 
 ## Referencias
 

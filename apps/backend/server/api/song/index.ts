@@ -1,6 +1,9 @@
-export default defineEventHandler(async (event) => {
-    const req = await toWebRequest(event);
-    if(req.method !== "GET") return;
+import { defineHandler } from "nitro"
+import { getSong } from "../../services/youtube"
+
+export default defineHandler(async (event) => {
+    const req = event.req
+    if(req.method !== "GET") return
     const { searchParams } = new URL(req.url)
     const songId = searchParams.get("songId")
 

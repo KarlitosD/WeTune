@@ -1,24 +1,12 @@
-//https://nitro.unjs.io/config
-export default defineNitroConfig({
-  srcDir: "server",
+import { defineConfig } from "nitro"
 
-  imports: {
-    dirs: ["./server/services"]
-  },
-
-
-  storage: {
+export default defineConfig({
+  serverDir: "./server",
+  kv: {
     songs: {
       driver: "fsLite",
-      base: "./.data/songs_tmp"
-    }
+      base: "./.data/songs_tmp",
+    },
   },
-
-  esbuild: {
-    options: {
-      target: "esnext"
-    }
-  },
-
-  compatibilityDate: "2024-12-03"
-});
+  compatibilityDate: "2024-12-03",
+})

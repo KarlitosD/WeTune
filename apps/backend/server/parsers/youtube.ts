@@ -26,11 +26,11 @@ export function parseSongFromYTNodeLike(item: YTNodes.MusicResponsiveListItem): 
             ...basicData,
             type: "song",
             album: {
-                name: item.album?.name,
-                id: item.album?.id
+                name: item.album?.name ?? "",
+                id: item.album?.id ?? ""
             },
             author: {
-                name: item.artists?.[0]?.name,
+                name: item.artists?.[0]?.name ?? "",
                 id: item.artists?.[0]?.channel_id ?? ""
             }
         }
@@ -78,7 +78,7 @@ export function parseFromVideoInfo(content: YT.VideoInfo): Song {
 export function parseFromPlaylistVideo(content: YTNodes.PlaylistVideo): Song {
     return {        
         youtubeId: content.id,
-        title: content.title.text,
+        title: content.title.text ?? "",
         thumbnailUrl: `https://i.ytimg.com/vi/${content.id}/mqdefault.jpg`,
         duration: content.duration?.seconds ?? 1,
         type: "video",

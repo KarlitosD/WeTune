@@ -1,6 +1,9 @@
-export default defineEventHandler(async (event) => {
-    const request = await toWebRequest(event);
-    if(request.method !== "GET") return 
+import { defineHandler } from "nitro"
+import { getPlaylist } from "../services/youtube"
+
+export default defineHandler(async (event) => {
+    const request = event.req
+    if(request.method !== "GET") return
     try {
         const { searchParams } = new URL(request.url)
         const listId = searchParams.get("list")
@@ -11,7 +14,8 @@ export default defineEventHandler(async (event) => {
 
         return Response.json(playlist)
     } catch (error) {
-        console.log(error.message)
-        return Response.json({ error: error.message }, { status: 400 })
+        const message = error instanceof Error ? error.message : String(error)
+        console.log(message)
+        return Response.json({ error: message }, { status: 400 })
     }
 })
