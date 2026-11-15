@@ -16,12 +16,12 @@ import Slider from "@react-native-community/slider";
 import CircleArrowDown from "lucide-react-native/icons/circle-arrow-down";
 import Pause from "lucide-react-native/icons/pause";
 import Play from "lucide-react-native/icons/play";
-import Repeat from "lucide-react-native/icons/repeat";
 import Share2 from "lucide-react-native/icons/share-2";
 import Shuffle from "lucide-react-native/icons/shuffle";
 import SkipBack from "lucide-react-native/icons/skip-back";
 import SkipForward from "lucide-react-native/icons/skip-forward";
 import X from "lucide-react-native/icons/x";
+import Svg, { Circle, Path } from "react-native-svg";
 import { useProgress } from "react-native-track-player";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
@@ -298,12 +298,12 @@ export default function PlayerSheet() {
                 hitSlop={12}
                 accessibilityRole="button"
                 accessibilityLabel={t.REPEAT}
-                style={{ alignItems: "center" }}
               >
-                <Repeat size={22} color={loop !== "NONE" ? theme.primary : theme.muted} />
-                {loop === "ONE" ? (
-                  <Text style={{ color: theme.primary, fontSize: 10 }}>1</Text>
-                ) : null}
+                <RepeatIcon
+                  size={22}
+                  color={loop !== "NONE" ? theme.primary : theme.muted}
+                  one={loop === "ONE"}
+                />
               </Pressable>
               <Pressable
                 onPress={() => void handleDownload()}
@@ -326,6 +326,29 @@ export default function PlayerSheet() {
         </Animated.View>
       </View>
     </Modal>
+  );
+}
+
+// Trazo de lucide "repeat" + punto central para repetir-una: el "1" que trae
+// lucide repeat-1 se ve diminuto y desalineado en los controles del player.
+function RepeatIcon({ size, color, one }: { size: number; color: string; one: boolean }) {
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Path d="m17 2 4 4-4 4" />
+      <Path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+      <Path d="m7 22-4-4 4-4" />
+      <Path d="M21 13v1a4 4 0 0 1-4 4H3" />
+      {one ? <Circle cx={12} cy={12} r={2} fill={color} stroke="none" /> : null}
+    </Svg>
   );
 }
 
