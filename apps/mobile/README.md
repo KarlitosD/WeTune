@@ -134,6 +134,28 @@ Instalar/actualizar con el mismo `applicationId` y keystore:
 adb install -r apps/mobile/android/app/build/outputs/apk/release/app-release.apk
 ```
 
+### Publicar el APK en GitHub Releases
+
+`scripts/publish-apk.sh` compila, verifica la firma con `apksigner`, calcula el
+checksum y crea el release con el APK y `app-release.apk.sha256`. El tag
+(`v<version>` de `app.json`, o el que se pase) apunta al commit compilado:
+
+```bash
+cd apps/mobile
+./scripts/publish-apk.sh
+# Tag explícito (por ejemplo, un beta):
+./scripts/publish-apk.sh v0.1.0-beta.1
+```
+
+Exige árbol limpio y `gh` autenticado (`gh auth login`); se niega si el tag ya
+existe. El build respeta `WETUNE_ARCHS=arm64-v8a`.
+
+Antes de cada release sube `android.versionCode` en `app.json` junto con
+`version`: Android usa el `versionCode` para distinguir builds. No publiques
+APKs de `assembleDebug` (van firmados con la clave de debug) ni el keystore. Si
+el repo es público, el APK del release también lo es, y no hay auto-update:
+cada versión se descarga e instala manualmente.
+
 ## EAS y release
 
 `eas.json` tiene los perfiles `development`, `preview` y `production`, pero

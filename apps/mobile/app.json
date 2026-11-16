@@ -9,6 +9,7 @@
     "scheme": "wetune",
     "android": {
       "package": "com.wetune.dev",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#0F172A",
         "foregroundImage": "./assets/android-icon-foreground.png",
