@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import type { YT, YTNodes } from "youtubei.js"
 import {
   parseAndValidateSong,
+  parseFromLockupView,
   parseFromPlaylistVideo,
   parseFromVideoInfo,
   parseSongFromYTNodeLike,
@@ -12,6 +13,50 @@ import {
 const asVideoInfo = (value: unknown) => value as YT.VideoInfo
 const asNode = (value: unknown) => value as YTNodes.MusicResponsiveListItem
 const asPlaylistVideo = (value: unknown) => value as YTNodes.PlaylistVideo
+const asLockupView = (value: unknown) => value as YTNodes.LockupView
+
+describe("parseFromLockupView", () => {
+  it("mapea id, título, duración y autor desde el lockup", () => {
+    const song = parseFromLockupView(
+      asLockupView({
+        content_id: "w7GgAvVy6-M",
+        metadata: {
+          title: { toString: () => "Tema" },
+          metadata: {
+            metadata_rows: [
+              { metadata_parts: [{ text: { toString: () => "Artista" } }] },
+            ],
+          },
+        },
+        duration: { text: "3:20", seconds: 200 },
+      }),
+    )
+
+    expect(song).toEqual({
+      youtubeId: "w7GgAvVy6-M",
+      title: "Tema",
+      thumbnailUrl: "https://i.ytimg.com/vi/w7GgAvVy6-M/mqdefault.jpg",
+      duration: 200,
+      type: "video",
+      author: { id: "", name: "Artista" },
+    })
+  })
+
+  it("usa valores por defecto cuando faltan metadata y duración", () => {
+    const song = parseFromLockupView(asLockupView({ content_id: "w7GgAvVy6-M" }))
+
+    expect(song).toMatchObject({
+      youtubeId: "w7GgAvVy6-M",
+      title: "",
+      duration: 1,
+      author: { id: "", name: "" },
+    })
+  })
+
+  it("devuelve null cuando no hay content_id", () => {
+    expect(parseFromLockupView(asLockupView({}))).toBeNull()
+  })
+})
 
 describe("parseFromPlaylistVideo", () => {
   it("mapea id, título, duración y autor", () => {

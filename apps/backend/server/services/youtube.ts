@@ -1,31 +1,54 @@
 import type { Song } from "../schema"
 
-import { Innertube } from "youtubei.js"
-import type { YTNodes } from "youtubei.js"
+import { Innertube, YTNodes } from "youtubei.js"
 import { cookie } from "../data/cookies"
 import {
     parseAndValidateSong,
+    parseFromLockupView,
     parseFromPlaylistVideo,
     parseSongFromYTNodeLike,
 } from "../parsers/youtube"
 
 const innertube = await Innertube.create({ cookie: cookie })
 
+type PlaylistPage = Awaited<ReturnType<typeof innertube.getPlaylist>>
+
+// Un tope alto evita un bucle infinito si YouTube devuelve continuaciones
+// inválidas; el máximo real de una playlist (5000) entra de sobra.
+const MAX_PLAYLIST_PAGES = 500
+
 export async function getPlaylist(listId: string){
     if(!listId) throw new Error("List not found")
 
-    const playlistRawData = await innertube.getPlaylist(listId)
-    const items = playlistRawData.items
+    const firstPage = await innertube.getPlaylist(listId)
+    const title = firstPage.info.title
+    const songs = parsePlaylistPage(firstPage)
 
-    const playlist = {
-        id: listId,
-        title: playlistRawData.info.title,
-        songs: items
-            .filter((item): item is YTNodes.PlaylistVideo => item.type === "PlaylistVideo")
-            .map(parseFromPlaylistVideo)
+    // El renderer nuevo entrega 22 ítems por página; el clásico, 100.
+    // Sin seguir las continuaciones una playlist larga se importa truncada.
+    let page = firstPage
+    let pageCount = 1
+    while (page.has_continuation && pageCount < MAX_PLAYLIST_PAGES) {
+        page = await page.getContinuation()
+        songs.push(...parsePlaylistPage(page))
+        pageCount++
     }
 
-    return playlist
+    return {
+        id: listId,
+        title,
+        songs
+    }
+}
+
+function parsePlaylistPage(page: PlaylistPage): Song[] {
+    return page.items
+        .map((item) => {
+            if (item.is(YTNodes.PlaylistVideo)) return parseFromPlaylistVideo(item)
+            if (item.is(YTNodes.LockupView)) return parseFromLockupView(item)
+            return null
+        })
+        .filter((song): song is Song => song !== null)
 }
 
 export async function getSong(songId: string){

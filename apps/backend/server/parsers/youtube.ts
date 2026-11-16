@@ -100,3 +100,26 @@ export function parseFromPlaylistVideo(content: YTNodes.PlaylistVideo): Song {
         }
     }
 }
+
+// YouTube sirve las playlists en dos renderers distintos según el cliente:
+// playlistVideoRenderer (PlaylistVideo) y lockupViewModel (LockupView). El
+// lockup no expone el channelId del autor, así que se conserva solo el nombre.
+export function parseFromLockupView(content: YTNodes.LockupView): Song | null {
+    const youtubeId = content.content_id ?? ""
+    if (!youtubeId) return null
+
+    const authorName =
+        content.metadata?.metadata?.metadata_rows?.[0]?.metadata_parts?.[0]?.text?.toString() ?? ""
+
+    return {
+        youtubeId,
+        title: content.metadata?.title?.toString() ?? "",
+        thumbnailUrl: `https://i.ytimg.com/vi/${youtubeId}/mqdefault.jpg`,
+        duration: content.duration?.seconds || 1,
+        type: "video",
+        author: {
+            id: "",
+            name: authorName
+        }
+    }
+}
