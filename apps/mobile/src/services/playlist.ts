@@ -91,15 +91,42 @@ export async function findPlaylistIdsBySongId(songId: string): Promise<string[]>
 }
 
 export async function addPlaylist(playlist: Playlist): Promise<void> {
-  await db.insert(playlists).values({
-    id: playlist.id,
-    title: playlist.title,
-    favorite: playlist.favorite ?? false,
-    lastPlayedAt: playlist.lastPlayedAt ?? 0,
+  // Upsert: importar de nuevo una playlist de YouTube reemplaza sus canciones
+  // sin perder favorite/lastPlayedAt, que son estado local de la app.
+  db.transaction((tx) => {
+    const existing = tx
+      .select({ favorite: playlists.favorite, lastPlayedAt: playlists.lastPlayedAt })
+      .from(playlists)
+      .where(eq(playlists.id, playlist.id))
+      .all()[0];
+
+    if (existing) {
+      tx.update(playlists)
+        .set({
+          title: playlist.title,
+          favorite: playlist.favorite ?? existing.favorite,
+          lastPlayedAt: playlist.lastPlayedAt ?? existing.lastPlayedAt,
+        })
+        .where(eq(playlists.id, playlist.id))
+        .run();
+      tx.delete(playlistSongs).where(eq(playlistSongs.playlistId, playlist.id)).run();
+    } else {
+      tx.insert(playlists)
+        .values({
+          id: playlist.id,
+          title: playlist.title,
+          favorite: playlist.favorite ?? false,
+          lastPlayedAt: playlist.lastPlayedAt ?? 0,
+        })
+        .run();
+    }
+
+    if (playlist.songs.length > 0) {
+      tx.insert(playlistSongs)
+        .values(playlist.songs.map((s, i) => songToRow(s, playlist.id, i)))
+        .run();
+    }
   });
-  if (playlist.songs.length > 0) {
-    await db.insert(playlistSongs).values(playlist.songs.map((s, i) => songToRow(s, playlist.id, i)));
-  }
 }
 
 export async function addSongToPlaylist(playlistId: string, song: Song): Promise<void> {

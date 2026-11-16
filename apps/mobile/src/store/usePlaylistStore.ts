@@ -66,17 +66,30 @@ export const usePlaylistStore = create<PlaylistStore>()((set, get) => ({
   },
 
   addPlaylist: async (playlist) => {
+    const previous = get().playlists.find((p) => p.id === playlist.id);
     await repo.addPlaylist(playlist);
+
+    const nextPlaylist = {
+      ...playlist,
+      favorite: playlist.favorite ?? previous?.favorite ?? false,
+      lastPlayedAt: playlist.lastPlayedAt ?? previous?.lastPlayedAt ?? 0,
+    };
     set({
-      playlists: [
-        ...get().playlists,
-        {
-          ...playlist,
-          favorite: playlist.favorite ?? false,
-          lastPlayedAt: playlist.lastPlayedAt ?? 0,
-        },
-      ],
+      playlists: previous
+        ? get().playlists.map((p) => (p.id === playlist.id ? nextPlaylist : p))
+        : [...get().playlists, nextPlaylist],
     });
+
+    if (!previous) return;
+
+    // Reimportar pudo quitar canciones: se libera su audio solo si ninguna
+    // otra playlist lo sigue usando.
+    const nextSongIds = new Set(playlist.songs.map((song) => song.youtubeId));
+    for (const song of previous.songs) {
+      if (nextSongIds.has(song.youtubeId)) continue;
+      const stillUsed = await repo.findPlaylistIdsBySongId(song.youtubeId);
+      if (stillUsed.length === 0) await removeAudioFromCache(song.youtubeId);
+    }
   },
 
   removePlaylist: async (playlistId) => {

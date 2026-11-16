@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   KeyboardAvoidingView,
   Modal,
@@ -47,6 +48,10 @@ export default function Home() {
   const [view, setView] = useState<PlaylistView>("all");
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+  // El estado tarda un render en reflejarse; el ref corta un doble toque
+  // dentro del mismo frame antes de que el botón quede deshabilitado.
+  const importingRef = useRef(false);
 
   const closeModal = () => {
     setModalOpen(false);
@@ -61,6 +66,9 @@ export default function Home() {
   };
 
   const importPlaylist = async () => {
+    if (importingRef.current) return;
+    importingRef.current = true;
+    setImporting(true);
     try {
       const parsed = new URL(url);
       const listId = parsed.searchParams.get("list");
@@ -70,6 +78,9 @@ export default function Home() {
       closeModal();
     } catch (e) {
       toast.error(String((e as Error)?.message ?? e));
+    } finally {
+      importingRef.current = false;
+      setImporting(false);
     }
   };
 
@@ -321,19 +332,28 @@ export default function Home() {
                 />
                 <Pressable
                   onPress={() => void importPlaylist()}
-                  disabled={!canImport}
+                  disabled={!canImport || importing}
                   accessibilityRole="button"
+                  accessibilityLabel={t.IMPORT}
+                  accessibilityState={{ disabled: !canImport || importing, busy: importing }}
                   style={{
                     height: 44,
+                    minWidth: 76,
                     paddingHorizontal: spacing.md,
                     borderRadius: radius.md,
                     backgroundColor: theme.base300,
+                    flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
-                    opacity: canImport ? 1 : 0.4,
+                    gap: 6,
+                    opacity: canImport && !importing ? 1 : 0.4,
                   }}
                 >
-                  <Text style={{ color: theme.text, fontWeight: "600" }}>{t.IMPORT}</Text>
+                  {importing ? (
+                    <ActivityIndicator size="small" color={theme.text} />
+                  ) : (
+                    <Text style={{ color: theme.text, fontWeight: "600" }}>{t.IMPORT}</Text>
+                  )}
                 </Pressable>
               </View>
 
